@@ -1,11 +1,12 @@
-package smu.nuda.domain.member.entity;
+package smu.nuda.domain.survey.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import smu.nuda.domain.common.entity.BaseEntity;
-import smu.nuda.domain.member.entity.enums.*;
+import smu.nuda.domain.member.entity.Member;
+import smu.nuda.domain.survey.entity.enums.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

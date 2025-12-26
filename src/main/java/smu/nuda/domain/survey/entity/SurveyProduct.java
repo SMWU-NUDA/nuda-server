@@ -1,4 +1,4 @@
-package smu.nuda.domain.member.entity;
+package smu.nuda.domain.survey.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
