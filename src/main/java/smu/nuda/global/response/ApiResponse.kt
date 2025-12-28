@@ -19,12 +19,13 @@ data class ApiResponse<T>(
                 data = data
             )
 
-        fun fail(errorCode: ErrorCode): ApiResponse<Nothing> =
+        @JvmStatic
+        fun <T> fail(errorCode: ErrorCode, data: T? = null): ApiResponse<T> =
             ApiResponse(
                 success = false,
                 code = errorCode.code,
                 message = errorCode.message,
-                data = null
+                data = data
             )
     }
 }

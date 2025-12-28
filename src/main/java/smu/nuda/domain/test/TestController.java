@@ -1,11 +1,12 @@
 package smu.nuda.domain.test;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.*;
 import smu.nuda.domain.auth.error.AuthErrorCode;
-import smu.nuda.global.error.BusinessException;
+import smu.nuda.global.error.DomainException;
 import smu.nuda.global.response.ApiResponse;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/test")
@@ -18,6 +19,22 @@ public class TestController {
 
     @GetMapping("/fail")
     public ApiResponse<Void> fail() {
-        throw new BusinessException(AuthErrorCode.INVALID_CREDENTIALS);
+        throw new DomainException(AuthErrorCode.INVALID_CREDENTIALS);
+    }
+
+    @GetMapping("/fail/with-data")
+    public ApiResponse<Void> failWithData() {
+        throw new DomainException(
+                AuthErrorCode.EMAIL_ALREADY_EXISTS,
+                Map.of(
+                        "email", "test@example.com",
+                        "reason", "이미 가입된 이메일"
+                )
+        );
+    }
+
+    @PostMapping("/validation")
+    public ApiResponse<String> testValidation(@Valid @RequestBody TestValidationRequest request) {
+        return ApiResponse.success("Validation 통과");
     }
 }

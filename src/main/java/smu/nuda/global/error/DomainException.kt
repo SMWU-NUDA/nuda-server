@@ -1,0 +1,6 @@
+package smu.nuda.global.error
+
+class DomainException @JvmOverloads constructor(
+    val errorCode: ErrorCode,
+    val data: Any? = null
+) : RuntimeException(errorCode.message)
