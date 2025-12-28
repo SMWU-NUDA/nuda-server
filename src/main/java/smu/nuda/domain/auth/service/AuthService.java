@@ -32,4 +32,22 @@ public class AuthService {
         );
         return true;
     }
+
+    public Boolean verifyEmailCode(String email, String inputCode) {
+        String savedCode = emailAuthCacheRepository.getCode(email);
+
+        // Redis에서 저장된 인증번호 조회
+        if (savedCode == null) {
+            throw new DomainException(AuthErrorCode.EMAIL_VERIFICATION_EXPIRED);
+        }
+
+        // 인증번호 불일치
+        if (!savedCode.equals(inputCode)) {
+            throw new DomainException(AuthErrorCode.EMAIL_VERIFICATION_MISMATCH);
+        }
+
+        emailAuthCacheRepository.markVerified(email);
+        emailAuthCacheRepository.clear(email);
+        return true;
+    }
 }

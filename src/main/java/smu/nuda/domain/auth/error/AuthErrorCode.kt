@@ -10,8 +10,14 @@ enum class AuthErrorCode(
     INVALID_CREDENTIALS(
         "AUTH_INVALID_CREDENTIALS", "이메일 또는 비밀번호가 올바르지 않습니다"
     ),
-
     EMAIL_ALREADY_EXISTS(
         "AUTH_EMAIL_DUPLICATED", "이미 가입된 이메일입니다"
+    ),
+    EMAIL_VERIFICATION_EXPIRED(
+        "AUTH_EMAIL_VERIFICATION_EXPIRED", "인증번호가 만료되었습니다"
+    ),
+    EMAIL_VERIFICATION_MISMATCH(
+        "AUTH_EMAIL_VERIFICATION_MISMATCH", "인증번호가 일치하지 않습니다"
     )
+
 }
