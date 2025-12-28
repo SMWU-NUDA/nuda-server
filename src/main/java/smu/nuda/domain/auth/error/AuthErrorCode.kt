@@ -18,6 +18,10 @@ enum class AuthErrorCode(
     ),
     EMAIL_VERIFICATION_MISMATCH(
         "AUTH_EMAIL_VERIFICATION_MISMATCH", "인증번호가 일치하지 않습니다"
-    )
+    ),
+    EMAIL_VERIFICATION_TOO_MANY_ATTEMPTS(
+        "AUTH_EMAIL_VERIFICATION_TOO_MANY_ATTEMPTS", "인증번호 입력 횟수를 초과했습니다. 인증번호를 다시 요청해주세요."
+    ),
+
 
 }

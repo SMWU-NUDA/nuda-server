@@ -34,20 +34,31 @@ public class AuthService {
     }
 
     public Boolean verifyEmailCode(String email, String inputCode) {
-        String savedCode = emailAuthCacheRepository.getCode(email);
+        // 중복 인증 요청 허용
+        if (emailAuthCacheRepository.isVerified(email)) {
+            return true;
+        }
+
+        // 중복 인증 요청 횟수 초과
+        if (emailAuthCacheRepository.isAttemptExceeded(email)) {
+            throw new DomainException(AuthErrorCode.EMAIL_VERIFICATION_TOO_MANY_ATTEMPTS);
+        }
 
         // Redis에서 저장된 인증번호 조회
+        String savedCode = emailAuthCacheRepository.getCode(email);
         if (savedCode == null) {
             throw new DomainException(AuthErrorCode.EMAIL_VERIFICATION_EXPIRED);
         }
 
         // 인증번호 불일치
         if (!savedCode.equals(inputCode)) {
+            emailAuthCacheRepository.increaseAttempt(email);
             throw new DomainException(AuthErrorCode.EMAIL_VERIFICATION_MISMATCH);
         }
 
         emailAuthCacheRepository.markVerified(email);
         emailAuthCacheRepository.clear(email);
+        
         return true;
     }
 }

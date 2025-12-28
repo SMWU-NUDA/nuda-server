@@ -1,26 +1,26 @@
 package smu.nuda.domain.auth.redis;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 
 @Component
+@RequiredArgsConstructor
 public class EmailAuthCacheRepository {
 
-    private final StringRedisTemplate redisTemplate;
+    private static final int MAX_ATTEMPTS = 5;
 
-    public EmailAuthCacheRepository(StringRedisTemplate redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
+    private final StringRedisTemplate redisTemplate;
 
     private String codeKey(String email) {
         return "auth:email:code:" + email;
     }
-
     private String verifiedKey(String email) {
         return "auth:email:verified:" + email;
     }
+    private String attemptKey(String email) { return "auth:email:attempt:" + email; }
 
     public void saveCode(String email, String code) {
         redisTemplate.opsForValue()
@@ -42,7 +42,21 @@ public class EmailAuthCacheRepository {
 
     public void clear(String email) {
         redisTemplate.delete(codeKey(email));
-        redisTemplate.delete(verifiedKey(email));
+        redisTemplate.delete(attemptKey(email));
+    }
+
+    public int increaseAttempt(String email) {
+        Long count = redisTemplate.opsForValue().increment(attemptKey(email));
+        if (count != null && count == 1L) {
+            // 첫 실패 시 TTL 설정
+            redisTemplate.expire(attemptKey(email), Duration.ofMinutes(5));
+        }
+        return count == null ? 0 : count.intValue();
+    }
+
+    public boolean isAttemptExceeded(String email) {
+        String value = redisTemplate.opsForValue().get(attemptKey(email));
+        return value != null && Integer.parseInt(value) >= MAX_ATTEMPTS;
     }
 }
 
