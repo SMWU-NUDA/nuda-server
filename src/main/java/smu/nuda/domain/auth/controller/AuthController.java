@@ -17,8 +17,9 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/emails/verification-requests")
-    public ApiResponse<Boolean> requestVerification(@RequestBody EmailVerificationRequest request) {
-        return ApiResponse.success(authService.requestVerificationCode(request.getEmail()));
+    public ApiResponse<String> requestVerification(@RequestBody EmailVerificationRequest request) {
+        authService.requestVerificationCode(request.getEmail());
+        return ApiResponse.success("해당 이메일로 인증번호를 전송했습니다.");
     }
 
     @PostMapping("/emails/verifications")
@@ -33,8 +34,9 @@ public class AuthController {
 
     @PatchMapping("/delivery")
     @SecurityRequirement(name = "JWT")
-    public ApiResponse<Boolean> updateDelivery(@RequestBody DeliveryRequest request, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ApiResponse.success(authService.updateDelivery(request, userDetails.getMember()));
+    public ApiResponse<String> updateDelivery(@RequestBody DeliveryRequest request, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        authService.updateDelivery(request, userDetails.getMember());
+        return ApiResponse.success("배송지입력이 완료되었습니다. 설문조사를 진행해주세요.");
     }
 
     @PostMapping("/complete")
@@ -56,8 +58,9 @@ public class AuthController {
 
     @PostMapping("/logout")
     @SecurityRequirement(name = "JWT")
-    public ApiResponse<Boolean> logout(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ApiResponse.success(authService.logout(userDetails.getMember()));
+    public ApiResponse<String> logout(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        authService.logout(userDetails.getMember());
+        return ApiResponse.success("로그아웃 되었습니다.");
     }
 
     @GetMapping("/search/nickname")

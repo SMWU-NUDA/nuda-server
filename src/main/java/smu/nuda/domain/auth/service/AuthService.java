@@ -39,7 +39,7 @@ public class AuthService {
     private final JwtProvider jwtProvider;
     private final JwtProperties jwtProperties;
 
-    public Boolean requestVerificationCode(String email) {
+    public void requestVerificationCode(String email) {
         if (memberRepository.existsByEmail(email)) {
             throw new DomainException(AuthErrorCode.EMAIL_ALREADY_EXISTS);
         }
@@ -51,7 +51,6 @@ public class AuthService {
                 "[Nuda] 이메일 인증번호",
                 "인증번호는 " + code + " 입니다.\n5분 이내에 입력해주세요."
         );
-        return true;
     }
 
     public Boolean verifyEmailCode(String email, String inputCode) {
@@ -114,7 +113,7 @@ public class AuthService {
     }
 
     @Transactional
-    public Boolean updateDelivery(DeliveryRequest request, Member authMember) {
+    public void updateDelivery(DeliveryRequest request, Member authMember) {
         if (authMember.getStatus() != Status.SIGNUP_IN_PROGRESS) {
             throw new DomainException(AuthErrorCode.INVALID_SIGNUP_FLOW);
         }
@@ -129,7 +128,6 @@ public class AuthService {
                 request.getAddress1(),
                 request.getAddress2()
         );
-        return true;
     }
 
     @Transactional
@@ -213,9 +211,8 @@ public class AuthService {
         return new ReissueResponse(newAccessToken, newRefreshToken);
     }
 
-    public Boolean logout(Member member) {
+    public void logout(Member member) {
         refreshTokenRepository.delete(member.getId());
-        return true;
     }
 
     public void checkNickname(String nickname) {
