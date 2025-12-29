@@ -1,6 +1,6 @@
 -- ENUM
 CREATE TYPE member_role AS ENUM ('USER', 'ADMIN');
-CREATE TYPE member_status AS ENUM ('ACTIVE', 'INACTIVATE');
+CREATE TYPE member_status AS ENUM ('ACTIVE', 'INACTIVATE','SIGNUP_IN_PROGRESS','BLOCKED');
 CREATE TYPE irritation_level AS ENUM ('NONE', 'SOMETIMES', 'OFTEN');
 CREATE TYPE scent_level AS ENUM ('NONE', 'MILD', 'STRONG');
 CREATE TYPE change_frequency AS ENUM ('LOW', 'MEDIUM', 'HIGH');

@@ -38,6 +38,8 @@ public class SurveyService {
                 .build();
 
         surveyRepository.save(survey);
+        member.activate();
+        
         return survey.getId();
     }
 }

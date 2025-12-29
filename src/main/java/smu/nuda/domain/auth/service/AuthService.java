@@ -82,7 +82,7 @@ public class AuthService {
                 .nickname(request.getNickname())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
-                .status(Status.ACTIVE)
+                .status(Status.SIGNUP_IN_PROGRESS)
                 .build();
 
         memberRepository.save(member);
