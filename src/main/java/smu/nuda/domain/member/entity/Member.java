@@ -48,7 +48,7 @@ public class Member extends BaseEntity {
 
     private String recipient;
 
-    public void updateShippingInfo(String recipient, String phoneNum, String postalCode, String address1, String address2) {
+    public void updateDelivery(String recipient, String phoneNum, String postalCode, String address1, String address2) {
         this.recipient = recipient;
         this.phoneNum = phoneNum;
         this.postalCode = postalCode;

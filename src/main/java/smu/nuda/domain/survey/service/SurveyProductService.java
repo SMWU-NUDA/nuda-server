@@ -23,7 +23,7 @@ public class SurveyProductService {
     private final SurveyProductRepository surveyProductRepository;
 
     @Transactional
-    public void addSurveyProducts(Long surveyId, List<Long> productIds) {
+    public List<Long> addSurveyProducts(Long surveyId, List<Long> productIds) {
 
         Survey survey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new DomainException(SurveyErrorCode.SURVEY_NOT_FOUND));
@@ -46,5 +46,6 @@ public class SurveyProductService {
                 .toList();
 
         surveyProductRepository.saveAll(surveyProducts);
+        return productIds;
     }
 }

@@ -10,13 +10,17 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import smu.nuda.domain.auth.jwt.JwtProvider;
+import smu.nuda.domain.member.repository.MemberRepository;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtProvider jwtProvider;
+    private final MemberRepository memberRepository;
+
     public static final String[] WHITELIST = {
             "/",
             "/auth/signup", "/auth/login", "/auth/reissue",
@@ -39,7 +43,14 @@ public class SecurityConfig {
                 )
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(
+                        new SignupJwtAuthenticationFilter(jwtProvider, memberRepository),
+                        UsernamePasswordAuthenticationFilter.class
+                )
+                .addFilterBefore(
+                        new JwtAuthenticationFilter(jwtProvider),
+                        UsernamePasswordAuthenticationFilter.class
+                );
 
         return http.build();
     }

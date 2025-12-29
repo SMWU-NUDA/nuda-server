@@ -3,10 +3,13 @@ package smu.nuda.domain.auth.controller;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import smu.nuda.domain.auth.dto.*;
 import smu.nuda.domain.auth.service.AuthService;
+import smu.nuda.domain.member.dto.DeliveryRequest;
 import smu.nuda.global.response.ApiResponse;
+import smu.nuda.global.security.CustomUserDetails;
 
 @RestController
 @RequiredArgsConstructor
@@ -14,21 +17,33 @@ import smu.nuda.global.response.ApiResponse;
 public class AuthController {
     private final AuthService authService;
 
-    @PostMapping("/verification-requests")
+    @PostMapping("/emails/verification-requests")
     public ApiResponse<Boolean> requestVerification(@RequestBody EmailVerificationRequest request) {
         return ApiResponse.success(authService.requestVerificationCode(request.getEmail()));
     }
 
-    @PostMapping("/verifications")
+    @PostMapping("/emails/verifications")
     public ApiResponse<Boolean> verifyEmailCode(@RequestBody EmailCodeVerifyRequest request) {
         return ApiResponse.success(authService.verifyEmailCode(request.getEmail(), request.getCode()));
     }
 
     @PostMapping("/signup")
-    public ApiResponse<String> signup(@RequestBody SignupRequest request) {
-        authService.signup(request);
-        return ApiResponse.success("member 엔티티 생성 완료. 나머지 과정을 진행해주세요.");
+    public ApiResponse<SignupResponse> signup(@RequestBody SignupRequest request) {
+        return ApiResponse.success(authService.signup(request));
     }
+
+    @PatchMapping("/delivery")
+    @SecurityRequirement(name = "JWT")
+    public ApiResponse<Boolean> updateDelivery(@RequestBody DeliveryRequest request, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(authService.updateDelivery(request, userDetails.getMember()));
+    }
+
+    @PostMapping("/complete")
+    public ApiResponse<String> completeSignup(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        authService.completeSignup(userDetails.getMember());
+        return ApiResponse.success("회원가입이 완료되었습니다.");
+    }
+
 
     @PostMapping("/login")
     public ApiResponse<LoginResponse> login(@RequestBody LoginRequest request) {
@@ -43,6 +58,7 @@ public class AuthController {
     @PostMapping("/logout")
     @SecurityRequirement(name = "JWT")
     public ApiResponse<Boolean> logout(HttpServletRequest request) {
+        // Todo. @AuthenticationPrincipal로 수정
         return ApiResponse.success(authService.logout(request));
     }
 

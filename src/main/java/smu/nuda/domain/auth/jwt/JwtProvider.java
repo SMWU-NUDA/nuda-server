@@ -137,7 +137,6 @@ public class JwtProvider {
     public Authentication extractAuthentication(HttpServletRequest request) {
 
         String accessToken = resolveToken(request);
-
         if (accessToken == null) {
             throw new DomainException(AuthErrorCode.INVALID_ACCESS_TOKEN);
         }
@@ -147,6 +146,33 @@ public class JwtProvider {
         return getAuthentication(accessToken);
     }
 
+    public Authentication extractSignupAuthentication(HttpServletRequest request) {
+
+        String token = resolveToken(request);
+        if (token == null) {
+            throw new DomainException(AuthErrorCode.INVALID_SIGNUP_TOKEN);
+        }
+
+        validateSignupTokenOrThrow(token);
+
+        Claims claims = parseClaimsOrThrow(token);
+        Long memberId = Long.valueOf(claims.getSubject());
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new DomainException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+        if (member.getStatus() != Status.SIGNUP_IN_PROGRESS) {
+            throw new DomainException(AuthErrorCode.INVALID_SIGNUP_FLOW);
+        }
+
+        CustomUserDetails principal = new CustomUserDetails(member);
+
+        return new UsernamePasswordAuthenticationToken(
+                principal,
+                token,
+                null
+        );
+    }
 
 
 }

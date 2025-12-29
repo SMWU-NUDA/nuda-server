@@ -7,17 +7,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import smu.nuda.domain.auth.dto.LoginRequest;
-import smu.nuda.domain.auth.dto.LoginResponse;
-import smu.nuda.domain.auth.dto.ReissueResponse;
-import smu.nuda.domain.auth.dto.SignupRequest;
+import smu.nuda.domain.auth.dto.*;
 import smu.nuda.domain.auth.error.AuthErrorCode;
 import smu.nuda.domain.auth.jwt.JwtProperties;
 import smu.nuda.domain.auth.jwt.JwtProvider;
 import smu.nuda.domain.auth.jwt.TokenType;
-import smu.nuda.domain.auth.repository.EmailAuthCacheRepository;
+import smu.nuda.domain.auth.repository.EmailAuthRepository;
 import smu.nuda.domain.auth.repository.RefreshTokenRepository;
 import smu.nuda.domain.auth.util.VerificationCodeGenerator;
+import smu.nuda.domain.member.dto.DeliveryRequest;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.member.entity.enums.Role;
 import smu.nuda.domain.member.entity.enums.Status;
@@ -31,7 +29,7 @@ import smu.nuda.global.security.CustomUserDetails;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final EmailAuthCacheRepository emailAuthCacheRepository;
+    private final EmailAuthRepository emailAuthRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final MemberRepository memberRepository;
     private final VerificationCodeGenerator codeGenerator;
@@ -46,7 +44,7 @@ public class AuthService {
         }
 
         String code = codeGenerator.generate();
-        emailAuthCacheRepository.saveCode(email, code);
+        emailAuthRepository.saveCode(email, code);
         emailService.send(
                 email,
                 "[Nuda] 이메일 인증번호",
@@ -57,38 +55,38 @@ public class AuthService {
 
     public Boolean verifyEmailCode(String email, String inputCode) {
         // 중복 인증 요청 허용
-        if (emailAuthCacheRepository.isVerified(email)) {
+        if (emailAuthRepository.isVerified(email)) {
             return true;
         }
 
         // 중복 인증 요청 횟수 초과
-        if (emailAuthCacheRepository.isAttemptExceeded(email)) {
+        if (emailAuthRepository.isAttemptExceeded(email)) {
             throw new DomainException(AuthErrorCode.EMAIL_VERIFICATION_TOO_MANY_ATTEMPTS);
         }
 
         // Redis에서 저장된 인증번호 조회
-        String savedCode = emailAuthCacheRepository.getCode(email);
+        String savedCode = emailAuthRepository.getCode(email);
         if (savedCode == null) {
             throw new DomainException(AuthErrorCode.EMAIL_VERIFICATION_EXPIRED);
         }
 
         // 인증번호 불일치
         if (!savedCode.equals(inputCode)) {
-            emailAuthCacheRepository.increaseAttempt(email);
+            emailAuthRepository.increaseAttempt(email);
             throw new DomainException(AuthErrorCode.EMAIL_VERIFICATION_MISMATCH);
         }
 
-        emailAuthCacheRepository.markVerified(email);
-        emailAuthCacheRepository.clear(email);
+        emailAuthRepository.markVerified(email);
+        emailAuthRepository.clear(email);
 
         return true;
     }
 
     @Transactional
-    public void signup(SignupRequest request) {
+    public SignupResponse signup(SignupRequest request) {
 
         String email = request.getEmail();
-        if (!emailAuthCacheRepository.isVerified(email)) {
+        if (!emailAuthRepository.isVerified(email)) {
             throw new DomainException(AuthErrorCode.EMAIL_NOT_VERIFIED);
         }
 
@@ -98,15 +96,54 @@ public class AuthService {
                 .nickname(request.getNickname())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
-                .status(Status.SIGNUP_IN_PROGRESS)
+                .status(Status.SIGNUP_IN_PROGRESS) // 회원가입 단계 진입
                 .build();
 
         memberRepository.save(member);
-        emailAuthCacheRepository.clearVerified(email);
+        emailAuthRepository.clearVerified(email);
+
+        String signupToken = jwtProvider.generateToken(
+                member.getId(),
+                member.getEmail(),
+                null,
+                TokenType.SIGNUP
+        );
+
+        return new SignupResponse(signupToken);
     }
 
-    public LoginResponse login(LoginRequest request) {
+    @Transactional
+    public Boolean updateDelivery(DeliveryRequest request, Member authMember) {
+        if (authMember.getStatus() != Status.SIGNUP_IN_PROGRESS) {
+            throw new DomainException(AuthErrorCode.INVALID_SIGNUP_FLOW);
+        }
 
+        Member member = memberRepository.findById(authMember.getId())
+                .orElseThrow(() -> new DomainException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+        member.updateDelivery(
+                request.getRecipient(),
+                request.getPhoneNum(),
+                request.getPostalCode(),
+                request.getAddress1(),
+                request.getAddress2()
+        );
+        return true;
+    }
+
+    @Transactional
+    public void completeSignup(Member authMember) {
+        if (authMember.getStatus() != Status.SIGNUP_IN_PROGRESS) {
+            throw new DomainException(AuthErrorCode.INVALID_SIGNUP_FLOW);
+        }
+        Member member = memberRepository.findById(authMember.getId())
+                .orElseThrow(() -> new DomainException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+        member.activate();
+    }
+
+
+    public LoginResponse login(LoginRequest request) {
         Member member = memberRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new DomainException(AuthErrorCode.INVALID_CREDENTIALS));
 
@@ -140,7 +177,6 @@ public class AuthService {
     }
 
     public ReissueResponse reissue(String refreshToken) {
-
         jwtProvider.validateRefreshTokenOrThrow(refreshToken);
         Claims claims = jwtProvider.parseClaimsOrThrow(refreshToken);
         Long memberId = Long.valueOf(claims.getSubject());

@@ -3,8 +3,9 @@ package smu.nuda.domain.survey.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import smu.nuda.domain.auth.error.AuthErrorCode;
 import smu.nuda.domain.member.entity.Member;
-import smu.nuda.domain.member.repository.MemberRepository;
+import smu.nuda.domain.member.entity.enums.Status;
 import smu.nuda.domain.survey.dto.SurveyRequest;
 import smu.nuda.domain.survey.entity.Survey;
 import smu.nuda.domain.survey.error.SurveyErrorCode;
@@ -16,15 +17,15 @@ import smu.nuda.global.error.DomainException;
 public class SurveyService {
 
     private final SurveyRepository surveyRepository;
-    private final MemberRepository memberRepository;
 
     @Transactional
-    public Long submitSurvey(Long memberId, SurveyRequest request) {
+    public Long submitSurvey(SurveyRequest request, Member member) {
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new DomainException(SurveyErrorCode.SURVEY_MEMBER_NOT_FOUND));
+        if (member.getStatus() != Status.SIGNUP_IN_PROGRESS) {
+            throw new DomainException(AuthErrorCode.INVALID_SIGNUP_FLOW);
+        }
 
-        if (surveyRepository.existsByMemberId(memberId)) {
+        if (surveyRepository.existsByMemberId(member.getId())) {
             throw new DomainException(SurveyErrorCode.SURVEY_ALREADY_EXISTS);
         }
 
@@ -38,7 +39,6 @@ public class SurveyService {
                 .build();
 
         surveyRepository.save(survey);
-        member.activate();
         
         return survey.getId();
     }
