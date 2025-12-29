@@ -1,15 +1,15 @@
 package smu.nuda.domain.member.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import smu.nuda.domain.common.entity.BaseEntity;
 import smu.nuda.domain.member.entity.enums.Role;
 import smu.nuda.domain.member.entity.enums.Status;
 
 @Getter
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "member")
 public class Member extends BaseEntity {
@@ -47,4 +47,13 @@ public class Member extends BaseEntity {
     private String phoneNum;
 
     private String recipient;
+
+    public void updateShippingInfo(String recipient, String phoneNum, String postalCode, String address1, String address2) {
+        this.recipient = recipient;
+        this.phoneNum = phoneNum;
+        this.postalCode = postalCode;
+        this.address1 = address1;
+        this.address2 = address2;
+    }
+
 }
