@@ -2,9 +2,14 @@ package smu.nuda.domain.auth.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import smu.nuda.domain.auth.dto.SignupRequest;
 import smu.nuda.domain.auth.error.AuthErrorCode;
 import smu.nuda.domain.auth.redis.EmailAuthCacheRepository;
 import smu.nuda.domain.auth.util.VerificationCodeGenerator;
+import smu.nuda.domain.member.entity.Member;
+import smu.nuda.domain.member.entity.enums.Role;
+import smu.nuda.domain.member.entity.enums.Status;
 import smu.nuda.domain.member.repository.MemberRepository;
 import smu.nuda.global.error.DomainException;
 import smu.nuda.global.mail.EmailService;
@@ -17,6 +22,7 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final VerificationCodeGenerator codeGenerator;
     private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder;
 
     public Boolean requestVerificationCode(String email) {
         if (memberRepository.existsByEmail(email)) {
@@ -58,7 +64,30 @@ public class AuthService {
 
         emailAuthCacheRepository.markVerified(email);
         emailAuthCacheRepository.clear(email);
-        
+
         return true;
     }
+
+    @Transactional
+    public void signup(SignupRequest request) {
+
+        String email = request.getEmail();
+        if (!emailAuthCacheRepository.isVerified(email)) {
+            throw new DomainException(AuthErrorCode.EMAIL_NOT_VERIFIED);
+        }
+
+        Member member = Member.builder()
+                .email(email)
+                .username(request.getUsername())
+                .nickname(request.getNickname())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(Role.USER)
+                .status(Status.ACTIVE)
+                .build();
+
+        memberRepository.save(member);
+        emailAuthCacheRepository.clearVerified(email);
+    }
+
+
 }

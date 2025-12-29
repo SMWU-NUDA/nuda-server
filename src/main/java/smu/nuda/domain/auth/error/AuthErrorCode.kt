@@ -22,6 +22,8 @@ enum class AuthErrorCode(
     EMAIL_VERIFICATION_TOO_MANY_ATTEMPTS(
         "AUTH_EMAIL_VERIFICATION_TOO_MANY_ATTEMPTS", "인증번호 입력 횟수를 초과했습니다. 인증번호를 다시 요청해주세요."
     ),
-
+    EMAIL_NOT_VERIFIED(
+        "AUTH_EMAIL_NOT_VERIFIED", "이메일 인증이 완료되지 않았습니다"
+    ),
 
 }

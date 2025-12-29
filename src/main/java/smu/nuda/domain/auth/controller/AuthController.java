@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import smu.nuda.domain.auth.dto.EmailCodeVerifyRequest;
 import smu.nuda.domain.auth.dto.EmailVerificationRequest;
+import smu.nuda.domain.auth.dto.SignupRequest;
 import smu.nuda.domain.auth.service.AuthService;
 import smu.nuda.global.response.ApiResponse;
 
@@ -24,5 +25,11 @@ public class AuthController {
     @PostMapping("/verifications")
     public ApiResponse<Boolean> verifyEmailCode(@RequestBody EmailCodeVerifyRequest request) {
         return ApiResponse.success(authService.verifyEmailCode(request.getEmail(), request.getCode()));
+    }
+
+    @PostMapping("/signup")
+    public ApiResponse<String> signup(@RequestBody SignupRequest request) {
+        authService.signup(request);
+        return ApiResponse.success("member 엔티티 생성 완료. 나머지 과정을 진행해주세요.");
     }
 }
