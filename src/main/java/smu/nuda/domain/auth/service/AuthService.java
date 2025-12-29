@@ -97,7 +97,7 @@ public class AuthService {
 
     public LoginResponse login(LoginRequest request) {
 
-        Member member = memberRepository.findByEmail(request.getEmail())
+        Member member = memberRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new DomainException(AuthErrorCode.INVALID_CREDENTIALS));
 
         if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {

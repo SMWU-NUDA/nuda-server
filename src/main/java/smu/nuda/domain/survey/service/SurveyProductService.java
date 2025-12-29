@@ -37,7 +37,12 @@ public class SurveyProductService {
         }
 
         List<SurveyProduct> surveyProducts = products.stream()
-                .map(product -> new SurveyProduct(survey, product))
+                .map(product -> SurveyProduct.builder()
+                        .survey(survey)
+                        .product(product)
+                        .build()
+                )
+
                 .toList();
 
         surveyProductRepository.saveAll(surveyProducts);
