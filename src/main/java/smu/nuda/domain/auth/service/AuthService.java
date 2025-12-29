@@ -1,11 +1,13 @@
 package smu.nuda.domain.auth.service;
 
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import smu.nuda.domain.auth.dto.LoginRequest;
 import smu.nuda.domain.auth.dto.LoginResponse;
+import smu.nuda.domain.auth.dto.ReissueResponse;
 import smu.nuda.domain.auth.dto.SignupRequest;
 import smu.nuda.domain.auth.error.AuthErrorCode;
 import smu.nuda.domain.auth.jwt.JwtProperties;
@@ -17,6 +19,7 @@ import smu.nuda.domain.auth.util.VerificationCodeGenerator;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.member.entity.enums.Role;
 import smu.nuda.domain.member.entity.enums.Status;
+import smu.nuda.domain.member.error.MemberErrorCode;
 import smu.nuda.domain.member.repository.MemberRepository;
 import smu.nuda.global.error.DomainException;
 import smu.nuda.global.mail.EmailService;
@@ -131,6 +134,32 @@ public class AuthService {
         );
 
         return new LoginResponse(accessToken, refreshToken);
+    }
+
+    public ReissueResponse reissue(String refreshToken) {
+
+        jwtProvider.validateRefreshTokenOrThrow(refreshToken);
+
+        Claims claims = jwtProvider.parseClaimsOrThrow(refreshToken);
+        Long memberId = Long.valueOf(claims.getSubject());
+
+        String savedToken = refreshTokenRepository.find(memberId);
+
+        if (savedToken == null || !savedToken.equals(refreshToken)) {
+            throw new DomainException(AuthErrorCode.INVALID_REFRESH_TOKEN);
+        }
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new DomainException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+        String newAccessToken = jwtProvider.generateToken(
+                member.getId(),
+                member.getEmail(),
+                member.getRole().name(),
+                TokenType.ACCESS
+        );
+
+        return new ReissueResponse(newAccessToken);
     }
 
 }

@@ -55,7 +55,7 @@ public class JwtProvider {
                 .compact();
     }
 
-    private Claims parseClaimsOrThrow(String token) {
+    public Claims parseClaimsOrThrow(String token) {
         try {
             return Jwts.parserBuilder()
                     .setSigningKey(getSigningKey())
