@@ -8,9 +8,11 @@ import smu.nuda.domain.auth.dto.LoginRequest;
 import smu.nuda.domain.auth.dto.LoginResponse;
 import smu.nuda.domain.auth.dto.SignupRequest;
 import smu.nuda.domain.auth.error.AuthErrorCode;
+import smu.nuda.domain.auth.jwt.JwtProperties;
 import smu.nuda.domain.auth.jwt.JwtProvider;
 import smu.nuda.domain.auth.jwt.TokenType;
-import smu.nuda.domain.auth.redis.EmailAuthCacheRepository;
+import smu.nuda.domain.auth.repository.EmailAuthCacheRepository;
+import smu.nuda.domain.auth.repository.RefreshTokenRepository;
 import smu.nuda.domain.auth.util.VerificationCodeGenerator;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.member.entity.enums.Role;
@@ -24,11 +26,13 @@ import smu.nuda.global.mail.EmailService;
 public class AuthService {
 
     private final EmailAuthCacheRepository emailAuthCacheRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final MemberRepository memberRepository;
     private final VerificationCodeGenerator codeGenerator;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private final JwtProperties jwtProperties;
 
     public Boolean requestVerificationCode(String email) {
         if (memberRepository.existsByEmail(email)) {
@@ -116,9 +120,14 @@ public class AuthService {
         );
         String refreshToken = jwtProvider.generateToken(
                 member.getId(),
-                member.getEmail(),
-                member.getRole().name(),
+                null,
+                null,
                 TokenType.REFRESH
+        );
+        refreshTokenRepository.save(
+                member.getId(),
+                refreshToken,
+                jwtProperties.getExpiration(TokenType.REFRESH)
         );
 
         return new LoginResponse(accessToken, refreshToken);

@@ -1,4 +1,4 @@
-package smu.nuda.domain.auth.redis;
+package smu.nuda.domain.auth.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;

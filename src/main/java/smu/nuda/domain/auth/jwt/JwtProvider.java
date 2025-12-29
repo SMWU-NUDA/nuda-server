@@ -96,6 +96,20 @@ public class JwtProvider {
         }
     }
 
+    public void validateRefreshTokenOrThrow(String token) {
+        try {
+            Claims claims = parseClaimsOrThrow(token);
+
+            if (!TokenType.REFRESH.name()
+                    .equals(claims.get("tokenType", String.class))) {
+                throw new DomainException(AuthErrorCode.INVALID_REFRESH_TOKEN);
+            }
+
+        } catch (ExpiredJwtException e) {
+            throw new DomainException(AuthErrorCode.EXPIRED_REFRESH_TOKEN);
+        }
+    }
+
     public Authentication getAuthentication(String token) {
 
         Claims claims = parseClaimsOrThrow(token);
