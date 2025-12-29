@@ -1,7 +1,9 @@
 package smu.nuda.domain.auth.service;
 
 import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,7 @@ import smu.nuda.domain.member.error.MemberErrorCode;
 import smu.nuda.domain.member.repository.MemberRepository;
 import smu.nuda.global.error.DomainException;
 import smu.nuda.global.mail.EmailService;
+import smu.nuda.global.security.CustomUserDetails;
 
 @Service
 @RequiredArgsConstructor
@@ -171,6 +174,15 @@ public class AuthService {
         );
 
         return new ReissueResponse(newAccessToken, newRefreshToken);
+    }
+
+    public Boolean logout(HttpServletRequest request) {
+        Authentication authentication = jwtProvider.extractAuthentication(request);
+        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+        Long memberId = principal.getMember().getId();
+
+        refreshTokenRepository.delete(memberId);
+        return true;
     }
 
 }

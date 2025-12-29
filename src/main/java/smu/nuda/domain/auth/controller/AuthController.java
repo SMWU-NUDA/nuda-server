@@ -1,10 +1,9 @@
 package smu.nuda.domain.auth.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import smu.nuda.domain.auth.dto.*;
 import smu.nuda.domain.auth.service.AuthService;
 import smu.nuda.global.response.ApiResponse;
@@ -40,4 +39,11 @@ public class AuthController {
     public ApiResponse<ReissueResponse> reissue(@RequestBody ReissueRequest request) {
         return ApiResponse.success(authService.reissue(request.getRefreshToken()));
     }
+
+    @PostMapping("/logout")
+    @SecurityRequirement(name = "JWT")
+    public ApiResponse<Boolean> logout(HttpServletRequest request) {
+        return ApiResponse.success(authService.logout(request));
+    }
+
 }
