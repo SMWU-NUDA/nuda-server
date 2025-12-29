@@ -52,5 +52,11 @@ enum class AuthErrorCode(
     INVALID_SIGNUP_FLOW(
         "INVALID_SIGNUP_FLOW", "회원가입 진행 중인 사용자만 접근할 수 있는 요청입니다."
     ),
+    NICKNAME_DUPLICATED(
+        "NICKNAME_DUPLICATED", "이미 사용 중인 닉네임입니다."
+    ),
+    USERNAME_DUPLICATED(
+        "USERNAME_DUPLICATED", "이미 사용 중인 아이디입니다."
+    ),
 
 }

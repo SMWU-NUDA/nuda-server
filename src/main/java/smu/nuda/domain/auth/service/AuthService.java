@@ -23,6 +23,7 @@ import smu.nuda.domain.member.error.MemberErrorCode;
 import smu.nuda.domain.member.repository.MemberRepository;
 import smu.nuda.global.error.DomainException;
 import smu.nuda.global.mail.EmailService;
+import smu.nuda.global.response.ApiResponse;
 import smu.nuda.global.security.CustomUserDetails;
 
 @Service
@@ -215,6 +216,20 @@ public class AuthService {
     public Boolean logout(Member member) {
         refreshTokenRepository.delete(member.getId());
         return true;
+    }
+
+    public void checkNickname(String nickname) {
+        boolean exists = memberRepository.existsByNickname(nickname);
+        if (exists) {
+            throw new DomainException(AuthErrorCode.NICKNAME_DUPLICATED, nickname);
+        }
+    }
+
+    public void checkUsername(String username) {
+        boolean exists = memberRepository.existsByUsername(username);
+        if (exists) {
+            throw new DomainException(AuthErrorCode.USERNAME_DUPLICATED, username);
+        }
     }
 
 }

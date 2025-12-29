@@ -1,7 +1,6 @@
 package smu.nuda.domain.auth.controller;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -61,4 +60,15 @@ public class AuthController {
         return ApiResponse.success(authService.logout(userDetails.getMember()));
     }
 
+    @GetMapping("/search/nickname")
+    public ApiResponse<String> checkNickname(@RequestParam String nickname) {
+        authService.checkNickname(nickname);
+        return ApiResponse.success("사용 가능한 닉네임 입니다.");
+    }
+
+    @GetMapping("/search/username")
+    public ApiResponse<String> checkUsername(@RequestParam String username) {
+        authService.checkUsername(username);
+        return ApiResponse.success("사용 가능한 아이디 입니다.");
+    }
 }
