@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.member.repository.MemberRepository;
-import smu.nuda.domain.survey.dto.SurveyCreateRequest;
+import smu.nuda.domain.survey.dto.SurveyRequest;
 import smu.nuda.domain.survey.entity.Survey;
 import smu.nuda.domain.survey.error.SurveyErrorCode;
 import smu.nuda.domain.survey.repository.SurveyRepository;
@@ -19,7 +19,7 @@ public class SurveyService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public Long submitSurvey(Long memberId, SurveyCreateRequest request) {
+    public Long submitSurvey(Long memberId, SurveyRequest request) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new DomainException(SurveyErrorCode.SURVEY_MEMBER_NOT_FOUND));

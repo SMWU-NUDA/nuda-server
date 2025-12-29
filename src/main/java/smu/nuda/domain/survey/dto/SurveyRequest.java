@@ -6,7 +6,7 @@ import smu.nuda.domain.survey.entity.enums.*;
 
 @Getter
 @NoArgsConstructor
-public class SurveyCreateRequest {
+public class SurveyRequest {
     private IrritationLevel irritationLevel;
     private ScentLevel scent;
     private ChangeFrequency changeFrequency;

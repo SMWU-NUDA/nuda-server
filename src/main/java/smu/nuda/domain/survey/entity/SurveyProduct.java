@@ -1,7 +1,7 @@
 package smu.nuda.domain.survey.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import smu.nuda.domain.common.entity.BaseEntity;
@@ -15,7 +15,8 @@ import smu.nuda.domain.product.entity.Product;
         }
 )
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
+@AllArgsConstructor
 public class SurveyProduct extends BaseEntity {
 
     @Id

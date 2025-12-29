@@ -4,4 +4,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import smu.nuda.domain.survey.entity.SurveyProduct;
 
 public interface SurveyProductRepository extends JpaRepository<SurveyProduct, Long> {
+    boolean existsBySurveyIdAndProductId(Long surveyId, Long productId);
 }
