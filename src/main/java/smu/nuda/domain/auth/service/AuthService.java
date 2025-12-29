@@ -212,12 +212,8 @@ public class AuthService {
         return new ReissueResponse(newAccessToken, newRefreshToken);
     }
 
-    public Boolean logout(HttpServletRequest request) {
-        Authentication authentication = jwtProvider.extractAuthentication(request);
-        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        Long memberId = principal.getMember().getId();
-
-        refreshTokenRepository.delete(memberId);
+    public Boolean logout(Member member) {
+        refreshTokenRepository.delete(member.getId());
         return true;
     }
 

@@ -57,9 +57,8 @@ public class AuthController {
 
     @PostMapping("/logout")
     @SecurityRequirement(name = "JWT")
-    public ApiResponse<Boolean> logout(HttpServletRequest request) {
-        // Todo. @AuthenticationPrincipal로 수정
-        return ApiResponse.success(authService.logout(request));
+    public ApiResponse<Boolean> logout(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(authService.logout(userDetails.getMember()));
     }
 
 }
