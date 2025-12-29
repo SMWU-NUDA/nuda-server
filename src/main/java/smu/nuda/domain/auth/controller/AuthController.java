@@ -35,4 +35,9 @@ public class AuthController {
     public ApiResponse<LoginResponse> login(@RequestBody LoginRequest request) {
         return ApiResponse.success(authService.login(request));
     }
+
+    @PostMapping("/reissue")
+    public ApiResponse<ReissueResponse> reissue(@RequestBody ReissueRequest request) {
+        return ApiResponse.success(authService.reissue(request.getRefreshToken()));
+    }
 }

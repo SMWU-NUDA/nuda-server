@@ -139,15 +139,26 @@ public class AuthService {
     public ReissueResponse reissue(String refreshToken) {
 
         jwtProvider.validateRefreshTokenOrThrow(refreshToken);
-
         Claims claims = jwtProvider.parseClaimsOrThrow(refreshToken);
         Long memberId = Long.valueOf(claims.getSubject());
 
         String savedToken = refreshTokenRepository.find(memberId);
-
         if (savedToken == null || !savedToken.equals(refreshToken)) {
             throw new DomainException(AuthErrorCode.INVALID_REFRESH_TOKEN);
         }
+
+        refreshTokenRepository.delete(memberId);
+        String newRefreshToken = jwtProvider.generateToken(
+                memberId,
+                null,
+                null,
+                TokenType.REFRESH
+        );
+        refreshTokenRepository.save(
+                memberId,
+                newRefreshToken,
+                jwtProperties.getExpiration(TokenType.REFRESH)
+        );
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new DomainException(MemberErrorCode.MEMBER_NOT_FOUND));
@@ -159,7 +170,7 @@ public class AuthService {
                 TokenType.ACCESS
         );
 
-        return new ReissueResponse(newAccessToken);
+        return new ReissueResponse(newAccessToken, newRefreshToken);
     }
 
 }

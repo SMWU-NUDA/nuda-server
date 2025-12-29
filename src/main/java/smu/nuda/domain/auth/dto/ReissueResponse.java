@@ -7,4 +7,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ReissueResponse {
     private final String accessToken;
+    private final String refreshToken;
 }
