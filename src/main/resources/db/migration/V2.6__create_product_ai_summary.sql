@@ -10,8 +10,3 @@ CREATE TABLE product_ai_summary (
     CONSTRAINT fk_ai_summary_product
         FOREIGN KEY (product_id) REFERENCES product(id) ON DELETE CASCADE
 );
-
-CREATE TRIGGER trg_product_ai_summary_updated_at
-    BEFORE UPDATE ON product_ai_summary
-    FOR EACH ROW
-    EXECUTE FUNCTION set_updated_at();
