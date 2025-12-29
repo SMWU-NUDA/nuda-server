@@ -1,9 +1,9 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.3.5'
-	id 'io.spring.dependency-management' version '1.1.7'
-	id 'org.jetbrains.kotlin.jvm' version '1.9.22'
-	id 'org.jetbrains.kotlin.plugin.spring' version '1.9.22'
+	id 'org.springframework.boot' version '3.2.5'
+	id 'io.spring.dependency-management' version '1.1.4'
+	id 'org.jetbrains.kotlin.jvm' version '1.9.24'
+	id 'org.jetbrains.kotlin.plugin.spring' version '1.9.24'
 }
 
 group = 'smu'
@@ -39,10 +39,12 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
 	// DB
-	implementation 'org.flywaydb:flyway-core'
-	runtimeOnly 'org.postgresql:postgresql'
-	implementation 'org.flywaydb:flyway-database-postgresql'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	runtimeOnly 'org.postgresql:postgresql:42.7.3'
+
+	// flyway
+	implementation 'org.flywaydb:flyway-core:10.15.2'
+	implementation 'org.flywaydb:flyway-database-postgresql:10.15.2'
 
 	// swagger
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
@@ -64,7 +66,6 @@ dependencies {
 	// test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
 
 tasks.named('test') {
