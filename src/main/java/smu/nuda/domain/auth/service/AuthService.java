@@ -1,10 +1,15 @@
 package smu.nuda.domain.auth.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import smu.nuda.domain.auth.dto.LoginRequest;
+import smu.nuda.domain.auth.dto.LoginResponse;
 import smu.nuda.domain.auth.dto.SignupRequest;
 import smu.nuda.domain.auth.error.AuthErrorCode;
+import smu.nuda.domain.auth.jwt.JwtProvider;
+import smu.nuda.domain.auth.jwt.TokenType;
 import smu.nuda.domain.auth.redis.EmailAuthCacheRepository;
 import smu.nuda.domain.auth.util.VerificationCodeGenerator;
 import smu.nuda.domain.member.entity.Member;
@@ -23,6 +28,7 @@ public class AuthService {
     private final VerificationCodeGenerator codeGenerator;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+    private final JwtProvider jwtProvider;
 
     public Boolean requestVerificationCode(String email) {
         if (memberRepository.existsByEmail(email)) {
@@ -89,5 +95,33 @@ public class AuthService {
         emailAuthCacheRepository.clearVerified(email);
     }
 
+    public LoginResponse login(LoginRequest request) {
+
+        Member member = memberRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new DomainException(AuthErrorCode.INVALID_CREDENTIALS));
+
+        if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
+            throw new DomainException(AuthErrorCode.INVALID_CREDENTIALS);
+        }
+
+        if (member.getStatus() != Status.ACTIVE) {
+            throw new DomainException(AuthErrorCode.MEMBER_NOT_ACTIVE);
+        }
+
+        String accessToken = jwtProvider.generateToken(
+                member.getId(),
+                member.getEmail(),
+                member.getRole().name(),
+                TokenType.ACCESS
+        );
+        String refreshToken = jwtProvider.generateToken(
+                member.getId(),
+                member.getEmail(),
+                member.getRole().name(),
+                TokenType.REFRESH
+        );
+
+        return new LoginResponse(accessToken, refreshToken);
+    }
 
 }
