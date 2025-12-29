@@ -25,5 +25,28 @@ enum class AuthErrorCode(
     EMAIL_NOT_VERIFIED(
         "AUTH_EMAIL_NOT_VERIFIED", "이메일 인증이 완료되지 않았습니다"
     ),
-
+    MEMBER_NOT_ACTIVE(
+        "AUTH_MEMBER_NOT_ACTIVE", "회원가입이 완료되지 않은 회원입니다"
+    ),
+    INVALID_ACCESS_TOKEN(
+        "AUTH_INVALID_ACCESS_TOKEN", "유효하지 않은 액세스 토큰입니다"
+    ),
+    EXPIRED_ACCESS_TOKEN(
+        "AUTH_EXPIRED_ACCESS_TOKEN", "액세스 토큰이 만료되었습니다"
+    ),
+    INVALID_REFRESH_TOKEN(
+        "AUTH_INVALID_REFRESH_TOKEN", "유효하지 않은 리프레시 토큰입니다"
+    ),
+    EXPIRED_REFRESH_TOKEN(
+        "AUTH_EXPIRED_REFRESH_TOKEN", "리프레시 토큰이 만료되었습니다"
+    ),
+    INVALID_SIGNUP_TOKEN(
+        "AUTH_INVALID_SIGNUP_TOKEN", "유효하지 않은 회원가입 토큰입니다"
+    ),
+    EXPIRED_SIGNUP_TOKEN(
+        "AUTH_EXPIRED_SIGNUP_TOKEN", "회원가입 토큰이 만료되었습니다"
+    ),
+    JWT_CONFIGURATION_NOT_FOUND(
+        "AUTH_JWT_CONFIGURATION_NOT_FOUND", "JWT 토큰 설정이 존재하지 않습니다"
+    ),
 }
