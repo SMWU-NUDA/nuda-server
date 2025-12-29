@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class ShippingInfoRequest {
+public class DeliveryRequest {
     private String recipient;
     private String phoneNum;
     private String postalCode;
