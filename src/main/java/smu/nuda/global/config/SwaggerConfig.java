@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Configuration;
 )
 @io.swagger.v3.oas.annotations.security.SecurityScheme(
         name = "JWT",
-        description = "Access Token만 입력해주세요.",
+        description = " AccessToken 또는 Signup Token만 입력해주세요.",
         type = SecuritySchemeType.HTTP,
         scheme = "bearer",
         bearerFormat = "JWT",
