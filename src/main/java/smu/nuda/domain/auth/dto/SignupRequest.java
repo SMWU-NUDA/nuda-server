@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 public class SignupRequest {
     private String email;
     private String username;
-    private String password;
+    private String password; // Todo. 비밀번호 형식에 맞추기
     private String nickname;
 }
 

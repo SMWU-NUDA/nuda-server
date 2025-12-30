@@ -13,6 +13,7 @@ import smu.nuda.domain.auth.jwt.TokenType;
 import smu.nuda.domain.auth.repository.EmailAuthRepository;
 import smu.nuda.domain.auth.repository.RefreshTokenRepository;
 import smu.nuda.domain.auth.util.VerificationCodeGenerator;
+import smu.nuda.domain.member.dto.MeResponse;
 import smu.nuda.domain.member.dto.DeliveryRequest;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.member.entity.enums.Role;
@@ -137,7 +138,6 @@ public class AuthService {
         member.activate();
     }
 
-
     public LoginResponse login(LoginRequest request) {
         Member member = memberRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new DomainException(AuthErrorCode.INVALID_CREDENTIALS));
@@ -167,8 +167,8 @@ public class AuthService {
                 refreshToken,
                 jwtProperties.getExpiration(TokenType.REFRESH)
         );
-
-        return new LoginResponse(accessToken, refreshToken);
+        MeResponse meResponse = MeResponse.from(member);
+        return new LoginResponse(accessToken, refreshToken, meResponse);
     }
 
     public ReissueResponse reissue(String refreshToken) {
