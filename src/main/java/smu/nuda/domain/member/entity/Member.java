@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import smu.nuda.domain.common.entity.BaseEntity;
 import smu.nuda.domain.member.entity.enums.Role;
+import smu.nuda.domain.member.entity.enums.SignupStepType;
 import smu.nuda.domain.member.entity.enums.Status;
 
 @Getter
@@ -35,6 +36,10 @@ public class Member extends BaseEntity {
     private Role role;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private SignupStepType signupStep;
+
+    @Enumerated(EnumType.STRING)
     private Status status;
 
     @Column(name = "postal_code")
@@ -56,10 +61,6 @@ public class Member extends BaseEntity {
         this.address2 = address2;
     }
 
-    public void activate() {
-        this.status = Status.ACTIVE;
-    }
-
     public void updateUsername(String username) {
         this.username = username;
     }
@@ -74,6 +75,18 @@ public class Member extends BaseEntity {
 
     public void updateEmail(String email) {
         this.email = email;
+    }
+
+    public void completeDelivery() {
+        this.signupStep = SignupStepType.DELIVERY;
+    }
+
+    public void completeSurvey() {
+        this.signupStep = SignupStepType.SURVEY;
+    }
+
+    public void completeSignup() {
+        this.signupStep = SignupStepType.COMPLETED;
     }
 
 }

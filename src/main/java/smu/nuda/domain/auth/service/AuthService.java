@@ -17,6 +17,7 @@ import smu.nuda.domain.member.dto.MeResponse;
 import smu.nuda.domain.member.dto.DeliveryRequest;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.member.entity.enums.Role;
+import smu.nuda.domain.member.entity.enums.SignupStepType;
 import smu.nuda.domain.member.entity.enums.Status;
 import smu.nuda.domain.member.error.MemberErrorCode;
 import smu.nuda.domain.member.repository.MemberRepository;
@@ -93,7 +94,8 @@ public class AuthService {
                 .nickname(request.getNickname())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
-                .status(Status.SIGNUP_IN_PROGRESS) // 회원가입 단계 진입
+                .status(Status.ACTIVE)
+                .signupStep(SignupStepType.SIGNUP)
                 .build();
 
         memberRepository.save(member);

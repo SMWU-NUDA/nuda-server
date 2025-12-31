@@ -58,5 +58,10 @@ enum class AuthErrorCode(
     USERNAME_DUPLICATED(
         "USERNAME_DUPLICATED", "이미 사용 중인 아이디입니다."
     ),
-
+    AUTH_REQUIRED(
+        "AUTH_REQUIRED", "로그인이 필요한 기능입니다."
+    ),
+    ACCOUNT_DISABLED(
+        "ACCOUNT_DISABLED","해당 계정은 비활성화 상태입니다."
+    )
 }

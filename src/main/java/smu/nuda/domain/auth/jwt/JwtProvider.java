@@ -120,11 +120,6 @@ public class JwtProvider {
                         new DomainException(MemberErrorCode.MEMBER_NOT_FOUND)
                 );
 
-        // 회원가입 완료 여부 필터에서 차단
-        if (member.getStatus() != Status.ACTIVE) {
-            throw new DomainException(AuthErrorCode.MEMBER_NOT_ACTIVE);
-        }
-
         CustomUserDetails principal = new CustomUserDetails(member);
 
         return new UsernamePasswordAuthenticationToken(
