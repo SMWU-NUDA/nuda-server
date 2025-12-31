@@ -3,9 +3,12 @@ package smu.nuda.domain.member.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import smu.nuda.domain.member.dto.DeliveryRequest;
+import smu.nuda.domain.member.dto.DeliveryResponse;
 import smu.nuda.domain.member.dto.MeResponse;
 import smu.nuda.domain.member.dto.UpdateMemberRequest;
 import smu.nuda.domain.member.service.MemberService;
@@ -28,6 +31,16 @@ public class MemberController {
     )
     public ApiResponse<MeResponse> updateMe(@RequestBody UpdateMemberRequest request, @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ApiResponse.success(memberService.updateMe(userDetails.getMember(), request));
+    }
+
+    @PutMapping("/members/me/delivery")
+    @SecurityRequirement(name = "JWT")
+    @Operation(
+            summary = "배송정보 수정",
+            description = "수령인, 전화번호, 주소지를 전체적으로 수정합니다."
+    )
+    public ApiResponse<DeliveryResponse> updateDelivery(@RequestBody @Valid DeliveryRequest request, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(memberService.updateDelivery(userDetails.getMember(), request));
     }
 
 }

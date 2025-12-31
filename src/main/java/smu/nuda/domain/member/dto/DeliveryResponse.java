@@ -1,19 +1,14 @@
 package smu.nuda.domain.member.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
-public class DeliveryRequest {
-    @NotBlank
+@Builder
+public class DeliveryResponse {
     private String recipient;
-    @NotBlank
     private String phoneNum;
-    @NotBlank
     private String postalCode;
-    @NotBlank
     private String address1;
     private String address2;
 }

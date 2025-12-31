@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import smu.nuda.domain.auth.error.AuthErrorCode;
 import smu.nuda.domain.auth.repository.EmailAuthRepository;
+import smu.nuda.domain.member.dto.DeliveryRequest;
+import smu.nuda.domain.member.dto.DeliveryResponse;
 import smu.nuda.domain.member.dto.MeResponse;
 import smu.nuda.domain.member.dto.UpdateMemberRequest;
 import smu.nuda.domain.member.entity.Member;
@@ -58,5 +60,28 @@ public class MemberService {
 
         return MeResponse.from(member);
     }
+
+    @Transactional
+    public DeliveryResponse updateDelivery(Member authMember, DeliveryRequest request) {
+        Member member = memberRepository.findById(authMember.getId())
+                .orElseThrow(() -> new DomainException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+        member.updateDelivery(
+                request.getRecipient(),
+                request.getPhoneNum(),
+                request.getPostalCode(),
+                request.getAddress1(),
+                request.getAddress2()
+        );
+
+        return DeliveryResponse.builder()
+                .recipient(member.getRecipient())
+                .phoneNum(member.getPhoneNum())
+                .postalCode(member.getPostalCode())
+                .address1(member.getAddress1())
+                .address2(member.getAddress2())
+                .build();
+    }
+
 
 }
