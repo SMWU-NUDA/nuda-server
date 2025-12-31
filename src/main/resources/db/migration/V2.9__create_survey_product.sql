@@ -11,11 +11,6 @@ CREATE TABLE survey_product (
     CONSTRAINT uq_survey_product UNIQUE (survey_id, product_id)
 );
 
-CREATE TRIGGER trg_survey_product_updated_at
-    BEFORE UPDATE ON survey_product
-    FOR EACH ROW
-    EXECUTE FUNCTION set_updated_at();
-
 CREATE INDEX idx_survey_product_survey_id
     ON survey_product(survey_id);
 CREATE INDEX idx_survey_product_product_id

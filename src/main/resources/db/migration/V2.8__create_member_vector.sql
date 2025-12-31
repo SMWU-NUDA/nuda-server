@@ -8,8 +8,3 @@ CREATE TABLE member_vector (
     CONSTRAINT fk_member_vector_member
         FOREIGN KEY (member_id) REFERENCES member(id) ON DELETE CASCADE
 );
-
-CREATE TRIGGER trg_member_vector_updated_at
-    BEFORE UPDATE ON member_vector
-    FOR EACH ROW
-    EXECUTE FUNCTION set_updated_at();

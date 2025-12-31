@@ -5,8 +5,8 @@ CREATE TABLE member (
     password TEXT NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     profile_img TEXT,
-    role member_role NOT NULL,
-    status member_status NOT NULL,
+    role VARCHAR(20) NOT NULL,
+    status VARCHAR(20) NOT NULL,
     postal_code VARCHAR(20),
     address1 VARCHAR(255),
     address2 VARCHAR(255),
@@ -15,8 +15,3 @@ CREATE TABLE member (
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now()
 );
-
-CREATE TRIGGER trg_member_updated_at
-    BEFORE UPDATE ON member
-    FOR EACH ROW
-    EXECUTE FUNCTION set_updated_at();
