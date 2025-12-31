@@ -6,5 +6,5 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface LoginRequired {
-    // 해당 API는 로그인이 반드시 필요함을 명시
+    // 해당 API는 Access Token 으로 인증된 사용자만 접근 가능
 }
