@@ -1,5 +1,7 @@
 package smu.nuda.global.guard.annotation;
 
+import smu.nuda.domain.member.entity.enums.SignupStepType;
+
 import java.lang.annotation.*;
 
 @Target({ElementType.METHOD, ElementType.TYPE})

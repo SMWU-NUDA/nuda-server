@@ -16,4 +16,11 @@ enum class MemberErrorCode(
     PASSWORD_REQUIRED(
         "PASSWORD_REQUIRED", "현재 비밀번호를 입력해주세요."
     ),
+    SIGNUP_NOT_COMPLETED(
+        "SIGNUP_NOT_COMPLETED", "회원가입이 완료되지 않았습니다."
+    ),
+
+    SIGNUP_STEP_REQUIRED(
+        "SIGNUP_STEP_REQUIRED", "회원가입의 이전 단계를 먼저 완료해주세요."
+    )
 }
