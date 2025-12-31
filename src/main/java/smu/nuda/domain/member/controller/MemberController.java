@@ -33,6 +33,17 @@ public class MemberController {
         return ApiResponse.success(memberService.updateMe(userDetails.getMember(), request));
     }
 
+    @GetMapping("/members/me/delivery")
+    @SecurityRequirement(name = "JWT")
+    @Operation(
+            summary = "배송정보 조회",
+            description = "수령인, 전화번호, 주소지를 조회합니다."
+    )
+    public ApiResponse<DeliveryResponse> getDelivery(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(memberService.getDelivery(userDetails.getMember()));
+    }
+
+
     @PutMapping("/members/me/delivery")
     @SecurityRequirement(name = "JWT")
     @Operation(

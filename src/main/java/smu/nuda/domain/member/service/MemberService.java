@@ -61,6 +61,18 @@ public class MemberService {
         return MeResponse.from(member);
     }
 
+    @Transactional(readOnly = true)
+    public DeliveryResponse getDelivery(Member member) {
+        return DeliveryResponse.builder()
+                .recipient(member.getRecipient())
+                .phoneNum(member.getPhoneNum())
+                .postalCode(member.getPostalCode())
+                .address1(member.getAddress1())
+                .address2(member.getAddress2())
+                .build();
+    }
+
+
     @Transactional
     public DeliveryResponse updateDelivery(Member authMember, DeliveryRequest request) {
         Member member = memberRepository.findById(authMember.getId())
@@ -82,6 +94,5 @@ public class MemberService {
                 .address2(member.getAddress2())
                 .build();
     }
-
 
 }
