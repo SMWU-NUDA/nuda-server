@@ -43,9 +43,6 @@ enum class AuthErrorCode(
     JWT_CONFIGURATION_NOT_FOUND(
         "AUTH_JWT_CONFIGURATION_NOT_FOUND", "JWT 토큰 설정이 존재하지 않습니다"
     ),
-    INVALID_SIGNUP_FLOW(
-        "AUTH_INVALID_SIGNUP_FLOW", "회원가입 진행 중인 사용자만 접근할 수 있는 요청입니다."
-    ),
     NICKNAME_DUPLICATED(
         "AUTH_NICKNAME_DUPLICATED", "이미 사용 중인 닉네임입니다."
     ),
