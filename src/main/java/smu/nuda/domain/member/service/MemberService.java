@@ -1,10 +1,54 @@
 package smu.nuda.domain.member.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import smu.nuda.domain.member.dto.MeResponse;
+import smu.nuda.domain.member.dto.UpdateMemberRequest;
+import smu.nuda.domain.member.entity.Member;
+import smu.nuda.domain.member.error.MemberErrorCode;
+import smu.nuda.domain.member.repository.MemberRepository;
+import smu.nuda.global.error.DomainException;
 
 @Service
 @RequiredArgsConstructor
 public class MemberService {
+
+    private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    @Transactional
+    public MeResponse updateMe(Member authmember, UpdateMemberRequest request) {
+
+        Member member = memberRepository.findById(authmember.getId())
+                .orElseThrow(() -> new DomainException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+        if (request.getUsername() != null) {
+            member.updateUsername(request.getUsername());
+        }
+
+        if (request.getNickname() != null) {
+            member.updateNickname(request.getNickname());
+        }
+
+        if (request.getEmail() != null) {
+            member.updateEmail(request.getEmail());
+        }
+
+        if (request.getNewPassword() != null) {
+            if (request.getCurrentPassword() == null) {
+                throw new DomainException(MemberErrorCode.PASSWORD_REQUIRED);
+            }
+
+            if (!passwordEncoder.matches(request.getCurrentPassword(), member.getPassword())) {
+                throw new DomainException(MemberErrorCode.INVALID_PASSWORD);
+            }
+
+            member.updatePassword(passwordEncoder.encode(request.getNewPassword()));
+        }
+
+        return MeResponse.from(member);
+    }
 
 }

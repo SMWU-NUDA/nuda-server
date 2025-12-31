@@ -10,10 +10,10 @@ enum class MemberErrorCode(
     MEMBER_NOT_FOUND(
         "MEMBER_NOT_FOUND", "존재하지 않는 회원입니다"
     ),
-    DUPLICATED_USERNAME(
-        "MEMBER_DUPLICATED_USERNAME", "이미 사용 중인 아이디입니다"
+    INVALID_PASSWORD(
+        "INVALID_PASSWORD", "비밀번호가 올바르지 않습니다."
     ),
-    DUPLICATED_EMAIL(
-        "MEMBER_DUPLICATED_EMAIL", "이미 사용 중인 이메일입니다"
+    PASSWORD_REQUIRED(
+        "PASSWORD_REQUIRED", "현재 비밀번호를 입력해주세요."
     ),
 }

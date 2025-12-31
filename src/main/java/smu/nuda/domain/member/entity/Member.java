@@ -60,4 +60,22 @@ public class Member extends BaseEntity {
         this.status = Status.ACTIVE;
     }
 
+    public void updateUsername(String username) {
+        this.username = username;
+    }
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void updatePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
+
+    public void updateEmail(String email) {
+        // Todo. 이메일 변경 시 재인증 필요
+        this.email = email;
+        this.status = Status.EMAIL_VERIFICATION_REQUIRED;
+    }
+
 }
