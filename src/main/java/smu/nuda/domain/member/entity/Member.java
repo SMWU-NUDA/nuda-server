@@ -73,9 +73,7 @@ public class Member extends BaseEntity {
     }
 
     public void updateEmail(String email) {
-        // Todo. 이메일 변경 시 재인증 필요
         this.email = email;
-        this.status = Status.EMAIL_VERIFICATION_REQUIRED;
     }
 
 }
