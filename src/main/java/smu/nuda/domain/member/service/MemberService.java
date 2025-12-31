@@ -14,6 +14,7 @@ import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.member.error.MemberErrorCode;
 import smu.nuda.domain.member.repository.MemberRepository;
 import smu.nuda.global.error.DomainException;
+import smu.nuda.global.guard.guard.AuthenticationGuard;
 
 @Service
 @RequiredArgsConstructor
@@ -22,12 +23,11 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final EmailAuthRepository emailAuthRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationGuard authenticationGuard;
 
     @Transactional
-    public MeResponse updateMe(Member authmember, UpdateMemberRequest request) {
-
-        Member member = memberRepository.findById(authmember.getId())
-                .orElseThrow(() -> new DomainException(MemberErrorCode.MEMBER_NOT_FOUND));
+    public MeResponse updateMe(UpdateMemberRequest request) {
+        Member member = authenticationGuard.currentMember();
 
         if (request.getUsername() != null) {
             member.updateUsername(request.getUsername());
@@ -62,7 +62,8 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public DeliveryResponse getDelivery(Member member) {
+    public DeliveryResponse getDelivery() {
+        Member member = authenticationGuard.currentMember();
         return DeliveryResponse.builder()
                 .recipient(member.getRecipient())
                 .phoneNum(member.getPhoneNum())
@@ -74,9 +75,8 @@ public class MemberService {
 
 
     @Transactional
-    public DeliveryResponse updateDelivery(Member authMember, DeliveryRequest request) {
-        Member member = memberRepository.findById(authMember.getId())
-                .orElseThrow(() -> new DomainException(MemberErrorCode.MEMBER_NOT_FOUND));
+    public DeliveryResponse updateDelivery(DeliveryRequest request) {
+        Member member = authenticationGuard.currentMember();
 
         member.updateDelivery(
                 request.getRecipient(),

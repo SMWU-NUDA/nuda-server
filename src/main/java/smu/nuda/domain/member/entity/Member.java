@@ -36,7 +36,7 @@ public class Member extends BaseEntity {
     private Role role;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "signup_step", nullable = false)
     private SignupStepType signupStep;
 
     @Enumerated(EnumType.STRING)

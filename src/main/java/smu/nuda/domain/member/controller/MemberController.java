@@ -12,6 +12,7 @@ import smu.nuda.domain.member.dto.DeliveryResponse;
 import smu.nuda.domain.member.dto.MeResponse;
 import smu.nuda.domain.member.dto.UpdateMemberRequest;
 import smu.nuda.domain.member.service.MemberService;
+import smu.nuda.global.guard.annotation.LoginRequired;
 import smu.nuda.global.response.ApiResponse;
 import smu.nuda.global.security.CustomUserDetails;
 
@@ -29,29 +30,31 @@ public class MemberController {
             summary = "회원 정보 수정",
             description = "닉네임, 아이디, 이메일, 비밀번호를 선택적으로 수정합니다."
     )
-    public ApiResponse<MeResponse> updateMe(@RequestBody UpdateMemberRequest request, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ApiResponse.success(memberService.updateMe(userDetails.getMember(), request));
+    @LoginRequired
+    public ApiResponse<MeResponse> updateMe(@RequestBody UpdateMemberRequest request) {
+        return ApiResponse.success(memberService.updateMe(request));
     }
 
-    @GetMapping("/members/me/delivery")
-    @SecurityRequirement(name = "JWT")
+    @GetMapping("/me/delivery")
     @Operation(
             summary = "배송정보 조회",
             description = "수령인, 전화번호, 주소지를 조회합니다."
     )
-    public ApiResponse<DeliveryResponse> getDelivery(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ApiResponse.success(memberService.getDelivery(userDetails.getMember()));
+    @SecurityRequirement(name = "JWT")
+    @LoginRequired
+    public ApiResponse<DeliveryResponse> getDelivery() {
+        return ApiResponse.success(memberService.getDelivery());
     }
 
-
-    @PutMapping("/members/me/delivery")
-    @SecurityRequirement(name = "JWT")
+    @PutMapping("/me/delivery")
     @Operation(
             summary = "배송정보 수정",
             description = "수령인, 전화번호, 주소지를 전체적으로 수정합니다."
     )
-    public ApiResponse<DeliveryResponse> updateDelivery(@RequestBody @Valid DeliveryRequest request, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ApiResponse.success(memberService.updateDelivery(userDetails.getMember(), request));
+    @SecurityRequirement(name = "JWT")
+    @LoginRequired
+    public ApiResponse<DeliveryResponse> updateDelivery(@RequestBody @Valid DeliveryRequest request) {
+        return ApiResponse.success(memberService.updateDelivery(request));
     }
 
 }

@@ -22,6 +22,7 @@ import smu.nuda.domain.member.entity.enums.Status;
 import smu.nuda.domain.member.error.MemberErrorCode;
 import smu.nuda.domain.member.repository.MemberRepository;
 import smu.nuda.global.error.DomainException;
+import smu.nuda.global.guard.guard.AuthenticationGuard;
 import smu.nuda.global.mail.EmailService;
 
 @Service
@@ -36,6 +37,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final JwtProperties jwtProperties;
+    private final AuthenticationGuard authenticationGuard;
 
     public void requestVerificationCode(String email) {
         if (memberRepository.existsByEmail(email)) {
@@ -112,13 +114,8 @@ public class AuthService {
     }
 
     @Transactional
-    public void updateDelivery(DeliveryRequest request, Member authMember) {
-        if (authMember.getStatus() != Status.SIGNUP_IN_PROGRESS) {
-            throw new DomainException(AuthErrorCode.INVALID_SIGNUP_FLOW);
-        }
-
-        Member member = memberRepository.findById(authMember.getId())
-                .orElseThrow(() -> new DomainException(MemberErrorCode.MEMBER_NOT_FOUND));
+    public void updateDelivery(DeliveryRequest request) {
+        Member member = authenticationGuard.currentMember();
 
         member.updateDelivery(
                 request.getRecipient(),
@@ -127,17 +124,33 @@ public class AuthService {
                 request.getAddress1(),
                 request.getAddress2()
         );
+        member.completeDelivery();
     }
 
     @Transactional
-    public void completeSignup(Member authMember) {
-        if (authMember.getStatus() != Status.SIGNUP_IN_PROGRESS) {
-            throw new DomainException(AuthErrorCode.INVALID_SIGNUP_FLOW);
-        }
-        Member member = memberRepository.findById(authMember.getId())
-                .orElseThrow(() -> new DomainException(MemberErrorCode.MEMBER_NOT_FOUND));
+    public LoginResponse completeSignup() {
+        Member member = authenticationGuard.currentMember();
+        member.completeSignup();
 
-        member.activate();
+        String accessToken = jwtProvider.generateToken(
+                member.getId(),
+                member.getEmail(),
+                member.getRole().name(),
+                TokenType.ACCESS
+        );
+        String refreshToken = jwtProvider.generateToken(
+                member.getId(),
+                null,
+                null,
+                TokenType.REFRESH
+        );
+        refreshTokenRepository.save(
+                member.getId(),
+                refreshToken,
+                jwtProperties.getExpiration(TokenType.REFRESH)
+        );
+        MeResponse meResponse = MeResponse.from(member);
+        return new LoginResponse(accessToken, refreshToken, meResponse);
     }
 
     public LoginResponse login(LoginRequest request) {
@@ -174,9 +187,8 @@ public class AuthService {
     }
 
     public ReissueResponse reissue(String refreshToken) {
-        jwtProvider.validateRefreshTokenOrThrow(refreshToken);
-        Claims claims = jwtProvider.parseClaimsOrThrow(refreshToken);
-        Long memberId = Long.valueOf(claims.getSubject());
+        jwtProvider.validateTokenTypeOrThrow(refreshToken, TokenType.REFRESH);
+        Long memberId = jwtProvider.extractMemberId(refreshToken);
 
         String savedToken = refreshTokenRepository.find(memberId);
         if (savedToken == null || !savedToken.equals(refreshToken)) {
@@ -209,7 +221,8 @@ public class AuthService {
         return new ReissueResponse(newAccessToken, newRefreshToken);
     }
 
-    public void logout(Member member) {
+    public void logout() {
+        Member member = authenticationGuard.currentMember();
         refreshTokenRepository.delete(member.getId());
     }
 
