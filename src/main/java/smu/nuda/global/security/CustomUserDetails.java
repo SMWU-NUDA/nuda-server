@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import smu.nuda.domain.auth.jwt.TokenType;
 import smu.nuda.domain.member.entity.Member;
 
 import java.util.Collection;
@@ -15,9 +16,14 @@ import java.util.Collections;
 public class CustomUserDetails implements UserDetails {
 
     private final Member member;
+    private final TokenType tokenType;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (tokenType == TokenType.SIGNUP) {
+            return Collections.emptyList();
+        }
+
         return Collections.singleton(
                 new SimpleGrantedAuthority("ROLE_" + member.getRole().name())
         );
@@ -53,7 +59,7 @@ public class CustomUserDetails implements UserDetails {
         return true;
     }
 
-    public Member getMember() {
-        return member;
+    public Long getMemberId() {
+        return member.getId();
     }
 }

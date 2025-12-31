@@ -5,11 +5,13 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 import smu.nuda.domain.auth.error.AuthErrorCode;
+import smu.nuda.domain.auth.jwt.JwtConstants;
 import smu.nuda.domain.auth.jwt.JwtProvider;
+import smu.nuda.domain.auth.jwt.TokenType;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.member.entity.enums.Status;
 import smu.nuda.domain.member.error.MemberErrorCode;
@@ -26,23 +28,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        // 비로그인 요청
+        String bearer = request.getHeader(JwtConstants.AUTH_HEADER);
+        if (bearer == null || !bearer.startsWith(JwtConstants.TOKEN_PREFIX)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         try {
-            Authentication authentication = jwtProvider.extractAuthentication(request);
+            // 로그인 요청
+            String token = bearer.substring(JwtConstants.TOKEN_PREFIX.length());
 
-            if (authentication == null) {
-                filterChain.doFilter(request, response);
-                return;
-            }
+            TokenType tokenType = jwtProvider.extractTokenType(token);
+            Long memberId = jwtProvider.extractMemberId(token);
 
-            CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-            Member member = memberRepository.findById(principal.getMember().getId())
+            Member member = memberRepository.findById(memberId)
                     .orElseThrow(() -> new DomainException(MemberErrorCode.MEMBER_NOT_FOUND));
-
-            // 계정 활성화 여부 검사
             if (member.getStatus() != Status.ACTIVE) {
                 throw new DomainException(AuthErrorCode.ACCOUNT_DISABLED);
             }
+
+            CustomUserDetails principal = new CustomUserDetails(member, tokenType);
+
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(
+                            principal,
+                            token,
+                            principal.getAuthorities()
+                    );
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (Exception e) {
             // Todo. AuthenticationEntryPoint(401), AccessDeniedHandler(403) 구현하기
         }
