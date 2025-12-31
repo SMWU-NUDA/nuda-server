@@ -6,6 +6,7 @@ CREATE TABLE member (
     email VARCHAR(255) NOT NULL UNIQUE,
     profile_img TEXT,
     role VARCHAR(20) NOT NULL,
+    signup_step VARCHAR(20) NOT NULL,
     status VARCHAR(20) NOT NULL,
     postal_code VARCHAR(20),
     address1 VARCHAR(255),
