@@ -2,6 +2,7 @@ package smu.nuda.global.security.handler;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
@@ -12,13 +13,10 @@ import smu.nuda.global.security.exception.JwtAuthenticationException;
 import java.io.IOException;
 
 @Component
+@RequiredArgsConstructor
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     private final SecurityErrorResponse securityErrorResponse;
-
-    public CustomAuthenticationEntryPoint(SecurityErrorResponse securityErrorResponse) {
-        this.securityErrorResponse = securityErrorResponse;
-    }
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {

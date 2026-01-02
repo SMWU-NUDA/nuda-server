@@ -13,12 +13,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import smu.nuda.domain.auth.jwt.JwtProvider;
 import smu.nuda.domain.member.repository.MemberRepository;
 import smu.nuda.global.security.filter.JwtAuthenticationFilter;
+import smu.nuda.global.security.handler.CustomAccessDeniedHandler;
+import smu.nuda.global.security.handler.CustomAuthenticationEntryPoint;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final JwtProvider jwtProvider;
     private final MemberRepository memberRepository;
 
@@ -47,6 +51,10 @@ public class SecurityConfig {
                 .addFilterBefore(
                         new JwtAuthenticationFilter(jwtProvider, memberRepository),
                         UsernamePasswordAuthenticationFilter.class
+                )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler)
                 );
 
         return http.build();

@@ -54,5 +54,8 @@ enum class AuthErrorCode(
     ),
     ACCOUNT_DISABLED(
         "AUTH_ACCOUNT_DISABLED","해당 계정은 비활성화 상태입니다."
+    ),
+    ACCESS_DENIED(
+        "AUTH_ACCESS_DENIED","해당 계정은 요청 권한이 없습니다."
     )
 }
