@@ -1,6 +1,7 @@
 package smu.nuda.global.exception
 
 import jakarta.servlet.http.HttpServletRequest
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -14,6 +15,8 @@ import smu.nuda.global.response.ApiResponse
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
+
+    private val log = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
 
     @ExceptionHandler(DomainException::class)
     fun handleDomainException(
@@ -38,6 +41,14 @@ class GlobalExceptionHandler {
         if (request.requestURI.startsWith("/v3/api-docs")) {
             throw e
         }
+
+        log.error(
+            "UNEXPECTED ERROR - method: {}, uri: {}, message: {}",
+            request.method,
+            request.requestURI,
+            e.message,
+            e
+        )
 
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)

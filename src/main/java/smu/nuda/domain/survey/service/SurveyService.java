@@ -11,20 +11,18 @@ import smu.nuda.domain.survey.entity.Survey;
 import smu.nuda.domain.survey.error.SurveyErrorCode;
 import smu.nuda.domain.survey.repository.SurveyRepository;
 import smu.nuda.global.error.DomainException;
+import smu.nuda.global.guard.guard.AuthenticationGuard;
 
 @Service
 @RequiredArgsConstructor
 public class SurveyService {
 
     private final SurveyRepository surveyRepository;
+    private final AuthenticationGuard authenticationGuard;
 
     @Transactional
-    public Long submitSurvey(SurveyRequest request, Member member) {
-
-        if (member.getStatus() != Status.SIGNUP_IN_PROGRESS) {
-            throw new DomainException(AuthErrorCode.INVALID_SIGNUP_FLOW);
-        }
-
+    public Long submitSurvey(SurveyRequest request) {
+        Member member = authenticationGuard.currentMember();
         if (surveyRepository.existsByMemberId(member.getId())) {
             throw new DomainException(SurveyErrorCode.SURVEY_ALREADY_EXISTS);
         }
@@ -39,6 +37,7 @@ public class SurveyService {
                 .build();
 
         surveyRepository.save(survey);
+        member.completeSurvey();
         
         return survey.getId();
     }
