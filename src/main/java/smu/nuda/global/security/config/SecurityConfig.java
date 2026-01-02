@@ -1,4 +1,4 @@
-package smu.nuda.global.security;
+package smu.nuda.global.security.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +12,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import smu.nuda.domain.auth.jwt.JwtProvider;
 import smu.nuda.domain.member.repository.MemberRepository;
+import smu.nuda.global.security.filter.JwtAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity

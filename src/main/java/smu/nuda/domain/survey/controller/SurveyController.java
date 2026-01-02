@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import smu.nuda.domain.member.entity.enums.SignupStepType;
 import smu.nuda.domain.survey.dto.SurveyProductRequest;
@@ -14,7 +13,6 @@ import smu.nuda.domain.survey.service.SurveyService;
 import smu.nuda.global.guard.annotation.SignupStep;
 import smu.nuda.global.guard.annotation.SignupTokenRequired;
 import smu.nuda.global.response.ApiResponse;
-import smu.nuda.global.security.CustomUserDetails;
 
 import java.util.List;
 

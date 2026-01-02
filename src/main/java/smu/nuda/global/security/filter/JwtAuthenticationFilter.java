@@ -1,4 +1,4 @@
-package smu.nuda.global.security;
+package smu.nuda.global.security.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -17,6 +17,7 @@ import smu.nuda.domain.member.entity.enums.Status;
 import smu.nuda.domain.member.error.MemberErrorCode;
 import smu.nuda.domain.member.repository.MemberRepository;
 import smu.nuda.global.error.DomainException;
+import smu.nuda.global.security.principal.CustomUserDetails;
 
 import java.io.IOException;
 

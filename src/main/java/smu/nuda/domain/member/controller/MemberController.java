@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import smu.nuda.domain.member.dto.DeliveryRequest;
 import smu.nuda.domain.member.dto.DeliveryResponse;
@@ -15,7 +14,6 @@ import smu.nuda.domain.member.service.MemberService;
 import smu.nuda.domain.member.service.WithdrawService;
 import smu.nuda.global.guard.annotation.LoginRequired;
 import smu.nuda.global.response.ApiResponse;
-import smu.nuda.global.security.CustomUserDetails;
 
 @RestController
 @RequiredArgsConstructor
