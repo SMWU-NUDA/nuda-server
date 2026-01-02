@@ -12,6 +12,7 @@ import smu.nuda.domain.member.dto.DeliveryResponse;
 import smu.nuda.domain.member.dto.MeResponse;
 import smu.nuda.domain.member.dto.UpdateMemberRequest;
 import smu.nuda.domain.member.service.MemberService;
+import smu.nuda.domain.member.service.WithdrawService;
 import smu.nuda.global.guard.annotation.LoginRequired;
 import smu.nuda.global.response.ApiResponse;
 import smu.nuda.global.security.CustomUserDetails;
@@ -23,6 +24,7 @@ import smu.nuda.global.security.CustomUserDetails;
 public class MemberController {
 
     private final MemberService memberService;
+    private final WithdrawService withdrawService;
 
     @PatchMapping("/me")
     @SecurityRequirement(name = "JWT")
@@ -55,6 +57,18 @@ public class MemberController {
     @LoginRequired
     public ApiResponse<DeliveryResponse> updateDelivery(@RequestBody @Valid DeliveryRequest request) {
         return ApiResponse.success(memberService.updateDelivery(request));
+    }
+
+    @PostMapping("/withdraw")
+    @Operation(
+            summary = "회원 탈퇴 요청",
+            description = "탈퇴 가능 여부 판단 후 관리자에게 요청이 전달됩니다."
+    )
+    @SecurityRequirement(name = "JWT")
+    @LoginRequired
+    public ApiResponse<String> withdraw() {
+        withdrawService.withdraw();
+        return ApiResponse.success("회원 탈퇴 요청이 완료되었습니다.");
     }
 
 }

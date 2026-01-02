@@ -6,6 +6,8 @@ import smu.nuda.domain.common.entity.BaseEntity;
 import smu.nuda.domain.member.entity.enums.Role;
 import smu.nuda.domain.member.entity.enums.SignupStepType;
 import smu.nuda.domain.member.entity.enums.Status;
+import smu.nuda.domain.member.error.MemberErrorCode;
+import smu.nuda.global.error.DomainException;
 
 @Getter
 @Builder
@@ -87,6 +89,13 @@ public class Member extends BaseEntity {
 
     public void completeSignup() {
         this.signupStep = SignupStepType.COMPLETED;
+    }
+
+    public void requestWithdraw() {
+        if (this.status != Status.ACTIVE) {
+            throw new DomainException(MemberErrorCode.INVALID_STATUS);
+        }
+        this.status = Status.WITHDRAW_REQUESTED;
     }
 
 }
