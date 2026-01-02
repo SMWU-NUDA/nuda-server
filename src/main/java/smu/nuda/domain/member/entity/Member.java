@@ -98,4 +98,7 @@ public class Member extends BaseEntity {
         this.status = Status.WITHDRAW_REQUESTED;
     }
 
+    public boolean isWithinWithdrawCooldown() {
+        return false;
+    }
 }
