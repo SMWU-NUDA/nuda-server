@@ -1,5 +1,7 @@
 package smu.nuda.global.security.filter;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -7,7 +9,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.web.filter.OncePerRequestFilter;
+import smu.nuda.domain.auth.error.AuthErrorCode;
 import smu.nuda.domain.auth.jwt.JwtConstants;
 import smu.nuda.domain.auth.jwt.JwtProvider;
 import smu.nuda.domain.auth.jwt.TokenType;
@@ -25,6 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
     private final MemberRepository memberRepository;
+    private final AuthenticationEntryPoint authenticationEntryPoint;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -35,8 +40,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        // 로그인 요청
         try {
-            // 로그인 요청
             String token = bearer.substring(JwtConstants.TOKEN_PREFIX.length());
 
             TokenType tokenType = jwtProvider.extractTokenType(token);
@@ -58,13 +63,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             token,
                             principal.getAuthorities()
                     );
-
             SecurityContextHolder.getContext().setAuthentication(authentication);
+
             filterChain.doFilter(request, response);
 
-        } catch (JwtAuthenticationException e) {
+        } catch (ExpiredJwtException e) {
             SecurityContextHolder.clearContext();
-            throw e;
+            authenticationEntryPoint.commence(
+                    request,
+                    response,
+                    new JwtAuthenticationException(AuthErrorCode.EXPIRED_TOKEN, e)
+            );
+        }
+        catch (JwtException | IllegalArgumentException e) {
+            SecurityContextHolder.clearContext();
+            authenticationEntryPoint.commence(
+                    request,
+                    response,
+                    new JwtAuthenticationException(AuthErrorCode.INVALID_ACCESS_TOKEN, e)
+            );
+        }
+        catch (JwtAuthenticationException e) {
+            SecurityContextHolder.clearContext();
+            authenticationEntryPoint.commence(request, response, e);
         }
     }
 }
