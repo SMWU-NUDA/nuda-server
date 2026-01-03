@@ -49,7 +49,7 @@ public class SecurityConfig {
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
                 .addFilterBefore(
-                        new JwtAuthenticationFilter(jwtProvider, memberRepository),
+                        new JwtAuthenticationFilter(jwtProvider, memberRepository, customAuthenticationEntryPoint),
                         UsernamePasswordAuthenticationFilter.class
                 )
                 .exceptionHandling(ex -> ex

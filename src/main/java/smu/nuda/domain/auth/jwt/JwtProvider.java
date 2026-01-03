@@ -39,38 +39,40 @@ public class JwtProvider {
                 .compact();
     }
 
-    public Claims parseClaimsOrThrow(String token) {
-        try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey())
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
-        } catch (ExpiredJwtException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new DomainException(AuthErrorCode.INVALID_ACCESS_TOKEN);
-        }
+    public String generateToken(Long memberId, String email, String role, TokenType tokenType, Date expiration) {
+        return Jwts.builder()
+                .setSubject(String.valueOf(memberId))
+                .claim("email", email)
+                .claim("role", role)
+                .claim("tokenType", tokenType.name())
+                .setIssuedAt(new Date())
+                .setExpiration(expiration)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public Claims parseClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     public Long extractMemberId(String token) {
-        return Long.valueOf(parseClaimsOrThrow(token).getSubject());
+        return Long.valueOf(parseClaims(token).getSubject());
     }
 
     public TokenType extractTokenType(String token) {
         return TokenType.valueOf(
-                parseClaimsOrThrow(token).get("tokenType", String.class)
+                parseClaims(token).get("tokenType", String.class)
         );
     }
 
     public void validateTokenTypeOrThrow(String token, TokenType expected) {
-        try {
-            TokenType actual = extractTokenType(token);
-            if (actual != expected) {
-                throw new DomainException(AuthErrorCode.INVALID_TOKEN_TYPE);
-            }
-        } catch (ExpiredJwtException e) {
-            throw new DomainException(AuthErrorCode.EXPIRED_TOKEN);
+        TokenType actual = extractTokenType(token);
+        if (actual != expected) {
+            throw new IllegalArgumentException("Invalid token type. expected=" + expected + ", actual=" + actual);
         }
     }
 

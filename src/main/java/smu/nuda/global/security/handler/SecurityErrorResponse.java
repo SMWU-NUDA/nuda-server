@@ -3,7 +3,6 @@ package smu.nuda.global.security.handler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import smu.nuda.global.error.ErrorCode;
 import smu.nuda.global.response.ApiResponse;
