@@ -2,7 +2,7 @@ package smu.nuda.domain.test;
 
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
-import smu.nuda.domain.auth.error.AuthErrorCode;
+import smu.nuda.domain.member.error.MemberErrorCode;
 import smu.nuda.global.error.DomainException;
 import smu.nuda.global.response.ApiResponse;
 
@@ -19,13 +19,13 @@ public class TestController {
 
     @GetMapping("/fail")
     public ApiResponse<Void> fail() {
-        throw new DomainException(AuthErrorCode.INVALID_CREDENTIALS);
+        throw new DomainException(MemberErrorCode.INVALID_CREDENTIALS);
     }
 
     @GetMapping("/fail/with-data")
     public ApiResponse<Void> failWithData() {
         throw new DomainException(
-                AuthErrorCode.EMAIL_ALREADY_EXISTS,
+                MemberErrorCode.EMAIL_ALREADY_EXISTS,
                 Map.of(
                         "email", "test@example.com",
                         "reason", "이미 가입된 이메일"

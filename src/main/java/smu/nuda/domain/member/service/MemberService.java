@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import smu.nuda.domain.auth.error.AuthErrorCode;
 import smu.nuda.domain.auth.repository.EmailAuthRepository;
 import smu.nuda.domain.member.dto.DeliveryRequest;
 import smu.nuda.domain.member.dto.DeliveryResponse;
@@ -12,7 +11,6 @@ import smu.nuda.domain.member.dto.MeResponse;
 import smu.nuda.domain.member.dto.UpdateMemberRequest;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.member.error.MemberErrorCode;
-import smu.nuda.domain.member.repository.MemberRepository;
 import smu.nuda.global.error.DomainException;
 
 @Service
@@ -35,7 +33,7 @@ public class MemberService {
 
         if (request.getEmail() != null) {
             if (!emailAuthRepository.isVerified(request.getEmail())) {
-                throw new DomainException(AuthErrorCode.EMAIL_NOT_VERIFIED);
+                throw new DomainException(MemberErrorCode.EMAIL_NOT_VERIFIED);
             }
 
             member.updateEmail(request.getEmail());
