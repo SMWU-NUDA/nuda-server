@@ -8,10 +8,12 @@ import org.springframework.web.bind.annotation.*;
 import smu.nuda.domain.auth.dto.*;
 import smu.nuda.domain.auth.service.AuthService;
 import smu.nuda.domain.member.dto.DeliveryRequest;
+import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.member.entity.enums.SignupStepType;
 import smu.nuda.global.guard.annotation.LoginRequired;
 import smu.nuda.global.guard.annotation.SignupStep;
 import smu.nuda.global.guard.annotation.SignupTokenRequired;
+import smu.nuda.global.guard.guard.AuthenticationGuard;
 import smu.nuda.global.response.ApiResponse;
 
 @RestController
@@ -19,7 +21,9 @@ import smu.nuda.global.response.ApiResponse;
 @RequestMapping("/auth")
 @Tag(name = "[AUTH] 인증 API", description = "이메일 로그인 및 토큰 재발급 관련 API")
 public class AuthController {
+
     private final AuthService authService;
+    private final AuthenticationGuard authenticationGuard;
 
     @PostMapping("/emails/verification-requests")
     @Operation(
@@ -58,7 +62,8 @@ public class AuthController {
     @SignupStep(SignupStepType.SIGNUP)
     @SignupTokenRequired
     public ApiResponse<String> updateDelivery(@RequestBody DeliveryRequest request) {
-        authService.updateDelivery(request);
+        Member member = authenticationGuard.currentMember();
+        authService.updateDelivery(member, request);
         return ApiResponse.success("배송지입력이 완료되었습니다. 설문조사를 진행해주세요.");
     }
 
@@ -71,7 +76,8 @@ public class AuthController {
     @SignupStep(SignupStepType.SURVEY)
     @SignupTokenRequired
     public ApiResponse<LoginResponse> completeSignup() {
-        return ApiResponse.success(authService.completeSignup());
+        Member member = authenticationGuard.currentMember();
+        return ApiResponse.success(authService.completeSignup(member));
     }
 
     @PostMapping("/login")
@@ -100,7 +106,8 @@ public class AuthController {
     @LoginRequired
     @SecurityRequirement(name = "JWT")
     public ApiResponse<String> logout() {
-        authService.logout();
+        Member member = authenticationGuard.currentMember();
+        authService.logout(member);
         return ApiResponse.success("로그아웃 되었습니다.");
     }
 

@@ -10,9 +10,11 @@ import smu.nuda.domain.member.dto.DeliveryRequest;
 import smu.nuda.domain.member.dto.DeliveryResponse;
 import smu.nuda.domain.member.dto.MeResponse;
 import smu.nuda.domain.member.dto.UpdateMemberRequest;
+import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.member.service.MemberService;
 import smu.nuda.domain.member.service.WithdrawService;
 import smu.nuda.global.guard.annotation.LoginRequired;
+import smu.nuda.global.guard.guard.AuthenticationGuard;
 import smu.nuda.global.response.ApiResponse;
 
 @RestController
@@ -23,6 +25,7 @@ public class MemberController {
 
     private final MemberService memberService;
     private final WithdrawService withdrawService;
+    private final AuthenticationGuard authenticationGuard;
 
     @PatchMapping("/me")
     @SecurityRequirement(name = "JWT")
@@ -32,7 +35,8 @@ public class MemberController {
     )
     @LoginRequired
     public ApiResponse<MeResponse> updateMe(@RequestBody UpdateMemberRequest request) {
-        return ApiResponse.success(memberService.updateMe(request));
+        Member member = authenticationGuard.currentMember();
+        return ApiResponse.success(memberService.updateMe(member, request));
     }
 
     @GetMapping("/me/delivery")
@@ -43,7 +47,8 @@ public class MemberController {
     @SecurityRequirement(name = "JWT")
     @LoginRequired
     public ApiResponse<DeliveryResponse> getDelivery() {
-        return ApiResponse.success(memberService.getDelivery());
+        Member member = authenticationGuard.currentMember();
+        return ApiResponse.success(memberService.getDelivery(member));
     }
 
     @PutMapping("/me/delivery")
@@ -54,7 +59,8 @@ public class MemberController {
     @SecurityRequirement(name = "JWT")
     @LoginRequired
     public ApiResponse<DeliveryResponse> updateDelivery(@RequestBody @Valid DeliveryRequest request) {
-        return ApiResponse.success(memberService.updateDelivery(request));
+        Member member = authenticationGuard.currentMember();
+        return ApiResponse.success(memberService.updateDelivery(member, request));
     }
 
     @PostMapping("/withdraw")

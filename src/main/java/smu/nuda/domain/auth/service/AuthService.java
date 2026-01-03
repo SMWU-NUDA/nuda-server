@@ -22,7 +22,6 @@ import smu.nuda.domain.member.entity.enums.Status;
 import smu.nuda.domain.member.error.MemberErrorCode;
 import smu.nuda.domain.member.repository.MemberRepository;
 import smu.nuda.global.error.DomainException;
-import smu.nuda.global.guard.guard.AuthenticationGuard;
 import smu.nuda.global.mail.EmailService;
 
 @Service
@@ -37,7 +36,6 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final JwtProperties jwtProperties;
-    private final AuthenticationGuard authenticationGuard;
 
     public void requestVerificationCode(String email) {
         if (memberRepository.existsByEmail(email)) {
@@ -114,9 +112,7 @@ public class AuthService {
     }
 
     @Transactional
-    public void updateDelivery(DeliveryRequest request) {
-        Member member = authenticationGuard.currentMember();
-
+    public void updateDelivery(Member member, DeliveryRequest request) {
         member.updateDelivery(
                 request.getRecipient(),
                 request.getPhoneNum(),
@@ -128,8 +124,7 @@ public class AuthService {
     }
 
     @Transactional
-    public LoginResponse completeSignup() {
-        Member member = authenticationGuard.currentMember();
+    public LoginResponse completeSignup(Member member) {
         member.completeSignup();
 
         String accessToken = jwtProvider.generateToken(
@@ -221,8 +216,7 @@ public class AuthService {
         return new ReissueResponse(newAccessToken, newRefreshToken);
     }
 
-    public void logout() {
-        Member member = authenticationGuard.currentMember();
+    public void logout(Member member) {
         refreshTokenRepository.delete(member.getId());
     }
 

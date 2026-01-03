@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.member.entity.enums.SignupStepType;
 import smu.nuda.domain.survey.dto.SurveyProductRequest;
 import smu.nuda.domain.survey.dto.SurveyRequest;
@@ -12,6 +13,7 @@ import smu.nuda.domain.survey.service.SurveyProductService;
 import smu.nuda.domain.survey.service.SurveyService;
 import smu.nuda.global.guard.annotation.SignupStep;
 import smu.nuda.global.guard.annotation.SignupTokenRequired;
+import smu.nuda.global.guard.guard.AuthenticationGuard;
 import smu.nuda.global.response.ApiResponse;
 
 import java.util.List;
@@ -24,6 +26,7 @@ public class SurveyController {
 
     private final SurveyService surveyService;
     private final SurveyProductService surveyProductService;
+    private final AuthenticationGuard authenticationGuard;
 
     @PostMapping
     @Operation(
@@ -34,7 +37,8 @@ public class SurveyController {
     @SignupStep(SignupStepType.DELIVERY)
     @SignupTokenRequired
     public ApiResponse<Long> submitSurvey(@RequestBody SurveyRequest request) {
-        return ApiResponse.success(surveyService.submitSurvey(request));
+        Member member = authenticationGuard.currentMember();
+        return ApiResponse.success(surveyService.submitSurvey(member, request));
     }
 
     @PostMapping("/{surveyId}/products")

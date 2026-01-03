@@ -18,11 +18,9 @@ import smu.nuda.global.guard.guard.AuthenticationGuard;
 public class SurveyService {
 
     private final SurveyRepository surveyRepository;
-    private final AuthenticationGuard authenticationGuard;
 
     @Transactional
-    public Long submitSurvey(SurveyRequest request) {
-        Member member = authenticationGuard.currentMember();
+    public Long submitSurvey(Member member, SurveyRequest request) {
         if (surveyRepository.existsByMemberId(member.getId())) {
             throw new DomainException(SurveyErrorCode.SURVEY_ALREADY_EXISTS);
         }

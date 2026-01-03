@@ -14,21 +14,17 @@ import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.member.error.MemberErrorCode;
 import smu.nuda.domain.member.repository.MemberRepository;
 import smu.nuda.global.error.DomainException;
-import smu.nuda.global.guard.guard.AuthenticationGuard;
 
 @Service
 @RequiredArgsConstructor
 public class MemberService {
 
-    private final MemberRepository memberRepository;
     private final EmailAuthRepository emailAuthRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationGuard authenticationGuard;
+
 
     @Transactional
-    public MeResponse updateMe(UpdateMemberRequest request) {
-        Member member = authenticationGuard.currentMember();
-
+    public MeResponse updateMe(Member member, UpdateMemberRequest request) {
         if (request.getUsername() != null) {
             member.updateUsername(request.getUsername());
         }
@@ -62,8 +58,7 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public DeliveryResponse getDelivery() {
-        Member member = authenticationGuard.currentMember();
+    public DeliveryResponse getDelivery(Member member) {
         return DeliveryResponse.builder()
                 .recipient(member.getRecipient())
                 .phoneNum(member.getPhoneNum())
@@ -75,9 +70,7 @@ public class MemberService {
 
 
     @Transactional
-    public DeliveryResponse updateDelivery(DeliveryRequest request) {
-        Member member = authenticationGuard.currentMember();
-
+    public DeliveryResponse updateDelivery(Member member, DeliveryRequest request) {
         member.updateDelivery(
                 request.getRecipient(),
                 request.getPhoneNum(),
