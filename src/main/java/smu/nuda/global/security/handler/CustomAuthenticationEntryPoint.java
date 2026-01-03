@@ -3,6 +3,7 @@ package smu.nuda.global.security.handler;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
@@ -20,20 +21,14 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
-        ErrorCode errorCode = resolveErrorCode(authException);
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        ErrorCode errorCode = AuthErrorCode.AUTH_REQUIRED;
+
+        if (authException instanceof JwtAuthenticationException jwtEx) {
+            errorCode = jwtEx.getErrorCode();
+        }
+
         securityErrorResponse.write(response, errorCode);
     }
 
-    /*
-    AuthenticationException으로부터 ErrorCode를 추출
-     - JwtAuthenticationException이면 내부 ErrorCode 사용
-     - 그 외 경우 AUTH_REQUIRED로 fallback
-     */
-    private ErrorCode resolveErrorCode(AuthenticationException exception) {
-        if (exception instanceof JwtAuthenticationException jwtException) {
-            return jwtException.getErrorCode();
-        }
-
-        return AuthErrorCode.AUTH_REQUIRED;
-    }
 }

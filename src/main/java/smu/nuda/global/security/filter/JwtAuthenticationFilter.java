@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
-import smu.nuda.domain.auth.error.AuthErrorCode;
 import smu.nuda.domain.auth.jwt.JwtConstants;
 import smu.nuda.domain.auth.jwt.JwtProvider;
 import smu.nuda.domain.auth.jwt.TokenType;
@@ -16,7 +15,7 @@ import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.member.entity.enums.Status;
 import smu.nuda.domain.member.error.MemberErrorCode;
 import smu.nuda.domain.member.repository.MemberRepository;
-import smu.nuda.global.error.DomainException;
+import smu.nuda.global.security.exception.JwtAuthenticationException;
 import smu.nuda.global.security.principal.CustomUserDetails;
 
 import java.io.IOException;
@@ -44,9 +43,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Long memberId = jwtProvider.extractMemberId(token);
 
             Member member = memberRepository.findById(memberId)
-                    .orElseThrow(() -> new DomainException(MemberErrorCode.MEMBER_NOT_FOUND));
+                    .orElseThrow(() -> new JwtAuthenticationException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+            // 비활성 계정은 인증 실패 (AuthenticationEntryPoint에서 401 반환)
             if (member.getStatus() != Status.ACTIVE) {
-                throw new DomainException(AuthErrorCode.ACCOUNT_DISABLED);
+                throw new JwtAuthenticationException(MemberErrorCode.ACCOUNT_DISABLED);
             }
 
             CustomUserDetails principal = new CustomUserDetails(member, tokenType);
@@ -59,10 +60,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-        } catch (Exception e) {
-            // Todo. AuthenticationEntryPoint(401), AccessDeniedHandler(403) 구현하기
-        }
+            filterChain.doFilter(request, response);
 
-        filterChain.doFilter(request, response);
+        } catch (JwtAuthenticationException e) {
+            SecurityContextHolder.clearContext();
+            throw e;
+        }
     }
 }
