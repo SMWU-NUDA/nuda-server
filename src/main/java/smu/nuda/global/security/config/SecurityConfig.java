@@ -10,11 +10,16 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import smu.nuda.domain.auth.jwt.JwtProvider;
 import smu.nuda.domain.member.repository.MemberRepository;
 import smu.nuda.global.security.filter.JwtAuthenticationFilter;
 import smu.nuda.global.security.handler.CustomAccessDeniedHandler;
 import smu.nuda.global.security.handler.CustomAuthenticationEntryPoint;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -59,6 +64,29 @@ public class SecurityConfig {
 
         return http.build();
     }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+
+        config.setAllowedOrigins(List.of(
+                "http://localhost:3000",
+                "http://localhost:5173"
+        ));
+
+        config.setAllowedMethods(List.of(
+                "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"
+        ));
+
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+
+        return source;
+    }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {
