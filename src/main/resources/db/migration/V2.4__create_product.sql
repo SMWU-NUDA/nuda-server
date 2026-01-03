@@ -5,7 +5,9 @@ CREATE TABLE product (
         FOREIGN KEY (brand_id) REFERENCES brand(id),
     name VARCHAR(255) NOT NULL,
     cost INT NOT NULL,
-    category VARCHAR(20) NOT NULL,
+    category_id BIGINT NOT NULL,
+    CONSTRAINT fk_product_category
+        FOREIGN KEY (category_id) REFERENCES category(id),
     content TEXT,
     average_rating DOUBLE PRECISION DEFAULT 0,
     review_count INT DEFAULT 0,
@@ -18,3 +20,4 @@ CREATE TABLE product (
 );
 
 CREATE INDEX idx_product_brand_id ON product(brand_id);
+CREATE INDEX idx_product_category_id ON product(category_id);
