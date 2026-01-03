@@ -38,3 +38,4 @@ out/
 
 ### YML ###
 src/main/resources/application-dev.yml
+.env
