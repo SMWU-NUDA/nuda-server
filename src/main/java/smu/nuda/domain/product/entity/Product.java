@@ -18,7 +18,15 @@ import smu.nuda.domain.common.entity.BaseEntity;
 public class Product extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "product_seq"
+    )
+    @SequenceGenerator(
+            name = "product_seq",
+            sequenceName = "product_seq",
+            allocationSize = 50
+    )
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -29,7 +37,13 @@ public class Product extends BaseEntity {
     private String name;
 
     @Column(nullable = false)
-    private int cost;
+    private int cost_price;
+
+    @Column(nullable = false)
+    private int discount_rate;
+
+//    @Column(nullable = false)
+//    private int sale_price;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
