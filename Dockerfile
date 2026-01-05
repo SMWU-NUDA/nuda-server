@@ -1,9 +1,9 @@
-FROM eclipse-temurin:17-jdk
+FROM eclipse-temurin:17-jre
 
 ENV TZ=Asia/Seoul
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-ARG JAR_FILE=build/libs/*.jar
-COPY ${JAR_FILE} /app.jar
+WORKDIR /app
+COPY build/libs/*.jar app.jar
 
-ENTRYPOINT ["java", "-Dspring.profiles.active=prod", "-jar", "/app.jar"]
+ENTRYPOINT ["java", "-Xms128m", "-Xmx512m", "-jar", "app.jar"]

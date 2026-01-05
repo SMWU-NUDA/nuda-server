@@ -2,7 +2,7 @@ version: "3.8"
 services:
   app:
     container_name: nuda-app
-    build: .
+    image: nuda-app:latest
     env_file:
       - .env
     ports:
@@ -10,11 +10,8 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-    environment:
-      SPRING_PROFILES_ACTIVE: prod
     networks:
       - app-network
-    restart: always
 
   redis:
     container_name: nuda-redis
