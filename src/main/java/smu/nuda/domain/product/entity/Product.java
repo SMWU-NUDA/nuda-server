@@ -36,14 +36,14 @@ public class Product extends BaseEntity {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
-    private int cost_price;
+    @Column(name = "cost_price", nullable = false)
+    private int costPrice;
 
-    @Column(nullable = false)
-    private int discount_rate;
+    @Column(name="discount_rate", nullable = false)
+    private int discountRate;
 
 //    @Column(nullable = false)
-//    private int sale_price;
+//    private int salePrice;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
