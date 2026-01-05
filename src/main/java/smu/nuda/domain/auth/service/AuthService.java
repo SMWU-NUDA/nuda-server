@@ -123,28 +123,8 @@ public class AuthService {
     }
 
     @Transactional
-    public LoginResponse completeSignup(Member member) {
+    public void completeSignup(Member member) {
         member.completeSignup();
-
-        String accessToken = jwtProvider.generateToken(
-                member.getId(),
-                member.getEmail(),
-                member.getRole().name(),
-                TokenType.ACCESS
-        );
-        String refreshToken = jwtProvider.generateToken(
-                member.getId(),
-                null,
-                null,
-                TokenType.REFRESH
-        );
-        refreshTokenRepository.save(
-                member.getId(),
-                refreshToken,
-                jwtProperties.getExpiration(TokenType.REFRESH)
-        );
-        MeResponse meResponse = MeResponse.from(member);
-        return new LoginResponse(accessToken, refreshToken, meResponse);
     }
 
     public LoginResponse login(LoginRequest request) {

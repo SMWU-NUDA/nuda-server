@@ -70,14 +70,15 @@ public class AuthController {
     @PostMapping("/complete")
     @Operation(
             summary = "회원가입 완료(4단계)",
-            description = "배송지 입력까지 완료된 사용자의 회원가입 상태를 최종 완료 처리합니다. 회원가입된 계정으로 자동 로그인 됩니다."
+            description = "배송지 입력까지 완료된 사용자의 회원가입 상태를 최종 완료 처리합니다."
     )
     @SecurityRequirement(name = "JWT")
     @SignupStep(SignupStepType.SURVEY)
     @SignupTokenRequired
-    public ApiResponse<LoginResponse> completeSignup() {
+    public ApiResponse<String> completeSignup() {
         Member member = authenticationGuard.currentMember();
-        return ApiResponse.success(authService.completeSignup(member));
+        authService.completeSignup(member);
+        return ApiResponse.success("회원가입이 완료되었습니다. 로그인 화면으로 이동해주세요.");
     }
 
     @PostMapping("/login")
