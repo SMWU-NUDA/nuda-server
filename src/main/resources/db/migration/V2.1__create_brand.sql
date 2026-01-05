@@ -1,5 +1,5 @@
 CREATE TABLE brand (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     logo_img TEXT,
 

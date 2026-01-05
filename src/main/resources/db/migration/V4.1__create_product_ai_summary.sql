@@ -1,5 +1,5 @@
 CREATE TABLE product_ai_summary (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     product_id BIGINT NOT NULL UNIQUE,
     satisfaction_rate DOUBLE PRECISION,
     positive_keywords JSONB,

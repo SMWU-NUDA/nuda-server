@@ -1,5 +1,5 @@
 CREATE TABLE member (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     nickname VARCHAR(50),
     username VARCHAR(50) NOT NULL UNIQUE,
     password TEXT NOT NULL,

@@ -1,5 +1,5 @@
 CREATE TABLE survey_product (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     survey_id BIGINT NOT NULL,
     product_id BIGINT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT now(),

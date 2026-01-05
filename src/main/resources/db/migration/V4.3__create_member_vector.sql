@@ -1,5 +1,5 @@
 CREATE TABLE member_vector (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     member_id BIGINT NOT NULL UNIQUE,
     preference_vector VECTOR(1536),
     version VARCHAR(50),

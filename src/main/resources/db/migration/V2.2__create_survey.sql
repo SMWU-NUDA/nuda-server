@@ -1,5 +1,5 @@
 CREATE TABLE survey (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     member_id BIGINT NOT NULL,
     irritation_level VARCHAR(20),
     scent VARCHAR(20),

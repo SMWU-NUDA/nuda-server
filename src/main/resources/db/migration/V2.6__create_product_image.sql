@@ -1,5 +1,5 @@
 CREATE TABLE product_image (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     product_id BIGINT NOT NULL,
     image_url TEXT NOT NULL,
     sequence INT,
