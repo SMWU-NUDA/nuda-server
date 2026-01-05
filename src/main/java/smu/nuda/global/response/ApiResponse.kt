@@ -11,6 +11,7 @@ data class ApiResponse<T>(
     companion object {
 
         @JvmStatic
+        @JvmOverloads
         fun <T> success(data: T? = null): ApiResponse<T> =
             ApiResponse(
                 success = true,
@@ -20,6 +21,7 @@ data class ApiResponse<T>(
             )
 
         @JvmStatic
+        @JvmOverloads
         fun <T> fail(errorCode: ErrorCode, data: T? = null): ApiResponse<T> =
             ApiResponse(
                 success = false,

@@ -9,7 +9,7 @@ import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.member.error.MemberErrorCode;
 import smu.nuda.domain.member.repository.MemberRepository;
 import smu.nuda.global.error.DomainException;
-import smu.nuda.global.security.CustomUserDetails;
+import smu.nuda.global.security.principal.CustomUserDetails;
 
 @Component
 @RequiredArgsConstructor

@@ -1,4 +1,4 @@
-package smu.nuda.global.security;
+package smu.nuda.global.security.principal;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

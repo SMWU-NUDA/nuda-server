@@ -1,6 +1,5 @@
 package smu.nuda.domain.auth.service;
 
-import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,7 +21,6 @@ import smu.nuda.domain.member.entity.enums.Status;
 import smu.nuda.domain.member.error.MemberErrorCode;
 import smu.nuda.domain.member.repository.MemberRepository;
 import smu.nuda.global.error.DomainException;
-import smu.nuda.global.guard.guard.AuthenticationGuard;
 import smu.nuda.global.mail.EmailService;
 
 @Service
@@ -37,11 +35,10 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final JwtProperties jwtProperties;
-    private final AuthenticationGuard authenticationGuard;
 
     public void requestVerificationCode(String email) {
         if (memberRepository.existsByEmail(email)) {
-            throw new DomainException(AuthErrorCode.EMAIL_ALREADY_EXISTS);
+            throw new DomainException(MemberErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
         String code = codeGenerator.generate();
@@ -61,19 +58,19 @@ public class AuthService {
 
         // 중복 인증 요청 횟수 초과
         if (emailAuthRepository.isAttemptExceeded(email)) {
-            throw new DomainException(AuthErrorCode.EMAIL_VERIFICATION_TOO_MANY_ATTEMPTS);
+            throw new DomainException(MemberErrorCode.EMAIL_VERIFICATION_TOO_MANY_ATTEMPTS);
         }
 
         // Redis에서 저장된 인증번호 조회
         String savedCode = emailAuthRepository.getCode(email);
         if (savedCode == null) {
-            throw new DomainException(AuthErrorCode.EMAIL_VERIFICATION_EXPIRED);
+            throw new DomainException(MemberErrorCode.EMAIL_VERIFICATION_EXPIRED);
         }
 
         // 인증번호 불일치
         if (!savedCode.equals(inputCode)) {
             emailAuthRepository.increaseAttempt(email);
-            throw new DomainException(AuthErrorCode.EMAIL_VERIFICATION_MISMATCH);
+            throw new DomainException(MemberErrorCode.EMAIL_VERIFICATION_MISMATCH);
         }
 
         emailAuthRepository.markVerified(email);
@@ -87,7 +84,7 @@ public class AuthService {
 
         String email = request.getEmail();
         if (!emailAuthRepository.isVerified(email)) {
-            throw new DomainException(AuthErrorCode.EMAIL_NOT_VERIFIED);
+            throw new DomainException(MemberErrorCode.EMAIL_NOT_VERIFIED);
         }
 
         Member member = Member.builder()
@@ -114,9 +111,7 @@ public class AuthService {
     }
 
     @Transactional
-    public void updateDelivery(DeliveryRequest request) {
-        Member member = authenticationGuard.currentMember();
-
+    public void updateDelivery(Member member, DeliveryRequest request) {
         member.updateDelivery(
                 request.getRecipient(),
                 request.getPhoneNum(),
@@ -128,41 +123,20 @@ public class AuthService {
     }
 
     @Transactional
-    public LoginResponse completeSignup() {
-        Member member = authenticationGuard.currentMember();
+    public void completeSignup(Member member) {
         member.completeSignup();
-
-        String accessToken = jwtProvider.generateToken(
-                member.getId(),
-                member.getEmail(),
-                member.getRole().name(),
-                TokenType.ACCESS
-        );
-        String refreshToken = jwtProvider.generateToken(
-                member.getId(),
-                null,
-                null,
-                TokenType.REFRESH
-        );
-        refreshTokenRepository.save(
-                member.getId(),
-                refreshToken,
-                jwtProperties.getExpiration(TokenType.REFRESH)
-        );
-        MeResponse meResponse = MeResponse.from(member);
-        return new LoginResponse(accessToken, refreshToken, meResponse);
     }
 
     public LoginResponse login(LoginRequest request) {
         Member member = memberRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new DomainException(AuthErrorCode.INVALID_CREDENTIALS));
+                .orElseThrow(() -> new DomainException(MemberErrorCode.INVALID_CREDENTIALS));
 
         if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
-            throw new DomainException(AuthErrorCode.INVALID_CREDENTIALS);
+            throw new DomainException(MemberErrorCode.INVALID_CREDENTIALS);
         }
 
         if (member.getStatus() != Status.ACTIVE) {
-            throw new DomainException(AuthErrorCode.MEMBER_NOT_ACTIVE);
+            throw new DomainException(MemberErrorCode.MEMBER_NOT_ACTIVE);
         }
 
         String accessToken = jwtProvider.generateToken(
@@ -221,22 +195,21 @@ public class AuthService {
         return new ReissueResponse(newAccessToken, newRefreshToken);
     }
 
-    public void logout() {
-        Member member = authenticationGuard.currentMember();
+    public void logout(Member member) {
         refreshTokenRepository.delete(member.getId());
     }
 
     public void checkNickname(String nickname) {
         boolean exists = memberRepository.existsByNickname(nickname);
         if (exists) {
-            throw new DomainException(AuthErrorCode.NICKNAME_DUPLICATED, nickname);
+            throw new DomainException(MemberErrorCode.NICKNAME_DUPLICATED, nickname);
         }
     }
 
     public void checkUsername(String username) {
         boolean exists = memberRepository.existsByUsername(username);
         if (exists) {
-            throw new DomainException(AuthErrorCode.USERNAME_DUPLICATED, username);
+            throw new DomainException(MemberErrorCode.USERNAME_DUPLICATED, username);
         }
     }
 

@@ -17,15 +17,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class SignupGuardTest {
+public class SignupStepGuardTest {
 
     /*
-    회원가입 단계(SignupStepType) 검증이 컨트롤러에 존재하지 않음을 증명함
+    회원가입 단계(SignupStepType) 정책이
+    HTTP 요청 흐름에서 AOP 기반 Guard를 통해 일관되게 적용됨을 검증
 
-    회원가입 단계 정책을 AOP 기반 Guard로 중앙화하고
-    컨트롤러는 단계 조건을 선언적 어노테이션으로 표현하기만 하면
-    허용/차단은 공통 정책에 의해 일관되게 처리됨
-     */
+    - 컨트롤러에는 회원가입 단계 조건문이 존재하지 않음을 증명
+    - 요청 허용/차단은 Guard 정책에 의해 중앙 통제됨
+    - 정책 적용 시점(웹 요청 단계)을 검증하는 통합 테스트
+    */
 
     @Autowired
     MockMvc mockMvc;
@@ -48,7 +49,7 @@ public class SignupGuardTest {
         mockMvc.perform(get("/test/auth/delivery"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code")
-                        .value("SIGNUP_STEP_REQUIRED"));
+                        .value("MEMBER_SIGNUP_STEP_REQUIRED"));
     }
 
     @Test
