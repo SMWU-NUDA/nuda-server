@@ -18,6 +18,7 @@ import smu.nuda.domain.product.repository.CategoryRepository;
 import smu.nuda.domain.product.validator.ProductCsvValidator;
 import smu.nuda.global.batch.error.CsvErrorCode;
 import smu.nuda.global.batch.exception.CsvValidationException;
+import smu.nuda.global.error.DomainException;
 
 import java.util.List;
 import java.util.Map;
@@ -41,7 +42,7 @@ public class ProductAdminService {
         List<ProductCsvRow> rows = productCsvReader.read(csvFile);
         productCsvValidator.validate(rows);
 
-        // Todo. batch insert
+        batchInsertProducts(rows); // ALL OR NOTHING
 
         return new ProductUploadResponse(
                 rows.size(),
