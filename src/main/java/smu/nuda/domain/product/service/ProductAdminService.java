@@ -38,11 +38,11 @@ public class ProductAdminService {
     @PersistenceContext private EntityManager em;
 
     @Transactional
-    public ProductUploadResponse uploadProductsByCsv(MultipartFile csvFile, Member admin) {
+    public ProductUploadResponse uploadProductsByCsv(MultipartFile csvFile, boolean dryRun) {
         List<ProductCsvRow> rows = productCsvReader.read(csvFile);
         productCsvValidator.validate(rows);
 
-        batchInsertProducts(rows); // ALL OR NOTHING
+        batchInsertProducts(rows, dryRun); // ALL OR NOTHING
 
         return new ProductUploadResponse(
                 rows.size(),
@@ -51,7 +51,7 @@ public class ProductAdminService {
         );
     }
 
-    private void batchInsertProducts(List<ProductCsvRow> rows) {
+    private void batchInsertProducts(List<ProductCsvRow> rows, boolean dryRun) {
         Map<String, Brand> brandMap = preloadBrands();
         Map<String, Category> categoryMap = preloadCategories();
 
@@ -73,18 +73,21 @@ public class ProductAdminService {
                     row.content(),
                     row.thumbnailImg()
             );
-            em.persist(product);
-            count++;
+            if (!dryRun) {
+                em.persist(product);
+                count++;
 
-            if (count % BATCH_SIZE == 0) {
-                em.flush();
-                em.clear();
+                if (count % BATCH_SIZE == 0) {
+                    em.flush();
+                    em.clear();
+                }
             }
         }
 
-        // 마지막 남은 것 처리
-        em.flush();
-        em.clear();
+        if (!dryRun) {
+            em.flush();
+            em.clear();
+        }
     }
 
     private Map<String, Brand> preloadBrands() {

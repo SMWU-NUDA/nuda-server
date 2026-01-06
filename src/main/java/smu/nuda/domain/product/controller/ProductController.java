@@ -4,10 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.product.dto.ProductUploadResponse;
@@ -32,9 +29,12 @@ public class ProductController {
     )
     @SecurityRequirement(name = "JWT")
     @LoginRequired
-    public ApiResponse<ProductUploadResponse> uploadProducts(@RequestPart MultipartFile file) {
+    public ApiResponse<ProductUploadResponse> uploadProducts(@RequestPart MultipartFile csvFile, @RequestParam(defaultValue = "false") boolean dryRun) {
         Member member = authenticationGuard.currentMember();
-        return ApiResponse.success(productAdminService.uploadProductsByCsv(file, member));
+        ProductUploadResponse res = productAdminService.uploadProductsByCsv(csvFile, dryRun);
+
+        if(dryRun) return ApiResponse.success(res, "dry-run 모드로 실행되었습니다. 실제 저장은 되지 않았습니다.");
+        return ApiResponse.success(res);
     }
 
 }

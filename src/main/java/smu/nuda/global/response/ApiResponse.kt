@@ -21,6 +21,18 @@ data class ApiResponse<T>(
             )
 
         @JvmStatic
+        fun <T> success(
+            data: T?,
+            message: String
+        ): ApiResponse<T> =
+            ApiResponse(
+                success = true,
+                code = "SUCCESS",
+                message = message,
+                data = data
+            )
+
+        @JvmStatic
         @JvmOverloads
         fun <T> fail(errorCode: ErrorCode, data: T? = null): ApiResponse<T> =
             ApiResponse(
