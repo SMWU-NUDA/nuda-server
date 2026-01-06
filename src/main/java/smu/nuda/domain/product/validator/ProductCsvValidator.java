@@ -2,6 +2,7 @@ package smu.nuda.domain.product.validator;
 
 import org.springframework.stereotype.Component;
 import smu.nuda.domain.product.dto.ProductCsvRow;
+import smu.nuda.global.batch.error.CsvErrorCode;
 import smu.nuda.global.batch.exception.CsvValidationException;
 
 @Component
@@ -30,7 +31,7 @@ public class ProductCsvValidator {
 
     private void requireNotBlank(String value, int rowNumber, String message) {
         if (value == null || value.trim().isEmpty()) {
-            throw new CsvValidationException(rowNumber, message);
+            throw new CsvValidationException(CsvErrorCode.CSV_MISSING_REQUIRED_FIELD, rowNumber, message);
         }
     }
 
@@ -38,7 +39,7 @@ public class ProductCsvValidator {
         try {
             Integer.parseInt(value.trim());
         } catch (NumberFormatException e) {
-            throw new CsvValidationException(rowNumber, message);
+            throw new CsvValidationException(CsvErrorCode.CSV_INVALID_VALUE, rowNumber, message);
         }
     }
 }

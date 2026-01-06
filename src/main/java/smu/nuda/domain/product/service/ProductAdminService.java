@@ -16,6 +16,7 @@ import smu.nuda.domain.product.entity.Product;
 import smu.nuda.domain.product.repository.BrandRepository;
 import smu.nuda.domain.product.repository.CategoryRepository;
 import smu.nuda.domain.product.validator.ProductCsvValidator;
+import smu.nuda.global.batch.error.CsvErrorCode;
 import smu.nuda.global.batch.exception.CsvValidationException;
 
 import java.util.List;
@@ -59,13 +60,8 @@ public class ProductAdminService {
             Brand brand = brandMap.get(row.brandName());
             Category category = categoryMap.get(row.categoryCode());
 
-            if (brand == null) {
-                throw new CsvValidationException(row.rowNumber(), "존재하지 않는 브랜드입니다.");
-            }
-
-            if (category == null) {
-                throw new CsvValidationException(row.rowNumber(), "존재하지 않는 카테고리입니다.");
-            }
+            if (brand == null) throw new CsvValidationException(CsvErrorCode.CSV_INVALID_REFERENCE, row.rowNumber(), "존재하지 않는 브랜드입니다.");
+            if (category == null) throw new CsvValidationException(CsvErrorCode.CSV_INVALID_REFERENCE, row.rowNumber(), "존재하지 않는 카테고리입니다.");
 
             Product product = Product.create(
                     brand,
