@@ -13,7 +13,12 @@ import smu.nuda.domain.common.entity.BaseEntity;
 public class ProductAiSummary extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_ai_summary_seq")
+    @SequenceGenerator(
+            name = "product_ai_summary_seq",
+            sequenceName = "product_ai_summary_seq",
+            allocationSize = 50
+    )
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)

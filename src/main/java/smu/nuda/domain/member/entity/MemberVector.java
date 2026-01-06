@@ -14,7 +14,12 @@ import static lombok.AccessLevel.PROTECTED;
 public class MemberVector extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "member_vector_seq")
+    @SequenceGenerator(
+            name = "member_vector_seq",
+            sequenceName = "member_vector_seq",
+            allocationSize = 50
+    )
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)

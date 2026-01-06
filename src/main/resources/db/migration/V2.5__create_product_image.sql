@@ -1,5 +1,5 @@
 CREATE TABLE product_image (
-    id BIGINT PRIMARY KEY,
+    id BIGINT PRIMARY KEY DEFAULT nextval('product_image_seq'),
     product_id BIGINT NOT NULL,
     image_url TEXT NOT NULL,
     sequence INT,

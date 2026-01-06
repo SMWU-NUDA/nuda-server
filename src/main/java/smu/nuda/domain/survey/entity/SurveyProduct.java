@@ -22,7 +22,12 @@ import smu.nuda.domain.product.entity.Product;
 public class SurveyProduct extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "survey_product_seq")
+    @SequenceGenerator(
+            name = "survey_product_seq",
+            sequenceName = "survey_product_seq",
+            allocationSize = 50
+    )
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -1,0 +1,4 @@
+CREATE SEQUENCE survey_product_seq
+    START WITH 1
+    INCREMENT BY 50
+    CACHE 50;

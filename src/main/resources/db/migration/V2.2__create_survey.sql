@@ -1,5 +1,5 @@
 CREATE TABLE survey (
-    id BIGINT PRIMARY KEY,
+    id BIGINT PRIMARY KEY DEFAULT nextval('survey_seq'),
     member_id BIGINT NOT NULL,
     irritation_level VARCHAR(20),
     scent VARCHAR(20),

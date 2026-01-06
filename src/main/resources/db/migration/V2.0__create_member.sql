@@ -1,5 +1,5 @@
 CREATE TABLE member (
-    id BIGINT PRIMARY KEY,
+    id BIGINT PRIMARY KEY DEFAULT nextval('member_seq'),
     nickname VARCHAR(50),
     username VARCHAR(50) NOT NULL UNIQUE,
     password TEXT NOT NULL,

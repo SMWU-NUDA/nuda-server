@@ -1,7 +1,7 @@
 CREATE EXTENSION IF NOT EXISTS vector;
 
 CREATE TABLE product_embedding (
-    id BIGINT PRIMARY KEY,
+    id BIGINT PRIMARY KEY DEFAULT nextval('product_embedding_seq'),
     product_id BIGINT NOT NULL,
     embedding_vector VECTOR(1536),
     summary_text TEXT,

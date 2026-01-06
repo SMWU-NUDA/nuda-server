@@ -1,5 +1,5 @@
 CREATE TABLE category (
-    id BIGINT PRIMARY KEY,
+    id BIGINT PRIMARY KEY DEFAULT nextval('category_seq'),
     name VARCHAR(100) NOT NULL,
     code VARCHAR(50) NOT NULL UNIQUE,
     description VARCHAR(255),

@@ -1,5 +1,5 @@
 CREATE TABLE survey_product (
-    id BIGINT PRIMARY KEY,
+    id BIGINT PRIMARY KEY DEFAULT nextval('survey_product_seq'),
     survey_id BIGINT NOT NULL,
     product_id BIGINT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT now(),

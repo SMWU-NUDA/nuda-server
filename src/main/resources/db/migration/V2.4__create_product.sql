@@ -1,5 +1,5 @@
 CREATE TABLE product (
-    id BIGINT PRIMARY KEY,
+    id BIGINT PRIMARY KEY DEFAULT nextval('product_seq'),
     brand_id BIGINT NOT NULL,
     CONSTRAINT fk_product_brand
         FOREIGN KEY (brand_id) REFERENCES brand(id),
