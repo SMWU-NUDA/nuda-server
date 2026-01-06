@@ -1,19 +1,19 @@
 package smu.nuda.domain.product.validator;
 
 import org.springframework.stereotype.Component;
-import smu.nuda.domain.product.dto.ProductCsvRowRequest;
+import smu.nuda.domain.product.dto.ProductCsvRow;
 import smu.nuda.global.batch.exception.CsvValidationException;
 
 @Component
 public class ProductCsvValidator {
 
-    public void validate(Iterable<ProductCsvRowRequest> rows) {
-        for (ProductCsvRowRequest row : rows) {
+    public void validate(Iterable<ProductCsvRow> rows) {
+        for (ProductCsvRow row : rows) {
             validateRow(row);
         }
     }
 
-    private void validateRow(ProductCsvRowRequest row) {
+    private void validateRow(ProductCsvRow row) {
         int rowNumber = row.rowNumber();
 
         // 필수 칼럼 검증

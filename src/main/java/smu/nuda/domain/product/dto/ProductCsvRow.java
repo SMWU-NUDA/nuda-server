@@ -1,6 +1,6 @@
 package smu.nuda.domain.product.dto;
 
-public record ProductCsvRowRequest(
+public record ProductCsvRow(
 
         String brandName,
         String categoryCode,

@@ -5,7 +5,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
-import smu.nuda.domain.product.dto.ProductCsvRowRequest;
+import smu.nuda.domain.product.dto.ProductCsvRow;
 import smu.nuda.global.batch.csv.CsvReader;
 
 import java.io.InputStreamReader;
@@ -14,12 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class ProductCsvReader implements CsvReader<ProductCsvRowRequest> {
+public class ProductCsvReader implements CsvReader<ProductCsvRow> {
 
     @Override
-    public List<ProductCsvRowRequest> read(MultipartFile file) {
+    public List<ProductCsvRow> read(MultipartFile file) {
 
-        List<ProductCsvRowRequest> rows = new ArrayList<>();
+        List<ProductCsvRow> rows = new ArrayList<>();
 
         try (
                 InputStreamReader reader = new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8);
@@ -42,8 +42,8 @@ public class ProductCsvReader implements CsvReader<ProductCsvRowRequest> {
         }
     }
 
-    private ProductCsvRowRequest toRow(CSVRecord record, int rowNumber) {
-        return new ProductCsvRowRequest(
+    private ProductCsvRow toRow(CSVRecord record, int rowNumber) {
+        return new ProductCsvRow(
                 record.get("brand_name"),
                 record.get("category_code"),
                 record.get("name"),
