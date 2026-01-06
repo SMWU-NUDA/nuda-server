@@ -5,6 +5,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import smu.nuda.domain.common.entity.BaseEntity;
+import smu.nuda.domain.product.error.ProductErrorCode;
+import smu.nuda.global.error.DomainException;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -69,4 +71,24 @@ public class Product extends BaseEntity {
 
     @Column(name = "thumbnail_img")
     private String thumbnailImg;
+
+    public static Product create(Brand brand, Category category, String name, int costPrice, int discountRate, String content, String thumbnailImg) {
+        if (brand == null) throw new DomainException(ProductErrorCode.INVALID_BRAND);
+        if (category == null) throw new DomainException(ProductErrorCode.INVALID_CATEGORY);
+        if (name == null || name.isBlank()) throw new DomainException(ProductErrorCode.INVALID_PRODUCT_NAME);
+        if (costPrice < 0) throw new DomainException(ProductErrorCode.INVALID_COST_PRICE);
+        if (discountRate < 0 || discountRate > 100) throw new DomainException(ProductErrorCode.INVALID_DISCOUNT_RATE);
+
+        Product product = new Product();
+        product.brand = brand;
+        product.category = category;
+        product.name = name;
+        product.costPrice = costPrice;
+        product.discountRate = discountRate;
+        product.content = content;
+        product.thumbnailImg = thumbnailImg;
+
+        return product;
+    }
+
 }
