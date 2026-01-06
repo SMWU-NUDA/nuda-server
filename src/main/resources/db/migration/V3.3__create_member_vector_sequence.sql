@@ -1,0 +1,4 @@
+CREATE SEQUENCE member_vector_seq
+    START WITH 1
+    INCREMENT BY 50
+    CACHE 50;

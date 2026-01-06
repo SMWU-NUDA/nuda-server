@@ -14,7 +14,12 @@ import smu.nuda.domain.product.entity.enums.ImageType;
 public class ProductImage extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_image_seq")
+    @SequenceGenerator(
+            name = "product_image_seq",
+            sequenceName = "product_image_seq",
+            allocationSize = 50
+    )
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

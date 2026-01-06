@@ -39,3 +39,6 @@ out/
 ### YML ###
 src/main/resources/application-dev.yml
 .env
+
+### Build ###
+nuda-app.tar.gz

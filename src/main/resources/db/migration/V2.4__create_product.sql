@@ -1,10 +1,11 @@
 CREATE TABLE product (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY DEFAULT nextval('product_seq'),
     brand_id BIGINT NOT NULL,
     CONSTRAINT fk_product_brand
         FOREIGN KEY (brand_id) REFERENCES brand(id),
     name VARCHAR(255) NOT NULL,
-    cost INT NOT NULL,
+    cost_price INT NOT NULL,
+    discount_rate INT NOT NULL,
     category_id BIGINT NOT NULL,
     CONSTRAINT fk_product_category
         FOREIGN KEY (category_id) REFERENCES category(id),

@@ -16,8 +16,14 @@ import smu.nuda.global.error.DomainException;
 @Entity
 @Table(name = "member")
 public class Member extends BaseEntity {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "member_seq")
+    @SequenceGenerator(
+            name = "member_seq",
+            sequenceName = "member_seq",
+            allocationSize = 50
+    )
     private Long id;
 
     private String nickname;
