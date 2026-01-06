@@ -21,7 +21,8 @@ public class MemberTestFactory {
         return save(
                 "active",
                 Status.ACTIVE,
-                SignupStepType.COMPLETED
+                SignupStepType.COMPLETED,
+                Role.USER
         );
     }
 
@@ -29,7 +30,8 @@ public class MemberTestFactory {
         return save(
                 "inactive",
                 Status.INACTIVE,
-                SignupStepType.COMPLETED
+                SignupStepType.COMPLETED,
+                Role.USER
         );
     }
 
@@ -37,11 +39,21 @@ public class MemberTestFactory {
         return save(
                 "signup_" + step.name().toLowerCase(),
                 Status.ACTIVE,
-                step
+                step,
+                Role.USER
         );
     }
 
-    private Member save(String prefix, Status status, SignupStepType step) {
+    public Member admin() {
+        return save(
+                "active",
+                Status.ACTIVE,
+                SignupStepType.COMPLETED,
+                Role.ADMIN
+        );
+    }
+
+    private Member save(String prefix, Status status, SignupStepType step, Role role) {
         long seq = SEQUENCE.incrementAndGet();
 
         return memberRepository.save(
@@ -49,7 +61,7 @@ public class MemberTestFactory {
                         .username(prefix + "_" + seq)
                         .email(prefix + "_" + seq + "@test.com")
                         .password("password")
-                        .role(Role.USER)
+                        .role(role)
                         .status(status)
                         .signupStep(step)
                         .build()
