@@ -17,7 +17,7 @@ public class ProductEmbedding extends BaseEntity {
     @SequenceGenerator(
             name = "product_embedding_seq",
             sequenceName = "product_embedding_seq",
-            allocationSize = 50
+            allocationSize = 1
     )
     private Long id;
 

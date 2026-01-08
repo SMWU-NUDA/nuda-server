@@ -6,8 +6,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.member.withdraw.WithdrawPolicyExecutor;
+import smu.nuda.domain.member.withdraw.event.WithdrawRequestedEvent;
 import smu.nuda.global.guard.guard.AuthenticationGuard;
 
 import static org.mockito.Mockito.*;
@@ -26,14 +28,10 @@ class WithdrawServiceTest {
     유스케이스 흐름의 조립 책임이 WithdrawService에 있음을 증명함
      */
 
-    @Mock
-    AuthenticationGuard authenticationGuard;
-
-    @Mock
-    WithdrawPolicyExecutor withdrawPolicyExecutor;
-
-    @InjectMocks
-    WithdrawService withdrawService;
+    @Mock AuthenticationGuard authenticationGuard;
+    @Mock WithdrawPolicyExecutor withdrawPolicyExecutor;
+    @Mock ApplicationEventPublisher eventPublisher;
+    @InjectMocks WithdrawService withdrawService;
 
     @Test
     @DisplayName("회원 탈퇴 요청 시 인증 → 정책 검증 → 상태 전이가 순차적으로 수행된다")
@@ -41,8 +39,7 @@ class WithdrawServiceTest {
         // [given] 인증된 회원이 존재하고 탈퇴 정책 검증이 통과되는 상황
         Member member = mock(Member.class);
 
-        when(authenticationGuard.currentMember())
-                .thenReturn(member);
+        when(authenticationGuard.currentMember()).thenReturn(member);
 
         // [when] 회원 탈퇴 요청을 수행
         withdrawService.withdraw();
@@ -51,5 +48,6 @@ class WithdrawServiceTest {
         verify(authenticationGuard).currentMember();
         verify(withdrawPolicyExecutor).validate(member);
         verify(member).requestWithdraw();
+        verify(eventPublisher).publishEvent(any(WithdrawRequestedEvent.class));
     }
 }

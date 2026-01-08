@@ -22,7 +22,7 @@ public class Member extends BaseEntity {
     @SequenceGenerator(
             name = "member_seq",
             sequenceName = "member_seq",
-            allocationSize = 50
+            allocationSize = 1
     )
     private Long id;
 

@@ -19,7 +19,7 @@ public class Survey extends BaseEntity {
     @SequenceGenerator(
             name = "survey_seq",
             sequenceName = "survey_seq",
-            allocationSize = 50
+            allocationSize = 1
     )
     private Long id;
 

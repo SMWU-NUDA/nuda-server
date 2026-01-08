@@ -7,8 +7,8 @@ enum class ProductErrorCode(
     override val message: String
 ) : ErrorCode {
 
-    INVALID_BRAND(
-        "PRODUCT_INVALID_BRAND", "유효하지 않은 브랜드입니다."
+    INVALID_PRODUCT(
+        "PRODUCT_INVALID_PRODUCT", "유효하지 않은 상품입니다."
     ),
     INVALID_CATEGORY(
         "PRODUCT_INVALID_CATEGORY", "유효하지 않은 카테고리입니다."

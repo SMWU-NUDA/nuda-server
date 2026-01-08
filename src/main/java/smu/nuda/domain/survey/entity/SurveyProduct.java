@@ -26,7 +26,7 @@ public class SurveyProduct extends BaseEntity {
     @SequenceGenerator(
             name = "survey_product_seq",
             sequenceName = "survey_product_seq",
-            allocationSize = 50
+            allocationSize = 1
     )
     private Long id;
 

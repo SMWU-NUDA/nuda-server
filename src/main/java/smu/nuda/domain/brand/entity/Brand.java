@@ -1,4 +1,4 @@
-package smu.nuda.domain.product.entity;
+package smu.nuda.domain.brand.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -17,7 +17,7 @@ public class Brand extends BaseEntity {
     @SequenceGenerator(
             name = "brand_seq",
             sequenceName = "brand_seq",
-            allocationSize = 50
+            allocationSize = 1
     )
     private Long id;
 
@@ -26,5 +26,16 @@ public class Brand extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String logoImg;
+
+    @Column(name = "like_count")
+    private int likeCount = 0;
+
+    public void increaseLikeCount() {
+        this.likeCount++;
+    }
+
+    public void decreaseLikeCount() {
+        this.likeCount--;
+    }
 
 }

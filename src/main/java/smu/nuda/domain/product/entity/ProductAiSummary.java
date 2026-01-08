@@ -17,7 +17,7 @@ public class ProductAiSummary extends BaseEntity {
     @SequenceGenerator(
             name = "product_ai_summary_seq",
             sequenceName = "product_ai_summary_seq",
-            allocationSize = 50
+            allocationSize = 1
     )
     private Long id;
 

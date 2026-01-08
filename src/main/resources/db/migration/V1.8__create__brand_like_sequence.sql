@@ -1,4 +1,4 @@
-CREATE SEQUENCE survey_product_seq
+CREATE SEQUENCE brand_like_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
