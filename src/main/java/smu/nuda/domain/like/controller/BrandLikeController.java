@@ -3,6 +3,7 @@ package smu.nuda.domain.like.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import smu.nuda.domain.common.dto.CursorPageResponse;
@@ -17,6 +18,7 @@ import smu.nuda.global.response.ApiResponse;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/brands")
+@Tag(name = "[BRAND LIKE] 생리대 브랜드 찜하기 API")
 public class BrandLikeController {
 
     private  final LikeService likeService;
