@@ -7,7 +7,7 @@ CREATE TABLE product_like (
     CONSTRAINT fk_product_like_product
         FOREIGN KEY (product_id) REFERENCES product(id),
     created_at TIMESTAMP NOT NULL DEFAULT now(),
-    updated_at TIMESTAMP NOT NULL DEFAULT now()
+    updated_at TIMESTAMP NOT NULL DEFAULT now(),
 
     CONSTRAINT uk_product_like_member_product
         UNIQUE (member_id, product_id)

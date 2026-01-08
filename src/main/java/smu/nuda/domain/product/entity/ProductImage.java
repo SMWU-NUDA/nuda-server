@@ -18,7 +18,7 @@ public class ProductImage extends BaseEntity {
     @SequenceGenerator(
             name = "product_image_seq",
             sequenceName = "product_image_seq",
-            allocationSize = 50
+            allocationSize = 1
     )
     private Long id;
 

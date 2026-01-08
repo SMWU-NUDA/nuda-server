@@ -18,7 +18,7 @@ public class MemberVector extends BaseEntity {
     @SequenceGenerator(
             name = "member_vector_seq",
             sequenceName = "member_vector_seq",
-            allocationSize = 50
+            allocationSize = 1
     )
     private Long id;
 

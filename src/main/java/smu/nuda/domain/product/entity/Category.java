@@ -18,7 +18,7 @@ public class Category extends BaseEntity {
     @SequenceGenerator(
             name = "category_seq",
             sequenceName = "category_seq",
-            allocationSize = 50
+            allocationSize = 1
     )
     private Long id;
 

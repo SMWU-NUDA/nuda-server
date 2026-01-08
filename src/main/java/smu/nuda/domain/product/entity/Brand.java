@@ -17,7 +17,7 @@ public class Brand extends BaseEntity {
     @SequenceGenerator(
             name = "brand_seq",
             sequenceName = "brand_seq",
-            allocationSize = 50
+            allocationSize = 1
     )
     private Long id;
 
