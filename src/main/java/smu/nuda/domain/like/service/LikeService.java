@@ -8,9 +8,11 @@ import smu.nuda.domain.brand.error.BrandErrorCode;
 import smu.nuda.domain.brand.repository.BrandRepository;
 import smu.nuda.domain.common.dto.CursorPageResponse;
 import smu.nuda.domain.like.dto.LikeToggleResponse;
+import smu.nuda.domain.like.dto.LikedBrandResponse;
 import smu.nuda.domain.like.dto.LikedProductResponse;
 import smu.nuda.domain.like.entity.BrandLike;
 import smu.nuda.domain.like.entity.ProductLike;
+import smu.nuda.domain.like.repository.BrandLikeQueryRepository;
 import smu.nuda.domain.like.repository.BrandLikeRepository;
 import smu.nuda.domain.like.repository.ProductLikeQueryRepository;
 import smu.nuda.domain.like.repository.ProductLikeRepository;
@@ -32,6 +34,7 @@ public class LikeService {
     private final ProductLikeQueryRepository productLikeQueryRepository;
     private final BrandRepository brandRepository;
     private final BrandLikeRepository brandLikeRepository;
+    private final BrandLikeQueryRepository brandLikeQueryRepository;
 
     public LikeToggleResponse productLikeToggle(Long productId, Member member) {
 
@@ -88,6 +91,22 @@ public class LikeService {
                 result,
                 size,
                 LikedProductResponse::getLikeId
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public CursorPageResponse<LikedBrandResponse> likedBrands(Member member, Long cursor, int size) {
+        List<LikedBrandResponse> result =
+                brandLikeQueryRepository.findLikedBrands(
+                        member.getId(),
+                        cursor,
+                        size
+                );
+
+        return CursorPageResponse.of(
+                result,
+                size,
+                LikedBrandResponse::getLikeId
         );
     }
 
