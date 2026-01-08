@@ -49,4 +49,10 @@ public class BrandLike extends BaseEntity {
             foreignKey = @ForeignKey(name = "fk_brand_like_brand")
     )
     private Brand brand;
+
+    public BrandLike(Member member, Brand brand) {
+        this.member = member;
+        this.brand = brand;
+    }
+
 }

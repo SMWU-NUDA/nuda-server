@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import smu.nuda.domain.brand.entity.Brand;
+import smu.nuda.domain.brand.error.BrandErrorCode;
 import smu.nuda.domain.common.entity.BaseEntity;
 import smu.nuda.domain.product.error.ProductErrorCode;
 import smu.nuda.global.error.DomainException;
@@ -74,7 +75,7 @@ public class Product extends BaseEntity {
     private String thumbnailImg;
 
     public static Product create(Brand brand, Category category, String name, int costPrice, int discountRate, String content, String thumbnailImg) {
-        if (brand == null) throw new DomainException(ProductErrorCode.INVALID_BRAND);
+        if (brand == null) throw new DomainException(BrandErrorCode.INVALID_BRAND);
         if (category == null) throw new DomainException(ProductErrorCode.INVALID_CATEGORY);
         if (name == null || name.isBlank()) throw new DomainException(ProductErrorCode.INVALID_PRODUCT_NAME);
         if (costPrice < 0) throw new DomainException(ProductErrorCode.INVALID_COST_PRICE);
@@ -90,6 +91,14 @@ public class Product extends BaseEntity {
         product.thumbnailImg = thumbnailImg;
 
         return product;
+    }
+
+    public void increaseLikeCount() {
+        this.likeCount++;
+    }
+
+    public void decreaseLikeCount() {
+        this.likeCount--;
     }
 
 }

@@ -43,7 +43,7 @@ public class ProductService {
     @Transactional(readOnly = true)
     public ProductDetailResponse getProductDetail(Long productId, Member member) {
         ProductDetailCache cache = getProductDetailCache(productId);
-        boolean likedByMe = productLikeRepository.existsByMemberIdAndProductId(member.getId(), productId);
+        boolean likedByMe = productLikeRepository.existsByMember_IdAndProduct_Id(member.getId(), productId);
 
         return ProductDetailResponse.of(cache, likedByMe);
     }

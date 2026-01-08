@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import smu.nuda.domain.product.dto.ProductDetailCache;
 import static smu.nuda.domain.product.entity.QProduct.product;
-import static smu.nuda.domain.product.entity.QBrand.brand;
+import static smu.nuda.domain.brand.entity.QBrand.brand;
 
 import java.util.List;
 

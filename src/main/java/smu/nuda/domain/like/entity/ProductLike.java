@@ -1,9 +1,7 @@
 package smu.nuda.domain.like.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import smu.nuda.domain.common.entity.BaseEntity;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.product.entity.Product;
@@ -48,5 +46,10 @@ public class ProductLike extends BaseEntity {
             foreignKey = @ForeignKey(name = "fk_product_like_product")
     )
     private Product product;
+
+    public ProductLike(Member member, Product product) {
+        this.member = member;
+        this.product = product;
+    }
 
 }

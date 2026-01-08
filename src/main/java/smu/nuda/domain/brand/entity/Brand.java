@@ -27,4 +27,15 @@ public class Brand extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String logoImg;
 
+    @Column(name = "like_count")
+    private int likeCount = 0;
+
+    public void increaseLikeCount() {
+        this.likeCount++;
+    }
+
+    public void decreaseLikeCount() {
+        this.likeCount--;
+    }
+
 }

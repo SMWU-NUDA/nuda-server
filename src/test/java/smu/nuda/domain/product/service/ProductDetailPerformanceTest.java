@@ -62,7 +62,7 @@ public class ProductDetailPerformanceTest {
                 .content(base.getContent())
                 .imageUrls(imageUrls)
                 .build();
-        boolean likedByMe = productLikeRepository.existsByMemberIdAndProductId(member.getId(), productId);
+        boolean likedByMe = productLikeRepository.existsByMember_IdAndProduct_Id(member.getId(), productId);
 
         return ProductDetailResponse.of(cache, likedByMe);
     }
