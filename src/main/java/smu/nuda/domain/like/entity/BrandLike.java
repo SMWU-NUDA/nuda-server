@@ -4,31 +4,32 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import smu.nuda.domain.brand.entity.Brand;
 import smu.nuda.domain.common.entity.BaseEntity;
 import smu.nuda.domain.member.entity.Member;
-import smu.nuda.domain.product.entity.Product;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(
-        name = "product_like",
+        name = "brand_like",
         uniqueConstraints = {
                 @UniqueConstraint(
-                        name = "uk_product_like_member_product",
-                        columnNames = {"member_id", "product_id"}
+                        name = "uk_brand_like_member_brand",
+                        columnNames = {"member_id", "brand_id"}
                 )
         }
 )
-public class ProductLike extends BaseEntity {
+public class BrandLike extends BaseEntity {
+
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "product_like_seq"
+            generator = "brand_like_seq"
     )
     @SequenceGenerator(
-            name = "product_like_seq",
-            sequenceName = "product_like_seq",
+            name = "brand_like_seq",
+            sequenceName = "brand_like_seq",
             allocationSize = 1
     )
     private Long id;
@@ -37,16 +38,15 @@ public class ProductLike extends BaseEntity {
     @JoinColumn(
             name = "member_id",
             nullable = false,
-            foreignKey = @ForeignKey(name = "fk_product_like_member")
+            foreignKey = @ForeignKey(name = "fk_brand_like_member")
     )
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
-            name = "product_id",
+            name = "brand_id",
             nullable = false,
-            foreignKey = @ForeignKey(name = "fk_product_like_product")
+            foreignKey = @ForeignKey(name = "fk_brand_like_brand")
     )
-    private Product product;
-
+    private Brand brand;
 }
