@@ -1,5 +1,6 @@
 reviews:
-  auto_review: true
+  auto_review:
+    enabled: true
   review_level: detailed     # brief | detailed
   max_comments: 30           # 과도한 코멘트 방지
 
