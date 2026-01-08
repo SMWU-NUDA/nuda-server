@@ -1,0 +1,60 @@
+language: ko
+
+tone_instructions: >
+  리뷰는 설계 의도와 책임 경계를 중심으로 작성하세요.
+  테스트는 커버리지가 아니라 설계 결정을 증명하는 문서로 간주합니다.
+  명령형 표현보다 제안형 표현을 사용하세요.
+  코드 스타일이나 포맷팅에 대한 언급은 피하세요.
+
+reviews:
+  auto_review:
+    enabled: true
+  profile: assertive
+
+  path_filters:
+    - "!**/build/**"
+    - "!**/generated/**"
+    - "!**/*.md"
+    - "!**/Q*"
+    - "!**/resources/static/**"
+
+  path_instructions:
+    - path: "**/*Controller*.java"
+      instructions: >
+        Controllers should only handle request/response mapping.
+        If business logic or decision-making is present,
+        suggest moving it to the Service or Domain layer.
+
+    - path: "**/*.java"
+      instructions: >
+        When reviewing entities or domain-related classes,
+        watch for direct state mutation via setters.
+        Encourage encapsulating state changes inside meaningful
+        domain methods to better express invariants and design intent.
+
+    - path: "**/*Service*.java"
+      instructions: >
+        Review transactional boundaries carefully.
+        If @Transactional is used broadly, consider whether the scope
+        can be narrowed or marked as readOnly for query-only operations
+        to better express intent and avoid unnecessary overhead.
+        Additionally, for core Service classes, consider whether tests 
+        adequately document and protect key design decisions.
+
+    - path: "**/*Repository*.java"
+      instructions: >
+        Review repository methods for query complexity.
+        If method names indicate growing conditions or multiple predicates,
+        suggest separating the query into a QueryDSL-based repository
+        for better scalability and maintainability.
+
+    - path: "**/*Policy*.java"
+      instructions: >
+        Treat Policy classes as design-critical code.
+        Verify that the intent of the logic is clear and consider recommending
+        tests to lock in design decisions rather than just behavior.
+
+    - path: "**/*Guard*.java"
+      instructions: >
+        Treat Guard classes as design-critical code.
+        Ensure policy enforcement logic is explicit and testable.
