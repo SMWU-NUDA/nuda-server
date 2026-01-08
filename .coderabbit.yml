@@ -38,6 +38,8 @@ reviews:
         If @Transactional is used broadly, consider whether the scope
         can be narrowed or marked as readOnly for query-only operations
         to better express intent and avoid unnecessary overhead.
+        Additionally, for core Service classes, consider whether tests 
+        adequately document and protect key design decisions.
 
     - path: "**/*Repository*.java"
       instructions: >
@@ -56,8 +58,3 @@ reviews:
       instructions: >
         Treat Guard classes as design-critical code.
         Ensure policy enforcement logic is explicit and testable.
-
-    - path: "**/*Service*.java"
-      instructions: >
-        For core Service classes, consider whether tests adequately
-        document and protect key design decisions.
