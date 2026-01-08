@@ -6,16 +6,21 @@ import org.springframework.transaction.annotation.Transactional;
 import smu.nuda.domain.brand.entity.Brand;
 import smu.nuda.domain.brand.error.BrandErrorCode;
 import smu.nuda.domain.brand.repository.BrandRepository;
+import smu.nuda.domain.common.dto.CursorPageResponse;
 import smu.nuda.domain.like.dto.LikeToggleResponse;
+import smu.nuda.domain.like.dto.LikedProductResponse;
 import smu.nuda.domain.like.entity.BrandLike;
 import smu.nuda.domain.like.entity.ProductLike;
 import smu.nuda.domain.like.repository.BrandLikeRepository;
+import smu.nuda.domain.like.repository.ProductLikeQueryRepository;
 import smu.nuda.domain.like.repository.ProductLikeRepository;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.product.entity.Product;
 import smu.nuda.domain.product.error.ProductErrorCode;
 import smu.nuda.domain.product.repository.ProductRepository;
 import smu.nuda.global.error.DomainException;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +29,7 @@ public class LikeService {
 
     private final ProductRepository productRepository;
     private final ProductLikeRepository productLikeRepository;
+    private final ProductLikeQueryRepository productLikeQueryRepository;
     private final BrandRepository brandRepository;
     private final BrandLikeRepository brandLikeRepository;
 
@@ -67,6 +73,22 @@ public class LikeService {
                     brand.increaseLikeCount();
                     return LikeToggleResponse.liked(brand.getLikeCount());
                 });
+    }
+
+    @Transactional(readOnly = true)
+    public CursorPageResponse<LikedProductResponse> likedProducts(Member member, Long cursor, int size) {
+        List<LikedProductResponse> result =
+                productLikeQueryRepository.findLikedProducts(
+                        member.getId(),
+                        cursor,
+                        size
+                );
+
+        return CursorPageResponse.of(
+                result,
+                size,
+                LikedProductResponse::getLikeId
+        );
     }
 
 }
