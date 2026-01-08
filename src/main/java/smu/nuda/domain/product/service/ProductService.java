@@ -4,10 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.product.dto.ProductDetailCache;
 import smu.nuda.domain.product.dto.ProductDetailResponse;
 import smu.nuda.domain.product.repository.ProductImageQueryRepository;
 import smu.nuda.domain.product.repository.ProductQueryRepository;
+import smu.nuda.domain.productlike.repository.ProductLikeRepository;
 
 import java.util.List;
 
@@ -17,6 +19,7 @@ public class ProductService {
 
     private final ProductQueryRepository productQueryRepository;
     private final ProductImageQueryRepository productImageQueryRepository;
+    private final ProductLikeRepository productLikeRepository;
 
     @Cacheable(value = "productDetail", key = "#productId")
     @Transactional(readOnly = true)
@@ -37,8 +40,12 @@ public class ProductService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
+    public ProductDetailResponse getProductDetail(Long productId, Member member) {
+        ProductDetailCache cache = getProductDetailCache(productId);
+        boolean likedByMe = productLikeRepository.existsByMemberIdAndProductId(member.getId(), productId);
 
-
-
+        return ProductDetailResponse.of(cache, likedByMe);
+    }
 
 }
