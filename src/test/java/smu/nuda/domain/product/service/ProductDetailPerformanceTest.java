@@ -13,7 +13,7 @@ import smu.nuda.domain.product.dto.ProductDetailCache;
 import smu.nuda.domain.product.dto.ProductDetailResponse;
 import smu.nuda.domain.product.repository.ProductImageQueryRepository;
 import smu.nuda.domain.product.repository.ProductQueryRepository;
-import smu.nuda.domain.productlike.repository.ProductLikeRepository;
+import smu.nuda.domain.like.repository.ProductLikeRepository;
 import smu.nuda.support.member.MemberTestFactory;
 
 import java.util.List;

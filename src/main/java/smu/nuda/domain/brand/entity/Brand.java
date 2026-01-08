@@ -1,4 +1,4 @@
-package smu.nuda.domain.product.entity;
+package smu.nuda.domain.brand.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

@@ -1,4 +1,4 @@
-package smu.nuda.domain.productlike.entity;
+package smu.nuda.domain.like.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

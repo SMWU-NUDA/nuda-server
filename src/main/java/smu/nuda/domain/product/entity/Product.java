@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import smu.nuda.domain.brand.entity.Brand;
 import smu.nuda.domain.common.entity.BaseEntity;
 import smu.nuda.domain.product.error.ProductErrorCode;
 import smu.nuda.global.error.DomainException;
