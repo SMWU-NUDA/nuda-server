@@ -56,6 +56,20 @@ public class Review extends BaseEntity {
 
     private String thumbnailImg;
 
+    public Review(Member member, Product product, double rating, String pros, String cons, String thumbnailImg) {
+        this.member = member;
+        this.product = product;
+        this.rating = rating;
+        this.pros = pros;
+        this.cons = cons;
+        this.thumbnailImg = thumbnailImg;
+        this.likeCount = 0;
+    }
+
+    public void updateThumbnail(String thumbnailImg) {
+        this.thumbnailImg = thumbnailImg;
+    }
+
     public void increaseLike() {
         this.likeCount++;
     }
@@ -65,4 +79,6 @@ public class Review extends BaseEntity {
             this.likeCount--;
         }
     }
+
+
 }
