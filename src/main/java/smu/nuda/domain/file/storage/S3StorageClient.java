@@ -23,6 +23,11 @@ public class S3StorageClient implements StorageClient {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
+    @Value("${cloud.aws.cloudfront.domain}")
+    private String cloudfrontDomain;
+
+    private String cdn;
+
     @Override
     public PresignedUrlResponse createPresignedUrl(UploadType type, String fileName, String contentType) {
         String key = generateKey(type, fileName);
@@ -61,7 +66,7 @@ public class S3StorageClient implements StorageClient {
     }
 
     private String buildPublicUrl(String key) {
-        return "https://nuda.site/" + key;
+        return cloudfrontDomain + "/" + key;
     }
 
 }
