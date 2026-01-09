@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.review.dto.ReviewCreateRequest;
+import smu.nuda.domain.review.dto.ReviewDetailResponse;
 import smu.nuda.domain.review.service.ReviewService;
 import smu.nuda.global.guard.annotation.LoginRequired;
 import smu.nuda.global.guard.guard.AuthenticationGuard;
@@ -32,9 +33,8 @@ public class ReviewController {
     )
     @SecurityRequirement(name = "JWT")
     @LoginRequired
-    public ApiResponse<Long> createReview(@Valid @RequestBody ReviewCreateRequest request) {
+    public ApiResponse<ReviewDetailResponse> createReview(@Valid @RequestBody ReviewCreateRequest request) {
         Member member = authenticationGuard.currentMember();
-        Long reviewId = reviewService.create(request, member);
-        return ApiResponse.success(reviewId);
+        return ApiResponse.success(reviewService.create(request, member));
     }
 }

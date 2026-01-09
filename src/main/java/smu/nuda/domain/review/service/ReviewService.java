@@ -8,6 +8,7 @@ import smu.nuda.domain.product.entity.Product;
 import smu.nuda.domain.product.error.ProductErrorCode;
 import smu.nuda.domain.product.repository.ProductRepository;
 import smu.nuda.domain.review.dto.ReviewCreateRequest;
+import smu.nuda.domain.review.dto.ReviewDetailResponse;
 import smu.nuda.domain.review.entity.Review;
 import smu.nuda.domain.review.entity.ReviewImage;
 import smu.nuda.domain.review.repository.ReviewImageRepository;
@@ -25,7 +26,7 @@ public class ReviewService {
     private final ProductRepository productRepository;
 
     @Transactional
-    public Long create(ReviewCreateRequest request, Member member) {
+    public ReviewDetailResponse create(ReviewCreateRequest request, Member member) {
 
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new DomainException(ProductErrorCode.INVALID_PRODUCT));
@@ -38,16 +39,14 @@ public class ReviewService {
                 request.getCons(),
                 null
         );
-
         reviewRepository.save(review);
 
         List<String> imageUrls = request.getImageUrls();
-
         if (imageUrls != null && !imageUrls.isEmpty()) {
             saveImages(review, imageUrls);
         }
 
-        return review.getId();
+        return ReviewDetailResponse.of(review, imageUrls, false);
     }
 
     private void saveImages(Review review, List<String> imageUrls) {
