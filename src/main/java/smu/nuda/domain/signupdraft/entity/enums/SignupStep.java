@@ -1,7 +1,7 @@
 package smu.nuda.domain.signupdraft.entity.enums;
 
 public enum SignupStep {
-    BASIC,
+    ACCOUNT,
     DELIVERY,
     SURVEY,
     COMPLETED
