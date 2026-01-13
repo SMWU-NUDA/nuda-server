@@ -109,13 +109,13 @@ public class SignupDraftUseCase {
         try {
             return objectMapper.writeValueAsString(ids);
         } catch (JsonProcessingException e) {
-            throw new DomainException(SignupDraftErrorCode.MALFORMED_JSON_DATA);
+            throw new DomainException(SignupDraftErrorCode.JSON_SERIALIZATION_FAILED);
         }
     }
 
     public void commit(String signupToken) {
         SignupDraft draft = signupDraftRepository.findBySignupToken(signupToken)
-                .orElseThrow(() -> new DomainException(SignupDraftErrorCode.DRAFT_NOT_FOUND));
+                .orElseThrow(() -> new DomainException(SignupDraftErrorCode.MISSING_TOKEN));
 
         if (draft.getCurrentStep() != SignupStep.COMPLETED) {
             throw new DomainException(SignupDraftErrorCode.DRAFT_NOT_COMPLETED);
