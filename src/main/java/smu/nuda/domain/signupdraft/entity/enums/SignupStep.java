@@ -4,5 +4,9 @@ public enum SignupStep {
     ACCOUNT,
     DELIVERY,
     SURVEY,
-    COMPLETED
+    COMPLETED;
+
+    public boolean isAfterOrEqual(SignupStep required) {
+        return this.ordinal() >= required.ordinal();
+    }
 }

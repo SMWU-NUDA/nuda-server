@@ -11,7 +11,10 @@ enum class SignupDraftErrorCode (
         "SIGNUP_DRAFT_NOT_FOUND" , "회원가입 진행 정보를 찾을 수 없습니다."
     ),
     INVALID_SURVEY_FORMAT(
-        "INVALID_SURVEY_FORMAT", "설문 데이터 형식이 올바르지 않습니다."
+        "SIGNUP_INVALID_SURVEY_FORMAT", "설문 데이터 형식이 올바르지 않습니다."
+    ),
+    DRAFT_NOT_COMPLETED(
+        "SIGNUP_DRAFT_NOT_COMPLETED", "회원가입이 아직 완료되지 않았습니다."
     )
 
     ;
