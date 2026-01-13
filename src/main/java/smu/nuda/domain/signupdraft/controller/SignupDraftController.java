@@ -3,9 +3,7 @@ package smu.nuda.domain.signupdraft.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import smu.nuda.domain.signupdraft.dto.SignupDraftCreateResponse;
 import smu.nuda.domain.signupdraft.usecase.SignupDraftUseCase;
 import smu.nuda.global.response.ApiResponse;
@@ -26,6 +24,15 @@ public class SignupDraftController {
     )
     public ApiResponse<SignupDraftCreateResponse> createDraft() {
         return ApiResponse.success(signupDraftUseCase.createDraft());
+    }
+
+    @GetMapping("/draft")
+    @Operation(
+            summary = "회원가입 임시 저장 조회",
+            description = "Signup-Token을 통해 저장된 회원가입 임시 데이터를 조회합니다. "
+    )
+    public ApiResponse<SignupDraftCreateResponse> getDraft(@RequestHeader("Signup-Token") String signupToken) {
+        return ApiResponse.success(signupDraftUseCase.getDraft(signupToken));
     }
 
 }

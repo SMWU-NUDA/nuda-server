@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import smu.nuda.domain.signupdraft.dto.SignupDraftCreateResponse;
 import smu.nuda.domain.signupdraft.entity.SignupDraft;
+import smu.nuda.domain.signupdraft.error.SignupDraftErrorCode;
 import smu.nuda.domain.signupdraft.repostiory.SignupDraftRepository;
+import smu.nuda.global.error.DomainException;
 
 import java.util.UUID;
 
@@ -27,5 +29,17 @@ public class SignupDraftUseCase {
                 .currentStep(draft.getCurrentStep())
                 .build();
     }
+
+    @Transactional(readOnly = true)
+    public SignupDraftCreateResponse getDraft(String signupToken) {
+        SignupDraft draft = signupDraftRepository.findBySignupToken(signupToken)
+                .orElseThrow(() -> new DomainException(SignupDraftErrorCode.DRAFT_NOT_FOUND));
+
+        return SignupDraftCreateResponse.builder()
+                .signupToken(draft.getSignupToken())
+                .currentStep(draft.getCurrentStep())
+                .build();
+    }
+
 }
 
