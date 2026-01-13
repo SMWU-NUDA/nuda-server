@@ -11,7 +11,5 @@ CREATE TABLE survey_product (
     CONSTRAINT uq_survey_product UNIQUE (survey_id, product_id)
 );
 
-CREATE INDEX idx_survey_product_survey_id
-    ON survey_product(survey_id);
 CREATE INDEX idx_survey_product_product_id
     ON survey_product(product_id);
