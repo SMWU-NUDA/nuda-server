@@ -13,7 +13,7 @@ import smu.nuda.global.error.DomainException;
 @RequiredArgsConstructor
 public class SignupDraftGuard {
     private final SignupDraftRepository signupDraftRepository;
-    private final SignupDraftPolicy signupDraftPolicy = SignupDraftPolicy.INSTANCE;
+    private final SignupDraftPolicy signupDraftPolicy;
 
     public SignupDraft validateStep(String signupToken, SignupStep requiredStep) {
         SignupDraft draft = signupDraftRepository.findBySignupToken(signupToken)
