@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import smu.nuda.domain.common.entity.BaseEntity;
 import smu.nuda.domain.member.entity.Member;
+import smu.nuda.domain.signupdraft.entity.SignupDraft;
 import smu.nuda.domain.survey.entity.enums.*;
 
 @Getter
@@ -41,4 +42,15 @@ public class Survey extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private PriorityType priority;
+
+    public static Survey of(SignupDraft draft, Member member) {
+        return Survey.builder()
+                .member(member)
+                .irritationLevel(draft.getIrritationLevel())
+                .scent(draft.getScent())
+                .changeFrequency(draft.getChangeFrequency())
+                .thickness(draft.getThickness())
+                .priority(draft.getPriority())
+                .build();
+    }
 }

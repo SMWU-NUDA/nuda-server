@@ -126,7 +126,7 @@ public class SignupDraft extends BaseEntity {
                     new TypeReference<List<Long>>() {}
             );
         } catch (JsonProcessingException e) {
-            throw new DomainException(SignupDraftErrorCode.INVALID_SURVEY_FORMAT);
+            throw new DomainException(SignupDraftErrorCode.MALFORMED_JSON_DATA);
         }
     }
 

@@ -47,9 +47,9 @@ public class SignupDraftController {
             description = "이메일, 사용자명, 비밀번호, 닉네임 등 기본 계정 정보를 저장합니다. 마지막 요청값으로 항상 덮어씁니다."
     )
     @SignupDraftStep(SignupStep.ACCOUNT)
-    public ApiResponse<Void> updateAccount(@RequestHeader("Signup-Token") String signupToken, @RequestBody @Valid AccountRequest request) {
+    public ApiResponse<String> updateAccount(@RequestHeader("Signup-Token") String signupToken, @RequestBody @Valid AccountRequest request) {
         signupDraftUseCase.updateAccount(signupToken, request);
-        return ApiResponse.success();
+        return ApiResponse.success("기본 정보 입력이 완료되었습니다. 배송지입력을 진행해주세요.");
     }
 
     @PutMapping("/draft/delivery")
@@ -58,9 +58,9 @@ public class SignupDraftController {
             description = "회원가입 과정에서 사용할 기본 배송지 정보(주소, 수령인 등)를 저장합니다."
     )
     @SignupDraftStep(SignupStep.DELIVERY)
-    public ApiResponse<Void> enterDelivery(@RequestHeader("Signup-Token") String signupToken, @RequestBody @Valid DeliveryRequest request) {
+    public ApiResponse<String> enterDelivery(@RequestHeader("Signup-Token") String signupToken, @RequestBody @Valid DeliveryRequest request) {
         signupDraftUseCase.updateDelivery(signupToken, request);
-        return ApiResponse.success();
+        return ApiResponse.success("배송지 입력이 완료되었습니다. 설문조사를 진행해주세요.");
     }
 
     @PutMapping("/draft/survey")
@@ -69,9 +69,20 @@ public class SignupDraftController {
             description = "회원가입 과정에서 사용할 설문 정보(상품 선택 필수)를 저장합니다."
     )
     @SignupDraftStep(SignupStep.SURVEY)
-    public ApiResponse<Void> enterSurvey(@RequestHeader("Signup-Token") String signupToken, @RequestBody @Valid SurveyRequest request) {
+    public ApiResponse<String> enterSurvey(@RequestHeader("Signup-Token") String signupToken, @RequestBody @Valid SurveyRequest request) {
         signupDraftUseCase.updateSurvey(signupToken, request);
-        return ApiResponse.success();
+        return ApiResponse.success("설문 조사 입력이 완료되었습니다. 최종 완료룰 진행해주세요.");
+    }
+
+    @PostMapping("/commit")
+    @Operation(
+            summary = "회원가입 최종 완료",
+            description = "임시 저장된 가입 초안(Draft)을 확정하여 관련 엔티티를 생성합니다."
+    )
+    @SignupDraftStep(SignupStep.COMPLETED)
+    public ApiResponse<String> commitSignup(@RequestHeader("Signup-Token") String signupToken) {
+        signupDraftUseCase.commit(signupToken);
+        return ApiResponse.success("회원가입이 완료되었습니다. 로그인 화면으로 이동해주세요.");
     }
 
 }
