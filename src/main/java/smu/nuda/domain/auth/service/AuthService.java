@@ -80,37 +80,6 @@ public class AuthService {
     }
 
     @Transactional
-    public SignupResponse signup(SignupRequest request) {
-
-        String email = request.getEmail();
-        if (!emailAuthRepository.isVerified(email)) {
-            throw new DomainException(MemberErrorCode.EMAIL_NOT_VERIFIED);
-        }
-
-        Member member = Member.builder()
-                .email(email)
-                .username(request.getUsername())
-                .nickname(request.getNickname())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.USER)
-                .status(Status.ACTIVE)
-                .signupStep(SignupStepType.SIGNUP)
-                .build();
-
-        memberRepository.save(member);
-        emailAuthRepository.clearVerified(email);
-
-        String signupToken = jwtProvider.generateToken(
-                member.getId(),
-                member.getEmail(),
-                null,
-                TokenType.SIGNUP
-        );
-
-        return new SignupResponse(signupToken);
-    }
-
-    @Transactional
     public void updateDelivery(Member member, DeliveryRequest request) {
         member.updateDelivery(
                 request.getRecipient(),

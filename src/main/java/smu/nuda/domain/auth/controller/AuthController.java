@@ -44,15 +44,6 @@ public class AuthController {
         return ApiResponse.success(authService.verifyEmailCode(request.getEmail(), request.getCode()));
     }
 
-    @PostMapping("/signup")
-    @Operation(
-            summary = "회원가입 정보 입력(1단계)",
-            description = "이메일 인증이 완료된 사용자가 아이디, 비밀번호, 닉네임 등 기본 회원 정보를 입력하여 회원가입을 진행합니다."
-    )
-    public ApiResponse<SignupResponse> signup(@RequestBody SignupRequest request) {
-        return ApiResponse.success(authService.signup(request));
-    }
-
     @PatchMapping("/delivery")
     @Operation(
             summary = "배송지 정보 입력(2단계)",
