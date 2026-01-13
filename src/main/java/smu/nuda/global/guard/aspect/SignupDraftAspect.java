@@ -34,7 +34,7 @@ public class SignupDraftAspect {
 
         HttpServletRequest request = attrs.getRequest();
         String token = request.getHeader(SIGNUP_TOKEN_HEADER);
-        if (token == null || token.isBlank()) throw new DomainException(SignupDraftErrorCode.DRAFT_NOT_FOUND);
+        if (token == null || token.isBlank()) throw new DomainException(SignupDraftErrorCode.MISSING_TOKEN);
 
         return token;
     }

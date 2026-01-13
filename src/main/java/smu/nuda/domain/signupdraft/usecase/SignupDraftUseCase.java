@@ -115,7 +115,7 @@ public class SignupDraftUseCase {
 
     public void commit(String signupToken) {
         SignupDraft draft = signupDraftRepository.findBySignupToken(signupToken)
-                .orElseThrow(() -> new DomainException(SignupDraftErrorCode.MISSING_TOKEN));
+                .orElseThrow(() -> new DomainException(SignupDraftErrorCode.DRAFT_NOT_FOUND));
 
         if (draft.getCurrentStep() != SignupStep.COMPLETED) {
             throw new DomainException(SignupDraftErrorCode.DRAFT_NOT_COMPLETED);
