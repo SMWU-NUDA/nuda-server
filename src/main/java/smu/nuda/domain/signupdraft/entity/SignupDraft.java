@@ -40,10 +40,10 @@ public class SignupDraft extends BaseEntity {
     @Column(name = "current_step", nullable = false, length = 30)
     private SignupStep currentStep;
 
-    @Column(nullable = false, unique = true)
+    @Column(unique = true)
     private String email;
 
-    @Column(nullable = false, unique = true)
+    @Column(unique = true)
     private String username;
 
     @Column(nullable = false)
@@ -126,7 +126,7 @@ public class SignupDraft extends BaseEntity {
                     new TypeReference<List<Long>>() {}
             );
         } catch (JsonProcessingException e) {
-            throw new DomainException(SignupDraftErrorCode.MALFORMED_JSON_DATA);
+            throw new DomainException(SignupDraftErrorCode.JSON_DESERIALIZATION_FAILED);
         }
     }
 
