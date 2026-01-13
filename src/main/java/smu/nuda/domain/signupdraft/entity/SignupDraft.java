@@ -1,12 +1,19 @@
 package smu.nuda.domain.signupdraft.entity;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import smu.nuda.domain.common.entity.BaseEntity;
 import smu.nuda.domain.signupdraft.entity.enums.SignupStep;
+import smu.nuda.domain.signupdraft.error.SignupDraftErrorCode;
 import smu.nuda.domain.survey.entity.enums.*;
+import smu.nuda.global.error.DomainException;
+
+import java.util.List;
 
 @Entity
 @Table(name = "signup_draft")
@@ -109,5 +116,19 @@ public class SignupDraft extends BaseEntity {
 
         this.currentStep = SignupStep.COMPLETED;
     }
+
+    public List<Long> parseToProductIdList(ObjectMapper objectMapper) {
+        if (this.productIds == null) return List.of();
+
+        try {
+            return objectMapper.readValue(
+                    this.productIds,
+                    new TypeReference<List<Long>>() {}
+            );
+        } catch (JsonProcessingException e) {
+            throw new DomainException(SignupDraftErrorCode.INVALID_SURVEY_FORMAT);
+        }
+    }
+
 
 }

@@ -3,7 +3,6 @@ package smu.nuda.domain.auth.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import smu.nuda.domain.auth.dto.*;
 import smu.nuda.domain.auth.error.AuthErrorCode;
 import smu.nuda.domain.auth.jwt.JwtProperties;
@@ -13,10 +12,7 @@ import smu.nuda.domain.auth.repository.EmailAuthRepository;
 import smu.nuda.domain.auth.repository.RefreshTokenRepository;
 import smu.nuda.domain.auth.util.VerificationCodeGenerator;
 import smu.nuda.domain.member.dto.MeResponse;
-import smu.nuda.domain.member.dto.DeliveryRequest;
 import smu.nuda.domain.member.entity.Member;
-import smu.nuda.domain.member.entity.enums.Role;
-import smu.nuda.domain.member.entity.enums.SignupStepType;
 import smu.nuda.domain.member.entity.enums.Status;
 import smu.nuda.domain.member.error.MemberErrorCode;
 import smu.nuda.domain.member.repository.MemberRepository;
@@ -77,23 +73,6 @@ public class AuthService {
         emailAuthRepository.clear(email);
 
         return true;
-    }
-
-    @Transactional
-    public void updateDelivery(Member member, DeliveryRequest request) {
-        member.updateDelivery(
-                request.getRecipient(),
-                request.getPhoneNum(),
-                request.getPostalCode(),
-                request.getAddress1(),
-                request.getAddress2()
-        );
-        member.completeDelivery();
-    }
-
-    @Transactional
-    public void completeSignup(Member member) {
-        member.completeSignup();
     }
 
     public LoginResponse login(LoginRequest request) {

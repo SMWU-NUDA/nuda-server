@@ -7,12 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import smu.nuda.domain.auth.dto.*;
 import smu.nuda.domain.auth.service.AuthService;
-import smu.nuda.domain.member.dto.DeliveryRequest;
 import smu.nuda.domain.member.entity.Member;
-import smu.nuda.domain.member.entity.enums.SignupStepType;
 import smu.nuda.global.guard.annotation.LoginRequired;
-import smu.nuda.global.guard.annotation.SignupStep;
-import smu.nuda.global.guard.annotation.SignupTokenRequired;
 import smu.nuda.global.guard.guard.AuthenticationGuard;
 import smu.nuda.global.response.ApiResponse;
 
@@ -42,34 +38,6 @@ public class AuthController {
     )
     public ApiResponse<Boolean> verifyEmailCode(@RequestBody EmailCodeVerifyRequest request) {
         return ApiResponse.success(authService.verifyEmailCode(request.getEmail(), request.getCode()));
-    }
-
-    @PatchMapping("/delivery")
-    @Operation(
-            summary = "배송지 정보 입력(2단계)",
-            description = "회원가입 과정 중 배송지 정보를 입력합니다. 회원가입 정보 입력 후 요청해주세요."
-    )
-    @SecurityRequirement(name = "JWT")
-    @SignupStep(SignupStepType.SIGNUP)
-    @SignupTokenRequired
-    public ApiResponse<String> updateDelivery(@RequestBody DeliveryRequest request) {
-        Member member = authenticationGuard.currentMember();
-        authService.updateDelivery(member, request);
-        return ApiResponse.success("배송지입력이 완료되었습니다. 설문조사를 진행해주세요.");
-    }
-
-    @PostMapping("/complete")
-    @Operation(
-            summary = "회원가입 완료(4단계)",
-            description = "배송지 입력까지 완료된 사용자의 회원가입 상태를 최종 완료 처리합니다."
-    )
-    @SecurityRequirement(name = "JWT")
-    @SignupStep(SignupStepType.SURVEY)
-    @SignupTokenRequired
-    public ApiResponse<String> completeSignup() {
-        Member member = authenticationGuard.currentMember();
-        authService.completeSignup(member);
-        return ApiResponse.success("회원가입이 완료되었습니다. 로그인 화면으로 이동해주세요.");
     }
 
     @PostMapping("/login")

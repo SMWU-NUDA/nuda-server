@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import smu.nuda.domain.member.dto.DeliveryRequest;
 import smu.nuda.domain.signupdraft.dto.AccountRequest;
-import smu.nuda.domain.signupdraft.dto.SignupDraftCreateResponse;
+import smu.nuda.domain.signupdraft.dto.SignupDraftResponse;
 import smu.nuda.domain.signupdraft.usecase.SignupDraftUseCase;
 import smu.nuda.domain.survey.dto.SurveyRequest;
 import smu.nuda.global.response.ApiResponse;
@@ -26,7 +26,7 @@ public class SignupDraftController {
             description = "회원가입 과정에서 사용할 임시 저장(Draft) 데이터를 생성합니다. " +
                     "생성된 Draft ID를 통해 단계별로 회원가입 정보를 저장 및 조회 할 수 있습니다."
     )
-    public ApiResponse<SignupDraftCreateResponse> createDraft() {
+    public ApiResponse<SignupDraftResponse> createDraft() {
         return ApiResponse.success(signupDraftUseCase.createDraft());
     }
 
@@ -35,7 +35,7 @@ public class SignupDraftController {
             summary = "회원가입 임시 저장 조회",
             description = "Signup-Token을 통해 저장된 회원가입 임시 데이터를 조회합니다. "
     )
-    public ApiResponse<SignupDraftCreateResponse> getDraft(@RequestHeader("Signup-Token") String signupToken) {
+    public ApiResponse<SignupDraftResponse> getDraft(@RequestHeader("Signup-Token") String signupToken) {
         return ApiResponse.success(signupDraftUseCase.getDraft(signupToken));
     }
 

@@ -8,7 +8,7 @@ import smu.nuda.domain.signupdraft.entity.enums.SignupStep;
 @Getter
 @AllArgsConstructor
 @Builder
-public class SignupDraftCreateResponse {
+public class SignupDraftResponse {
     private String signupToken;
     private SignupStep currentStep;
 }

@@ -1,8 +1,7 @@
 INSERT INTO member (
     nickname, username, password, email,
     profile_img,
-    role,
-    signup_step, status,
+    role, status,
     postal_code, address1, address2, phone_num, recipient,
     created_at, updated_at
 )
@@ -13,7 +12,6 @@ VALUES (
         'admin@a.com',
         'ex imgUrl',
         'ADMIN',
-        'COMPLETED',
         'ACTIVE',
         '00000',
         'ex address1',
