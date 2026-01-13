@@ -1,10 +1,9 @@
-package smu.nuda.global.guard;
+package smu.nuda.domain.signupdraft.policy;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import smu.nuda.domain.signupdraft.entity.SignupDraft;
 import smu.nuda.domain.signupdraft.entity.enums.SignupStep;
-import smu.nuda.domain.signupdraft.policy.SignupDraftPolicy;
 import smu.nuda.global.error.DomainException;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
