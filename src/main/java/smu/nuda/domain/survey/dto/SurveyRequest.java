@@ -3,7 +3,7 @@ package smu.nuda.domain.survey.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import jakarta.validation.constraints.NotNull;
 import smu.nuda.domain.survey.entity.enums.*;
 
 import java.util.List;
