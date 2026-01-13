@@ -71,7 +71,7 @@ public class SignupDraftController {
     @SignupDraftStep(SignupStep.SURVEY)
     public ApiResponse<String> enterSurvey(@RequestHeader("Signup-Token") String signupToken, @RequestBody @Valid SurveyRequest request) {
         signupDraftUseCase.updateSurvey(signupToken, request);
-        return ApiResponse.success("설문 조사 입력이 완료되었습니다. 최종 완료룰 진행해주세요.");
+        return ApiResponse.success("설문 조사 입력이 완료되었습니다. 최종 완료를 진행해주세요.");
     }
 
     @PostMapping("/commit")

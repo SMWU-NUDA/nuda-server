@@ -6,7 +6,7 @@ import smu.nuda.domain.signupdraft.entity.SignupDraft;
 import smu.nuda.domain.signupdraft.entity.enums.SignupStep;
 import smu.nuda.domain.signupdraft.error.SignupDraftErrorCode;
 import smu.nuda.domain.signupdraft.policy.SignupDraftPolicy;
-import smu.nuda.domain.signupdraft.repostiory.SignupDraftRepository;
+import smu.nuda.domain.signupdraft.repository.SignupDraftRepository;
 import smu.nuda.global.error.DomainException;
 
 @Component

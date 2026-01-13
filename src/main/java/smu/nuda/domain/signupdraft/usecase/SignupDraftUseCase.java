@@ -16,7 +16,7 @@ import smu.nuda.domain.signupdraft.dto.SignupDraftResponse;
 import smu.nuda.domain.signupdraft.entity.SignupDraft;
 import smu.nuda.domain.signupdraft.entity.enums.SignupStep;
 import smu.nuda.domain.signupdraft.error.SignupDraftErrorCode;
-import smu.nuda.domain.signupdraft.repostiory.SignupDraftRepository;
+import smu.nuda.domain.signupdraft.repository.SignupDraftRepository;
 import smu.nuda.domain.survey.dto.SurveyRequest;
 import smu.nuda.domain.survey.entity.Survey;
 import smu.nuda.domain.survey.entity.SurveyProduct;
@@ -113,7 +113,6 @@ public class SignupDraftUseCase {
         }
     }
 
-    @Transactional
     public void commit(String signupToken) {
         SignupDraft draft = signupDraftRepository.findBySignupToken(signupToken)
                 .orElseThrow(() -> new DomainException(SignupDraftErrorCode.DRAFT_NOT_FOUND));

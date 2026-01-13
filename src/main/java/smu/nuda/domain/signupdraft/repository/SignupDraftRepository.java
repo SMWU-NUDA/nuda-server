@@ -1,4 +1,4 @@
-package smu.nuda.domain.signupdraft.repostiory;
+package smu.nuda.domain.signupdraft.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import smu.nuda.domain.signupdraft.entity.SignupDraft;
