@@ -11,6 +11,7 @@ import smu.nuda.domain.signupdraft.error.SignupDraftErrorCode;
 import smu.nuda.domain.survey.entity.enums.*;
 import smu.nuda.global.error.DomainException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
@@ -79,6 +80,9 @@ public class SignupDraft extends BaseEntity {
 
     @Column(name = "product_ids", columnDefinition = "TEXT")
     private String productIds;
+
+    @Column(name = "expires_at", nullable = false)
+    private LocalDateTime expiresAt;
 
     public static SignupDraft create(String signupToken) {
         SignupDraft draft = new SignupDraft();
