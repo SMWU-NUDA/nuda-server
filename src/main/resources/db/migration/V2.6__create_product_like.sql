@@ -13,5 +13,4 @@ CREATE TABLE product_like (
         UNIQUE (member_id, product_id)
 );
 
-CREATE INDEX idx_product_like_member_id ON product_like(member_id);
 CREATE INDEX idx_product_like_product_id ON product_like(product_id);

@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.member.entity.enums.Role;
-import smu.nuda.domain.member.entity.enums.SignupStepType;
 import smu.nuda.domain.member.entity.enums.Status;
 import smu.nuda.domain.member.repository.MemberRepository;
 
@@ -21,7 +20,6 @@ public class MemberTestFactory {
         return save(
                 "active",
                 Status.ACTIVE,
-                SignupStepType.COMPLETED,
                 Role.USER
         );
     }
@@ -30,16 +28,6 @@ public class MemberTestFactory {
         return save(
                 "inactive",
                 Status.INACTIVE,
-                SignupStepType.COMPLETED,
-                Role.USER
-        );
-    }
-
-    public Member signupIncomplete(SignupStepType step) {
-        return save(
-                "signup_" + step.name().toLowerCase(),
-                Status.ACTIVE,
-                step,
                 Role.USER
         );
     }
@@ -48,12 +36,11 @@ public class MemberTestFactory {
         return save(
                 "active",
                 Status.ACTIVE,
-                SignupStepType.COMPLETED,
                 Role.ADMIN
         );
     }
 
-    private Member save(String prefix, Status status, SignupStepType step, Role role) {
+    private Member save(String prefix, Status status, Role role) {
         long seq = SEQUENCE.incrementAndGet();
 
         return memberRepository.save(
@@ -63,7 +50,6 @@ public class MemberTestFactory {
                         .password("password")
                         .role(role)
                         .status(status)
-                        .signupStep(step)
                         .build()
         );
     }
