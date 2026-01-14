@@ -16,6 +16,7 @@ import smu.nuda.domain.signupdraft.dto.SignupDraftResponse;
 import smu.nuda.domain.signupdraft.entity.SignupDraft;
 import smu.nuda.domain.signupdraft.entity.enums.SignupStep;
 import smu.nuda.domain.signupdraft.error.SignupDraftErrorCode;
+import smu.nuda.domain.signupdraft.policy.SurveyProductPolicy;
 import smu.nuda.domain.signupdraft.repository.SignupDraftRepository;
 import smu.nuda.domain.survey.dto.SurveyRequest;
 import smu.nuda.domain.survey.entity.Survey;
@@ -128,10 +129,10 @@ public class SignupDraftUseCase {
         Survey survey = Survey.of(draft, member);
         surveyRepository.save(survey);
 
-        // Todo. 엔티티 검증하는 통합 Repository 구현
         List<Long> productIds = draft.parseToProductIdList(objectMapper);
         List<Product> products = productRepository.findAllById(productIds);
-        if (products.size() != productIds.size()) throw new DomainException(SignupDraftErrorCode.INVALID_SURVEY_PRODUCT_SELECTION);
+
+        SurveyProductPolicy.validate(productIds, products);
 
         List<SurveyProduct> surveyProductList = SurveyProduct.of(survey, products);
         surveyProductRepository.saveAll(surveyProductList);

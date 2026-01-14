@@ -25,6 +25,12 @@ enum class SignupDraftErrorCode (
     JSON_SERIALIZATION_FAILED(
         "SIGNUP_JSON_SERIALIZATION_FAILED","설문 상품 데이터를 JSON으로 변환하는 데 실패했습니다."
     ),
+    DUPLICATED_SURVEY_PRODUCT_SELECTION(
+        "SIGNUP_DUPLICATED_SURVEY_PRODUCT_SELECTION","중복 선택된 설문 상품이 있습니다."
+    ),
+    SURVEY_PRODUCT_NOT_FOUND(
+        "SIGNUP_SURVEY_PRODUCT_NOT_FOUND","유효하지 않은 설문 상품이 포함되어 있습니다."
+    )
 
     ;
 }
