@@ -22,5 +22,6 @@ CREATE TABLE signup_draft (
     product_ids TEXT,
 
     created_at TIMESTAMP NOT NULL DEFAULT now(),
-    updated_at TIMESTAMP NOT NULL DEFAULT now()
+    updated_at TIMESTAMP NOT NULL DEFAULT now(),
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT (CURRENT_TIMESTAMP + INTERVAL '1 day')
 );

@@ -15,6 +15,7 @@ import smu.nuda.domain.signupdraft.entity.enums.SignupStep;
 import smu.nuda.domain.signupdraft.repository.SignupDraftRepository;
 import smu.nuda.domain.signupdraft.usecase.SignupDraftUseCase;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -49,6 +50,7 @@ public class SignupDraftGuardTest {
                 SignupDraft.builder()
                         .signupToken("token-1")
                         .currentStep(SignupStep.ACCOUNT)
+                        .expiresAt(LocalDateTime.now().plusDays(1))
                         .build()
         );
         // [When] 다음 단계인 DELIVERY API를 호출했을 때
@@ -72,6 +74,7 @@ public class SignupDraftGuardTest {
                 SignupDraft.builder()
                         .signupToken("token-2")
                         .currentStep(SignupStep.DELIVERY)
+                        .expiresAt(LocalDateTime.now().plusDays(1))
                         .build()
         );
 
@@ -107,6 +110,7 @@ public class SignupDraftGuardTest {
                 .username("user_" + token)
                 .nickname("nick")
                 .password("pass")
+                .expiresAt(LocalDateTime.now().plusDays(1))
                 .build());
 
         signupDraftUseCase.commit(token);
