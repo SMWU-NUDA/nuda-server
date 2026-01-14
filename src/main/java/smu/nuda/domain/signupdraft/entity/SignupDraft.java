@@ -11,6 +11,7 @@ import smu.nuda.domain.signupdraft.error.SignupDraftErrorCode;
 import smu.nuda.domain.survey.entity.enums.*;
 import smu.nuda.global.error.DomainException;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -84,11 +85,11 @@ public class SignupDraft extends BaseEntity {
     @Column(name = "expires_at", nullable = false)
     private LocalDateTime expiresAt;
 
-    public static SignupDraft create(String signupToken) {
+    public static SignupDraft create(String signupToken, Clock clock) {
         SignupDraft draft = new SignupDraft();
         draft.signupToken = signupToken;
         draft.currentStep = SignupStep.ACCOUNT;
-        draft.expiresAt = LocalDateTime.now().plusDays(1);
+        draft.expiresAt = LocalDateTime.now(clock).plusDays(1);
         return draft;
     }
 
