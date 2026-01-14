@@ -25,6 +25,7 @@ import smu.nuda.domain.survey.repository.SurveyProductRepository;
 import smu.nuda.domain.survey.repository.SurveyRepository;
 import smu.nuda.global.error.DomainException;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,11 +41,12 @@ public class SignupDraftUseCase {
     private final SurveyProductRepository surveyProductRepository;
     private final PasswordEncoder passwordEncoder;
     private final ObjectMapper objectMapper;
+    private final Clock clock;
 
     public SignupDraftResponse createDraft() {
         String signupToken = UUID.randomUUID().toString();
 
-        SignupDraft draft = SignupDraft.create(signupToken);
+        SignupDraft draft = SignupDraft.create(signupToken, clock);
         signupDraftRepository.save(draft);
 
         return SignupDraftResponse.builder()
@@ -73,7 +75,8 @@ public class SignupDraftUseCase {
                 request.getEmail(),
                 encodedPassword,
                 request.getNickname(),
-                request.getUsername()
+                request.getUsername(),
+                clock
         );
     }
 
@@ -86,7 +89,8 @@ public class SignupDraftUseCase {
                 request.getPhoneNum(),
                 request.getPostalCode(),
                 request.getAddress1(),
-                request.getAddress2()
+                request.getAddress2(),
+                clock
         );
     }
 
@@ -102,7 +106,8 @@ public class SignupDraftUseCase {
                 request.getChangeFrequency(),
                 request.getThickness(),
                 request.getPriority(),
-                productIdsJson
+                productIdsJson,
+                clock
         );
     }
 
