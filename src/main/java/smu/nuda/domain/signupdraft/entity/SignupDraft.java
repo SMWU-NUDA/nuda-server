@@ -88,6 +88,7 @@ public class SignupDraft extends BaseEntity {
         SignupDraft draft = new SignupDraft();
         draft.signupToken = signupToken;
         draft.currentStep = SignupStep.ACCOUNT;
+        draft.expiresAt = LocalDateTime.now().plusDays(1);
         return draft;
     }
 
@@ -98,6 +99,7 @@ public class SignupDraft extends BaseEntity {
         this.nickname = nickname;
 
         this.currentStep = SignupStep.DELIVERY;
+        extendExpiration();
     }
 
     public void updateDelivery(String recipient, String phoneNum, String postalCode, String address1, String address2) {
@@ -108,6 +110,7 @@ public class SignupDraft extends BaseEntity {
         this.address2 = address2;
 
         this.currentStep = SignupStep.SURVEY;
+        extendExpiration();
     }
 
     public void updateSurvey(IrritationLevel irritationLevel, ScentLevel scent, ChangeFrequency changeFrequency, ThicknessLevel thickness, PriorityType priority, String productIds) {
@@ -119,6 +122,7 @@ public class SignupDraft extends BaseEntity {
         this.productIds = productIds;
 
         this.currentStep = SignupStep.COMPLETED;
+        extendExpiration();
     }
 
     public List<Long> parseToProductIdList(ObjectMapper objectMapper) {
@@ -134,5 +138,8 @@ public class SignupDraft extends BaseEntity {
         }
     }
 
+    private void extendExpiration() {
+        this.expiresAt = LocalDateTime.now().plusDays(1);
+    }
 
 }
