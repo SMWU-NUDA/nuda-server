@@ -75,7 +75,8 @@ public class SignupDraftUseCase {
                 request.getEmail(),
                 encodedPassword,
                 request.getNickname(),
-                request.getUsername()
+                request.getUsername(),
+                clock
         );
     }
 
@@ -88,7 +89,8 @@ public class SignupDraftUseCase {
                 request.getPhoneNum(),
                 request.getPostalCode(),
                 request.getAddress1(),
-                request.getAddress2()
+                request.getAddress2(),
+                clock
         );
     }
 
@@ -104,7 +106,8 @@ public class SignupDraftUseCase {
                 request.getChangeFrequency(),
                 request.getThickness(),
                 request.getPriority(),
-                productIdsJson
+                productIdsJson,
+                clock
         );
     }
 

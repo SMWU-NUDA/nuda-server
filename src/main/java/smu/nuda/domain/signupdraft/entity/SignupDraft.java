@@ -93,17 +93,17 @@ public class SignupDraft extends BaseEntity {
         return draft;
     }
 
-    public void updateAccount(String email, String encodedPassword, String nickname, String username) {
+    public void updateAccount(String email, String encodedPassword, String nickname, String username, Clock clock) {
         this.email = email;
         this.username = username;
         this.password = encodedPassword;
         this.nickname = nickname;
 
         this.currentStep = SignupStep.DELIVERY;
-        extendExpiration();
+        extendExpiration(clock);
     }
 
-    public void updateDelivery(String recipient, String phoneNum, String postalCode, String address1, String address2) {
+    public void updateDelivery(String recipient, String phoneNum, String postalCode, String address1, String address2, Clock clock) {
         this.recipient = recipient;
         this.phoneNum = phoneNum;
         this.postalCode = postalCode;
@@ -111,10 +111,10 @@ public class SignupDraft extends BaseEntity {
         this.address2 = address2;
 
         this.currentStep = SignupStep.SURVEY;
-        extendExpiration();
+        extendExpiration(clock);
     }
 
-    public void updateSurvey(IrritationLevel irritationLevel, ScentLevel scent, ChangeFrequency changeFrequency, ThicknessLevel thickness, PriorityType priority, String productIds) {
+    public void updateSurvey(IrritationLevel irritationLevel, ScentLevel scent, ChangeFrequency changeFrequency, ThicknessLevel thickness, PriorityType priority, String productIds, Clock clock) {
         this.irritationLevel = irritationLevel;
         this.scent = scent;
         this.changeFrequency = changeFrequency;
@@ -123,7 +123,7 @@ public class SignupDraft extends BaseEntity {
         this.productIds = productIds;
 
         this.currentStep = SignupStep.COMPLETED;
-        extendExpiration();
+        extendExpiration(clock);
     }
 
     public List<Long> parseToProductIdList(ObjectMapper objectMapper) {
@@ -139,8 +139,8 @@ public class SignupDraft extends BaseEntity {
         }
     }
 
-    private void extendExpiration() {
-        this.expiresAt = LocalDateTime.now().plusDays(1);
+    private void extendExpiration(Clock clock) {
+        this.expiresAt = LocalDateTime.now(clock).plusDays(1);
     }
 
 }
