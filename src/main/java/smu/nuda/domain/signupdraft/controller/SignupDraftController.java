@@ -24,7 +24,7 @@ public class SignupDraftController {
 
     @PostMapping("/draft")
     @Operation(
-            summary = "회원가입 임시 저장 생성",
+            summary = "임시 저장 생성(1단계)",
             description = "회원가입 과정에서 사용할 임시 저장(Draft) 데이터를 생성합니다. " +
                     "생성된 Draft ID를 통해 단계별로 회원가입 정보를 저장 및 조회 할 수 있습니다."
     )
@@ -43,7 +43,7 @@ public class SignupDraftController {
 
     @PutMapping("/draft/account")
     @Operation(
-            summary = "회원가입 계정 정보 저장",
+            summary = "계정 정보(2단계)",
             description = "이메일, 사용자명, 비밀번호, 닉네임 등 기본 계정 정보를 저장합니다. 마지막 요청값으로 항상 덮어씁니다."
     )
     @SignupDraftStep(SignupStep.ACCOUNT)
@@ -54,7 +54,7 @@ public class SignupDraftController {
 
     @PutMapping("/draft/delivery")
     @Operation(
-            summary = "회원가입 배송지 정보 저장",
+            summary = "배송지 입력(3단계)",
             description = "회원가입 과정에서 사용할 기본 배송지 정보(주소, 수령인 등)를 저장합니다."
     )
     @SignupDraftStep(SignupStep.DELIVERY)
@@ -65,7 +65,7 @@ public class SignupDraftController {
 
     @PutMapping("/draft/survey")
     @Operation(
-            summary = "회원가입 설문 정보 입력",
+            summary = "설문 조사(4단계)",
             description = "회원가입 과정에서 사용할 설문 정보(상품 선택 필수)를 저장합니다."
     )
     @SignupDraftStep(SignupStep.SURVEY)
@@ -76,7 +76,7 @@ public class SignupDraftController {
 
     @PostMapping("/commit")
     @Operation(
-            summary = "회원가입 최종 완료",
+            summary = "회원가입 완료(5단계)",
             description = "임시 저장된 가입 초안(Draft)을 확정하여 관련 엔티티를 생성합니다."
     )
     @SignupDraftStep(SignupStep.COMPLETED)
