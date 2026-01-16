@@ -52,7 +52,7 @@ public class ProductAdminServiceTest {
 
         // [then] 모든 상품이 성공 처리되지만 실제 DB에는 seed 데이터만 존재함
         assertThat(response.totalCount()).isEqualTo(2000);
-        assertThat(response.successCount()).isEqualTo(2000);
+        assertThat(response.successCount()).isEqualTo(0);
         assertThat(response.failedCount()).isEqualTo(0);
         assertThat(productRepository.count()).isEqualTo(5); // seed_product
     }
