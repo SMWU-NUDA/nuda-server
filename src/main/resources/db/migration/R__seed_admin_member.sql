@@ -21,3 +21,27 @@ VALUES (
         now(),
         now()
 );
+
+INSERT INTO member (
+    nickname, username, password, email,
+    profile_img,
+    role, status,
+    postal_code, address1, address2, phone_num, recipient,
+    created_at, updated_at
+)
+VALUES (
+           '정보 없음',
+           'csvAdmin',
+           '$2a$10$KXp6.fccEUG0TP8aS3ihju2zqhWvr6PHhwsyoscUnxpAAx2FOISNW',
+           'csvAdmin@a.com',
+           'ex imgUrl',
+           'ADMIN',
+           'ACTIVE',
+           '00000',
+           'ex address1',
+           'ex address 2',
+           '010-0000-0000',
+           '클리나',
+           now(),
+           now()
+);

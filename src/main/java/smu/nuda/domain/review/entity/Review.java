@@ -22,7 +22,7 @@ public class Review extends BaseEntity {
     @SequenceGenerator(
             name = "review_seq",
             sequenceName = "review_seq",
-            allocationSize = 50
+            allocationSize = 100
     )
     private Long id;
 
@@ -43,10 +43,7 @@ public class Review extends BaseEntity {
     private Product product;
 
     @Column(columnDefinition = "TEXT")
-    private String pros;
-
-    @Column(columnDefinition = "TEXT")
-    private String cons;
+    private String content;
 
     @Column(nullable = false)
     private double rating;
@@ -56,12 +53,11 @@ public class Review extends BaseEntity {
 
     private String thumbnailImg;
 
-    public Review(Member member, Product product, double rating, String pros, String cons, String thumbnailImg) {
+    public Review(Member member, Product product, double rating, String content, String thumbnailImg) {
         this.member = member;
         this.product = product;
         this.rating = rating;
-        this.pros = pros;
-        this.cons = cons;
+        this.content = content;
         this.thumbnailImg = thumbnailImg;
         this.likeCount = 0;
     }
@@ -79,6 +75,5 @@ public class Review extends BaseEntity {
             this.likeCount--;
         }
     }
-
 
 }

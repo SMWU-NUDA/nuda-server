@@ -6,8 +6,7 @@ CREATE TABLE review (
     product_id BIGINT NOT NULL,
     CONSTRAINT fk_review_product
         FOREIGN KEY (product_id) REFERENCES product(id) ON DELETE CASCADE,
-    pros TEXT,
-    cons TEXT,
+    content TEXT,
     rating DOUBLE PRECISION NOT NULL CHECK (rating >= 0 AND rating <= 5),
     like_count INT NOT NULL DEFAULT 0,
     thumbnail_img TEXT,
