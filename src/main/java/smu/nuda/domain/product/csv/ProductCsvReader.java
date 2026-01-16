@@ -44,6 +44,7 @@ public class ProductCsvReader implements CsvReader<ProductCsvRow> {
 
     private ProductCsvRow toRow(CSVRecord record, int rowNumber) {
         return new ProductCsvRow(
+                record.isMapped("external_product_id") ? record.get("external_product_id") : null,
                 record.get("brand_name"),
                 record.get("category_code"),
                 record.get("name"),
@@ -51,6 +52,8 @@ public class ProductCsvReader implements CsvReader<ProductCsvRow> {
                 record.get("discount_rate"),
                 record.isMapped("content") ? record.get("content") : null,
                 record.isMapped("thumbnail_img") ? record.get("thumbnail_img") : null,
+                record.get("average_rating"),
+                record.get("review_count"),
                 rowNumber
         );
     }

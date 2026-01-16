@@ -23,10 +23,14 @@ public class ProductCsvValidator {
         requireNotBlank(row.name(), rowNumber, "name은 필수입니다.");
         requireNotBlank(row.costPrice(), rowNumber, "cost_price는 필수입니다.");
         requireNotBlank(row.discountRate(), rowNumber, "discount_rate는 필수입니다.");
+        requireNotBlank(row.averageRating(), rowNumber, "average_rating은 필수입니다.");
+        requireNotBlank(row.reviewCount(), rowNumber, "review_count는 필수입니다.");
 
         // 숫자 형식 검증
         requireInteger(row.costPrice(), rowNumber, "cost_price는 숫자여야 합니다.");
         requireInteger(row.discountRate(), rowNumber, "discount_rate는 숫자여야 합니다.");
+        requireInteger(row.reviewCount(), rowNumber, "review_count는 숫자여야 합니다.");
+        requireDouble(row.averageRating(), rowNumber, "average_rating은 숫자여야 합니다.");
     }
 
     private void requireNotBlank(String value, int rowNumber, String message) {
@@ -42,4 +46,13 @@ public class ProductCsvValidator {
             throw new CsvValidationException(CsvErrorCode.CSV_INVALID_VALUE, rowNumber, message);
         }
     }
+
+    private void requireDouble(String value, int rowNumber, String message) {
+        try {
+            Double.parseDouble(value.trim());
+        } catch (NumberFormatException e) {
+            throw new CsvValidationException(CsvErrorCode.CSV_INVALID_VALUE, rowNumber, message);
+        }
+    }
+
 }
