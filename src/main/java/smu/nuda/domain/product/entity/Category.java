@@ -1,9 +1,7 @@
 package smu.nuda.domain.product.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import smu.nuda.domain.common.entity.BaseEntity;
 import smu.nuda.domain.product.entity.enums.CategoryCode;
 
@@ -11,6 +9,8 @@ import smu.nuda.domain.product.entity.enums.CategoryCode;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "category")
+@Builder
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class Category extends BaseEntity {
 
     @Id
