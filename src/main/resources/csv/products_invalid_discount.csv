@@ -1,2 +1,2 @@
-brand_name,category_code,name,cost_price,discount_rate,content,thumbnail_img
-누다 브랜드A,SMALL,할인율 오류 상품,10000,150,할인율 테스트,https://example.com/img.png
+external_product_id,brand_name,category_code,name,cost_price,discount_rate,content,thumbnail_img,average_rating,review_count
+A110000214896,누다 브랜드A,SMALL,할인율 오류 상품,10000,150,할인율 테스트,https://example.com/img.png,4.5,0
