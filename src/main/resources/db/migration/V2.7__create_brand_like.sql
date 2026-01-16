@@ -13,5 +13,4 @@ CREATE TABLE brand_like (
         UNIQUE (member_id, brand_id)
 );
 
-CREATE INDEX idx_brand_like_member_id ON brand_like(member_id);
 CREATE INDEX idx_brand_like_brand_id ON brand_like(brand_id);

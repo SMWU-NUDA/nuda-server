@@ -4,9 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import smu.nuda.domain.common.entity.BaseEntity;
 import smu.nuda.domain.member.entity.enums.Role;
-import smu.nuda.domain.member.entity.enums.SignupStepType;
 import smu.nuda.domain.member.entity.enums.Status;
 import smu.nuda.domain.member.error.MemberErrorCode;
+import smu.nuda.domain.signupdraft.entity.SignupDraft;
 import smu.nuda.global.error.DomainException;
 
 @Getter
@@ -44,10 +44,6 @@ public class Member extends BaseEntity {
     private Role role;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "signup_step", nullable = false)
-    private SignupStepType signupStep;
-
-    @Enumerated(EnumType.STRING)
     private Status status;
 
     @Column(name = "postal_code")
@@ -60,6 +56,22 @@ public class Member extends BaseEntity {
     private String phoneNum;
 
     private String recipient;
+
+    public static Member from(SignupDraft draft) {
+        return Member.builder()
+                .nickname(draft.getNickname())
+                .username(draft.getUsername())
+                .password(draft.getPassword())
+                .email(draft.getEmail())
+                .role(Role.USER)
+                .status(Status.ACTIVE)
+                .postalCode(draft.getPostalCode())
+                .address1(draft.getAddress1())
+                .address2(draft.getAddress2())
+                .phoneNum(draft.getPhoneNum())
+                .recipient(draft.getRecipient())
+                .build();
+    }
 
     public void updateDelivery(String recipient, String phoneNum, String postalCode, String address1, String address2) {
         this.recipient = recipient;
@@ -83,18 +95,6 @@ public class Member extends BaseEntity {
 
     public void updateEmail(String email) {
         this.email = email;
-    }
-
-    public void completeDelivery() {
-        this.signupStep = SignupStepType.DELIVERY;
-    }
-
-    public void completeSurvey() {
-        this.signupStep = SignupStepType.SURVEY;
-    }
-
-    public void completeSignup() {
-        this.signupStep = SignupStepType.COMPLETED;
     }
 
     public void requestWithdraw() {

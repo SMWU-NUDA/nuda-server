@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import smu.nuda.domain.common.entity.BaseEntity;
 import smu.nuda.domain.product.entity.Product;
 
+import java.util.List;
+
 @Entity
 @Builder
 @Table(
@@ -37,5 +39,14 @@ public class SurveyProduct extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
-}
 
+    public static List<SurveyProduct> of(Survey survey, List<Product> products) {
+        return products.stream()
+                .map(product -> SurveyProduct.builder()
+                        .survey(survey)
+                        .product(product)
+                        .build())
+                .toList();
+    }
+
+}
