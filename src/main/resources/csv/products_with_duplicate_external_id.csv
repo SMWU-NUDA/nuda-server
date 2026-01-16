@@ -1,0 +1,2 @@
+external_product_id,brand_name,category_code,name,cost_price,discount_rate,content,thumbnail_img,average_rating,review_count
+DUPLICATE-001,BRAND_A,FOOD,중복 상품,10000,10,설명,,4.2,5
