@@ -35,9 +35,8 @@ public class ReviewService {
                 member,
                 product,
                 request.getRating(),
-                request.getPros(),
-                request.getCons(),
-                null
+                request.getContent(),
+                request.getImageUrls().get(1)
         );
         reviewRepository.save(review);
 

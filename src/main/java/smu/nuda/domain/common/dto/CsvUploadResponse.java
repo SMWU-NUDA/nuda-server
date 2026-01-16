@@ -1,6 +1,6 @@
-package smu.nuda.domain.product.dto;
+package smu.nuda.domain.common.dto;
 
-public record ProductUploadResponse(
+public record CsvUploadResponse(
         int totalCount,
         int successCount,
         int failedCount

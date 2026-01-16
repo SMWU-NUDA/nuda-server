@@ -19,8 +19,7 @@ public class ReviewDetailResponse {
     private Double rating;
     private Long likeCount;
     private boolean likedByMe;
-    private String pros;
-    private String cons;
+    private String content;
     private List<String> imageUrls;
 
     private String createdAt;
@@ -33,8 +32,7 @@ public class ReviewDetailResponse {
                 .rating(review.getRating())
                 .likeCount((long) review.getLikeCount())
                 .likedByMe(likedByMe)
-                .pros(review.getPros())
-                .cons(review.getCons())
+                .content(review.getContent())
                 .imageUrls(imageUrls)
                 .createdAt(DateFormatUtil.formatDate(review.getCreatedAt()))
                 .build();

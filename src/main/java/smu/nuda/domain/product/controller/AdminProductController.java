@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import smu.nuda.domain.member.entity.Member;
-import smu.nuda.domain.product.dto.ProductUploadResponse;
+import smu.nuda.domain.common.dto.CsvUploadResponse;
 import smu.nuda.domain.product.service.ProductAdminService;
 import smu.nuda.global.guard.annotation.LoginRequired;
 import smu.nuda.global.guard.guard.AuthenticationGuard;
@@ -35,7 +35,7 @@ public class AdminProductController {
     )
     @SecurityRequirement(name = "JWT")
     @LoginRequired
-    public ApiResponse<ProductUploadResponse> uploadProducts(
+    public ApiResponse<CsvUploadResponse> uploadProducts(
             @Parameter(
                     description = "업로드할 상품 CSV 파일",
                     required = true,
@@ -48,7 +48,7 @@ public class AdminProductController {
             @Parameter(description = "true면 실제 저장 없이 검증만 수행") @RequestParam(defaultValue = "false") boolean dryRun
     ) {
         Member member = authenticationGuard.currentMember();
-        ProductUploadResponse res = productAdminService.uploadProductsByCsv(csvFile, dryRun);
+        CsvUploadResponse res = productAdminService.uploadProductsByCsv(csvFile, dryRun);
 
         if (dryRun) {
             return ApiResponse.success(res, "dry-run 모드로 실행되었습니다. 실제 저장은 되지 않았습니다.");

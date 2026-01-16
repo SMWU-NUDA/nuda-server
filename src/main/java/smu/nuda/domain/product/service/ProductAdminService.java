@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import smu.nuda.domain.product.csv.ProductCsvReader;
 import smu.nuda.domain.product.dto.ProductCsvRow;
-import smu.nuda.domain.product.dto.ProductUploadResponse;
+import smu.nuda.domain.common.dto.CsvUploadResponse;
 import smu.nuda.domain.brand.entity.Brand;
 import smu.nuda.domain.product.entity.Category;
 import smu.nuda.domain.product.entity.Product;
@@ -40,7 +40,7 @@ public class ProductAdminService {
     @PersistenceContext private EntityManager em;
 
     @Transactional
-    public ProductUploadResponse uploadProductsByCsv(MultipartFile csvFile, boolean dryRun) {
+    public CsvUploadResponse uploadProductsByCsv(MultipartFile csvFile, boolean dryRun) {
         List<ProductCsvRow> rows = productCsvReader.read(csvFile);
         productCsvValidator.validate(rows);
 
@@ -49,7 +49,7 @@ public class ProductAdminService {
         int total = rows.size();
         int success = dryRun ? 0 : total;
 
-        return new ProductUploadResponse(
+        return new CsvUploadResponse(
                 total,
                 success,
                 0

@@ -20,8 +20,6 @@ public class ReviewCreateRequest {
     @DecimalMax("5.0")
     private Double rating;
 
-    private String pros;
-    private String cons;
-
+    private String content;
     private List<String> imageUrls = new ArrayList<>(); // S3 presigned URL
 }
