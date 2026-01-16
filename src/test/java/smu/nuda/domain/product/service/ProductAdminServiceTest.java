@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import smu.nuda.domain.brand.entity.Brand;
 import smu.nuda.domain.brand.repository.BrandRepository;
 import smu.nuda.domain.member.entity.Member;
-import smu.nuda.domain.product.dto.ProductUploadResponse;
+import smu.nuda.domain.common.dto.CsvUploadResponse;
 import smu.nuda.domain.product.entity.Category;
 import smu.nuda.domain.product.entity.Product;
 import smu.nuda.domain.product.entity.enums.CategoryCode;
@@ -66,7 +66,7 @@ public class ProductAdminServiceTest {
         MockMultipartFile csvFile = loadCsv("products_valid.csv");
 
         // [when] dry-run 모드로 CSV 업로드 요청
-        ProductUploadResponse response = productAdminService.uploadProductsByCsv(csvFile, true);
+        CsvUploadResponse response = productAdminService.uploadProductsByCsv(csvFile, true);
 
         // [then] 모든 상품이 성공 처리되지만 실제 DB에는 seed 데이터만 존재함
         assertThat(response.totalCount()).isEqualTo(2000);
@@ -82,7 +82,7 @@ public class ProductAdminServiceTest {
         MockMultipartFile csvFile = loadCsv("products_valid.csv");
 
         // [when] 실제 업로드 모드로 CSV 업로드 요청
-        ProductUploadResponse response = productAdminService.uploadProductsByCsv(csvFile, false);
+        CsvUploadResponse response = productAdminService.uploadProductsByCsv(csvFile, false);
 
         // [then] 모든 상품이 성공 처리되고 DB에는 seed 데이터와 신규 상품이 저장됨
         assertThat(response.successCount()).isEqualTo(2000);
@@ -211,7 +211,7 @@ public class ProductAdminServiceTest {
     }
 
     private MockMultipartFile loadCsv(String filename) throws Exception {
-        ClassPathResource resource = new ClassPathResource("csv/" + filename);
+        ClassPathResource resource = new ClassPathResource("csv/product/" + filename);
 
         return new MockMultipartFile(
                 "csvFile",
