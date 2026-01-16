@@ -1,4 +1,5 @@
 INSERT INTO product (
+    external_product_id,
     brand_id,
     category_id,
     name,
@@ -11,6 +12,7 @@ INSERT INTO product (
 VALUES
 -- 누다 브랜드A / 소형
 (
+    'INTERNAL-test1',
     (SELECT id FROM brand WHERE name = '누다 브랜드A'),
     (SELECT id FROM category WHERE code = 'SMALL'),
     '누다 순면 생리대 소형 20P',
@@ -23,6 +25,7 @@ VALUES
 
 -- 누다 브랜드A / 중형
 (
+    'INTERNAL-test2',
     (SELECT id FROM brand WHERE name = '누다 브랜드A'),
     (SELECT id FROM category WHERE code = 'MEDIUM'),
     '누다 순면 생리대 중형 18P',
@@ -35,6 +38,7 @@ VALUES
 
 -- 누다 브랜드A / 오버나이트
 (
+    'INTERNAL-test3',
     (SELECT id FROM brand WHERE name = '누다 브랜드A'),
     (SELECT id FROM category WHERE code = 'OVERNIGHT'),
     '누다 오버나이트 생리대 10P',
@@ -47,6 +51,7 @@ VALUES
 
 -- 클리나 브랜드B / 팬티라이너
 (
+    'INTERNAL-test4',
     (SELECT id FROM brand WHERE name = '클리나 브랜드B'),
     (SELECT id FROM category WHERE code = 'LINER'),
     '클리나 데일리 팬티라이너 30P',
@@ -59,6 +64,7 @@ VALUES
 
 -- 클리나 브랜드B / 탐폰
 (
+    'INTERNAL-test5',
     (SELECT id FROM brand WHERE name = '클리나 브랜드B'),
     (SELECT id FROM category WHERE code = 'TAMPON'),
     '클리나 탐폰 레귤러',

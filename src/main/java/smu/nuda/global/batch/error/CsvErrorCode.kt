@@ -19,5 +19,8 @@ enum class CsvErrorCode(
     CSV_INVALID_REFERENCE(
         "CSV_INVALID_REFERENCE", "참조 대상이 존재하지 않습니다."
     ),
+    CSV_DUPLICATE_VALUE(
+        "CSV_DUPLICATE_VALUE", "CSV 파일 내에 중복된 값이 포함되어 있습니다."
+    ),
     ;
 }

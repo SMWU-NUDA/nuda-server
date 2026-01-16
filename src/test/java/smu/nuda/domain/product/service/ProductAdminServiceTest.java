@@ -8,14 +8,22 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
+import smu.nuda.domain.brand.entity.Brand;
+import smu.nuda.domain.brand.repository.BrandRepository;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.product.dto.ProductUploadResponse;
+import smu.nuda.domain.product.entity.Category;
+import smu.nuda.domain.product.entity.Product;
+import smu.nuda.domain.product.entity.enums.CategoryCode;
 import smu.nuda.domain.product.repository.ProductRepository;
+import smu.nuda.global.batch.error.CsvErrorCode;
 import smu.nuda.global.batch.exception.CsvValidationException;
 import smu.nuda.global.error.DomainException;
+import smu.nuda.support.category.CategoryTestFactory;
 import smu.nuda.support.member.MemberTestFactory;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @Transactional
@@ -33,12 +41,22 @@ public class ProductAdminServiceTest {
     @Autowired private ProductAdminService productAdminService;
     @Autowired private ProductRepository productRepository;
     @Autowired private MemberTestFactory memberTestFactory;
+    @Autowired private BrandRepository brandRepository;
+    @Autowired private CategoryTestFactory categoryTestFactory;
 
     private Member admin;
+    private Brand brand;
+    private Category category;
 
     @BeforeEach
     void setUp() {
         admin = memberTestFactory.admin();
+        brand = brandRepository.save(
+                Brand.builder()
+                        .name("BRAND_A")
+                        .build()
+        );
+        category = categoryTestFactory.getOrCreate(CategoryCode.SMALL);
     }
 
     @Test
@@ -52,7 +70,7 @@ public class ProductAdminServiceTest {
 
         // [then] 모든 상품이 성공 처리되지만 실제 DB에는 seed 데이터만 존재함
         assertThat(response.totalCount()).isEqualTo(2000);
-        assertThat(response.successCount()).isEqualTo(2000);
+        assertThat(response.successCount()).isEqualTo(0);
         assertThat(response.failedCount()).isEqualTo(0);
         assertThat(productRepository.count()).isEqualTo(5); // seed_product
     }
@@ -139,6 +157,57 @@ public class ProductAdminServiceTest {
         assertThat(ex.getData().toString())
                 .contains("CSV")
                 .contains("name");
+    }
+
+    @Test
+    @DisplayName("DB에 이미 존재하는 external_product_id가 있으면 업로드는 FAIL 한다")
+    void uploadProducts_fail_whenExternalProductIdAlreadyExists() throws Exception {
+        // [given] DB에 중복 대상이 되는 기존 상품을 1개 저장
+        Product existing = productRepository.save(
+                Product.create(
+                        "DUPLICATE-001",
+                        brand,
+                        category,
+                        "기존 상품",
+                        10000,
+                        10,
+                        "기존 상품 설명",
+                        null,
+                        4.5,
+                        10
+                )
+        );
+
+        long beforeCount = productRepository.count();
+
+        // [given] 이미 DB에 저장된 external_product_id를 포함한 CSV
+        MockMultipartFile csvFile = loadCsv("products_with_duplicate_external_id.csv");
+
+        // [when & then]
+        assertThatThrownBy(() ->
+                productAdminService.uploadProductsByCsv(csvFile, false)
+        )
+                .isInstanceOf(CsvValidationException.class)
+                .hasFieldOrPropertyWithValue("errorCode", CsvErrorCode.CSV_DUPLICATE_VALUE);
+
+        // [then] 기존 데이터 외에 추가 저장 없음
+        assertThat(productRepository.count()).isEqualTo(beforeCount);
+    }
+
+    @Test
+    @DisplayName("CSV 내부에 external_product_id 중복이 있으면 업로드는 FAIL 한다")
+    void uploadProducts_fail_whenDuplicateExternalProductIdInCsv() throws Exception {
+        // [given] CSV 파일 내부에 동일한 ID가 두 번 이상 포함됨
+        MockMultipartFile csvFile = loadCsv("products_duplicate_external_id.csv");
+
+        // [when & then]
+        CsvValidationException exception = assertThrows(
+                CsvValidationException.class,
+                () -> productAdminService.uploadProductsByCsv(csvFile, false)
+        );
+
+        // 발생한 예외의 에러 코드가 CSV_DUPLICATE_VALUE인지 검증
+        assertThat(exception.getErrorCode()).isEqualTo(CsvErrorCode.CSV_DUPLICATE_VALUE);
     }
 
     private MockMultipartFile loadCsv(String filename) throws Exception {
