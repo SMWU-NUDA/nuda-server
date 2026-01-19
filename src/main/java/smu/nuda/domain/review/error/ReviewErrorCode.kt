@@ -10,6 +10,8 @@ enum class ReviewErrorCode (
     INVALID_REVIEW(
         "REVIEW_INVALID_REVIEW","유효하지 않은 리뷰입니다."
     ),
-
+    NOT_REVIEW_OWNER(
+        "REVIEW_NOT_REVIEW_OWNER", "해당 리뷰에 대한 수정 및 삭제 권한이 없습니다."
+    )
     ;
 }

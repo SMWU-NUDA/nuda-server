@@ -76,4 +76,8 @@ public class Review extends BaseEntity {
         }
     }
 
+    public boolean isWrittenBy(Member member) {
+        return this.member.getId().equals(member.getId());
+    }
+
 }
