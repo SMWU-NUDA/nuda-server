@@ -10,6 +10,7 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -26,7 +27,7 @@ public class S3StorageClient implements StorageClient {
     @Value("${cloud.aws.cloudfront.domain}")
     private String cloudfrontDomain;
 
-    private String cdn;
+    private final Clock clock;
 
     @Override
     public PresignedUrlResponse createPresignedUrl(UploadType type, String fileName, String contentType) {
@@ -55,7 +56,7 @@ public class S3StorageClient implements StorageClient {
         String extension = extractExtension(fileName);
 
         return type.basePath() + "/"
-                + LocalDate.now() + "/"
+                + LocalDate.now(clock) + "/"
                 + UUID.randomUUID()
                 + extension;
     }
