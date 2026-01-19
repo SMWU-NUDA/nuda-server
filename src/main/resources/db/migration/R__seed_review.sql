@@ -12,7 +12,7 @@ VALUES
 -- INTERNAL-test1 (누다 소형)에 대한 리뷰
 (
     (SELECT id FROM member WHERE username = 'admin' LIMIT 1),
-(SELECT id FROM product WHERE external_product_id = 'INTERNAL-test1'),
+    (SELECT id FROM product WHERE external_product_id = 'INTERNAL-test1'),
     '사이즈가 딱 적당하고 순면이라 피부 자극이 없어서 너무 좋아요.',
     5.0,
     3,

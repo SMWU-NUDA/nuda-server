@@ -1,3 +1,4 @@
+-- 테스트용 관리자 계정
 INSERT INTO member (
     nickname, username, password, email,
     profile_img,
@@ -20,9 +21,31 @@ VALUES (
         '클리나',
         now(),
         now()
-)
-ON CONFLICT (username) DO NOTHING;
+);
 
+INSERT INTO survey (
+    member_id,
+    irritation_level,
+    scent,
+    change_frequency,
+    thickness,
+    priority,
+    created_at,
+    updated_at
+)
+SELECT
+    m.id,
+    'SOMETIMES',
+    'MILD',
+    'HIGH',
+    'NORMAL',
+    'SAFETY',
+    now(),
+    now()
+FROM member m
+WHERE m.username = 'admin';
+
+-- csv 대량 업로드 용 계정
 INSERT INTO member (
     nickname, username, password, email,
     profile_img,
@@ -45,5 +68,4 @@ VALUES (
            '클리나',
            now(),
            now()
-)
-ON CONFLICT (username) DO NOTHING;
+);

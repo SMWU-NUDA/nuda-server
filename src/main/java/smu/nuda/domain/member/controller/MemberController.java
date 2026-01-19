@@ -6,10 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import smu.nuda.domain.member.dto.DeliveryRequest;
-import smu.nuda.domain.member.dto.DeliveryResponse;
-import smu.nuda.domain.member.dto.MeResponse;
-import smu.nuda.domain.member.dto.UpdateMemberRequest;
+import smu.nuda.domain.member.dto.*;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.member.service.MemberService;
 import smu.nuda.domain.member.service.WithdrawService;
@@ -75,4 +72,16 @@ public class MemberController {
         return ApiResponse.success("회원 탈퇴 요청이 완료되었습니다.");
     }
 
+    @GetMapping("/me")
+    @Operation(
+            summary = "마이페이지 조회",
+            description = "현재 로그인한 사용자의 회원 정보(프로필 정보, 키워드)를 조회합니다." +
+                    "내 리뷰는 나의 리뷰 조회 api를 요청해주세요."
+    )
+    @SecurityRequirement(name = "JWT")
+    @LoginRequired
+    public ApiResponse<MyPageResponse> getMyPage() {
+        Member member = authenticationGuard.currentMember();
+        return ApiResponse.success(memberService.getMyPage(member));
+    }
 }

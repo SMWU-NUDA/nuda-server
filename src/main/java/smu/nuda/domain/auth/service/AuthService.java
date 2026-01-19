@@ -161,4 +161,10 @@ public class AuthService {
         }
     }
 
+    public void verifyPassword(Member member, String rawPassword) {
+        if (!passwordEncoder.matches(rawPassword, member.getPassword())) {
+            throw new DomainException(AuthErrorCode.INVALID_PASSWORD);
+        }
+    }
+
 }

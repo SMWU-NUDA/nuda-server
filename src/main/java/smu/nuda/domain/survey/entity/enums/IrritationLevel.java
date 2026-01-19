@@ -1,7 +1,16 @@
 package smu.nuda.domain.survey.entity.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum IrritationLevel {
-    NONE,
-    SOMETIMES,
-    OFTEN
+    NONE("거의 없음"),
+    SOMETIMES("가끔"),
+    OFTEN("자주");
+
+    private final String label;
+
+    IrritationLevel(String label) {
+        this.label = label;
+    }
 }

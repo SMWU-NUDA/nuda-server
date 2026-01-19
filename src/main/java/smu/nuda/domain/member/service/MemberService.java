@@ -5,12 +5,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import smu.nuda.domain.auth.repository.EmailAuthRepository;
-import smu.nuda.domain.member.dto.DeliveryRequest;
-import smu.nuda.domain.member.dto.DeliveryResponse;
-import smu.nuda.domain.member.dto.MeResponse;
-import smu.nuda.domain.member.dto.UpdateMemberRequest;
+import smu.nuda.domain.member.dto.*;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.member.error.MemberErrorCode;
+import smu.nuda.domain.survey.dto.SurveyKeywordResponse;
+import smu.nuda.domain.survey.repository.SurveyRepository;
 import smu.nuda.global.error.DomainException;
 
 @Service
@@ -19,7 +18,7 @@ public class MemberService {
 
     private final EmailAuthRepository emailAuthRepository;
     private final PasswordEncoder passwordEncoder;
-
+    private final SurveyRepository surveyRepository;
 
     @Transactional
     public MeResponse updateMe(Member member, UpdateMemberRequest request) {
@@ -84,6 +83,16 @@ public class MemberService {
                 .address1(member.getAddress1())
                 .address2(member.getAddress2())
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public MyPageResponse getMyPage(Member member) {
+        MeResponse me = MeResponse.from(member);
+        SurveyKeywordResponse survey = surveyRepository.findByMember(member)
+                .map(SurveyKeywordResponse::from)
+                .orElse(null);
+
+        return new MyPageResponse(me, survey);
     }
 
 }

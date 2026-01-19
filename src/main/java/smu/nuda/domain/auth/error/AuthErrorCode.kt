@@ -27,5 +27,9 @@ enum class AuthErrorCode(
     ),
     ACCESS_DENIED(
         "AUTH_ACCESS_DENIED","해당 계정은 요청 권한이 없습니다."
-    )
+    ),
+    INVALID_PASSWORD(
+        "AUTH_INVALID_PASSWORD", "비밀번호가 일치하지 않습니다. 다시 확인해주세요."
+    ),
+    ;
 }
