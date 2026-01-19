@@ -20,7 +20,8 @@ VALUES (
         '클리나',
         now(),
         now()
-);
+)
+ON CONFLICT (username) DO NOTHING;
 
 INSERT INTO member (
     nickname, username, password, email,
@@ -44,4 +45,5 @@ VALUES (
            '클리나',
            now(),
            now()
-);
+)
+ON CONFLICT (username) DO NOTHING;

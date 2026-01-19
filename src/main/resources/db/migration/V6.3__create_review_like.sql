@@ -11,5 +11,3 @@ CREATE TABLE review_like (
 
     CONSTRAINT uq_review_like_unique UNIQUE (review_id, member_id)
 );
-
-CREATE INDEX idx_review_like_review_member ON review_like(review_id, member_id);
