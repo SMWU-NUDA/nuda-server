@@ -13,6 +13,9 @@ enum class FileErrorCode(
     INVALID_CONTENT_TYPE(
         "FILE_INVALID_CONTENT_TYPE", "허용되지 않은 파일 형식입니다."
     ),
+    EMPTY_FILE_LIST(
+        "FILE_EMPTY_FILE_LIST","업로드할 파일이 선택되지 않았습니다."
+    )
 
     ;
 }

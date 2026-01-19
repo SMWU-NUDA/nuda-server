@@ -65,7 +65,7 @@ public class ReviewAdminService {
                 throw new CsvValidationException(CsvErrorCode.CSV_INVALID_VALUE, row.rowNumber(), "존재하지 않는 category_code 입니다.");
             }
 
-            Product product = productRepository.findByExternalProductIdAndCategoryCode(
+            Product product = productRepository.findByExternalProductIdAndCategory_Code(
                             row.externalProductId(),
                             categoryCode
                     ).orElseThrow(() -> new CsvValidationException(CsvErrorCode.CSV_INVALID_REFERENCE, row.rowNumber(), "매핑되는 상품이 존재하지 않습니다.")

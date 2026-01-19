@@ -11,5 +11,5 @@ import java.util.Optional;
 public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("select p.externalProductId from Product p")
     List<String> findAllExternalProductIds();
-    Optional<Product> findByExternalProductIdAndCategoryCode(String externalProductId, CategoryCode categoryCode);
+    Optional<Product> findByExternalProductIdAndCategory_Code(String externalProductId, CategoryCode categoryCode);
 }

@@ -15,6 +15,7 @@ import smu.nuda.domain.review.repository.ReviewImageRepository;
 import smu.nuda.domain.review.repository.ReviewRepository;
 import smu.nuda.global.error.DomainException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -36,7 +37,7 @@ public class ReviewService {
                 product,
                 request.getRating(),
                 request.getContent(),
-                request.getImageUrls().get(1)
+                null
         );
         reviewRepository.save(review);
 
@@ -49,16 +50,16 @@ public class ReviewService {
     }
 
     private void saveImages(Review review, List<String> imageUrls) {
-
+        List<ReviewImage> images = new ArrayList<>();
         for (int i = 0; i < imageUrls.size(); i++) {
-            ReviewImage image = new ReviewImage(
+            images.add(new ReviewImage(
                     review,
                     imageUrls.get(i),
                     i
-            );
-            reviewImageRepository.save(image);
-            if (i == 0) review.updateThumbnail(imageUrls.get(i));
+            ));
         }
+        reviewImageRepository.saveAll(images);
+        if (!imageUrls.isEmpty()) review.updateThumbnail(imageUrls.get(0));
     }
 
     @Transactional

@@ -11,6 +11,7 @@ import java.util.List;
 public class UploadPolicy {
 
     public void validate(UploadType type, List<PresignedUrlRequest.FileMeta> files) {
+        if (files == null || files.isEmpty()) throw new DomainException(FileErrorCode.EMPTY_FILE_LIST);
         validateCount(type, files);
         validateContentTypes(type, files);
     }
