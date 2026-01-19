@@ -28,7 +28,7 @@ public class ReviewQueryRepository {
                         review.id,
                         review.rating,
                         review.content,
-                        review.createdAt.stringValue()
+                        review.createdAt
                 ))
                 .from(review)
                 .join(review.product, product)
