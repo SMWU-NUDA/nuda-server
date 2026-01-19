@@ -30,7 +30,7 @@ public class Review extends BaseEntity {
     @JoinColumn(
             name = "member_id",
             nullable = false,
-            foreignKey = @ForeignKey(name = "fk_product_like_member")
+            foreignKey = @ForeignKey(name = "fk_product_member")
     )
     private Member member;
 
@@ -38,7 +38,7 @@ public class Review extends BaseEntity {
     @JoinColumn(
             name = "product_id",
             nullable = false,
-            foreignKey = @ForeignKey(name = "fk_product_like_product")
+            foreignKey = @ForeignKey(name = "fk_product_product")
     )
     private Product product;
 

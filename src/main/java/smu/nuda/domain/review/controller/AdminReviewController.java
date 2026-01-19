@@ -30,7 +30,7 @@ public class AdminReviewController {
             consumes = "multipart/form-data"
     )
     @Operation(
-            summary = "상품 CSV 일괄 등록",
+            summary = "리뷰 CSV 일괄 등록",
             description = "CSV 파일을 업로드하여 여러 리뷰 데이터를 한 번에 등록합니다." +
                     "작성자는 csvAdmin 계정으로 저장합니다."
     )
