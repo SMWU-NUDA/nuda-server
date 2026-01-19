@@ -66,7 +66,8 @@ public class S3StorageClient implements StorageClient {
     }
 
     private String buildPublicUrl(String key) {
-        return cloudfrontDomain + "/" + key;
+        String base = cloudfrontDomain.endsWith("/") ? cloudfrontDomain.substring(0, cloudfrontDomain.length() - 1) : cloudfrontDomain;
+        return base + "/" + key;
     }
 
 }
