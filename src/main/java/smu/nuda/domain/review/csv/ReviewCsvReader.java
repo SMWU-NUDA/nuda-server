@@ -1,5 +1,6 @@
 package smu.nuda.domain.review.csv;
 
+import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -22,7 +23,7 @@ public class ReviewCsvReader implements CsvReader<ReviewCsvRow> {
         List<ReviewCsvRow> rows = new ArrayList<>();
 
         try (
-                InputStreamReader reader = new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8);
+                InputStreamReader reader = new InputStreamReader(new BOMInputStream(file.getInputStream()), StandardCharsets.UTF_8);
                 CSVParser parser = CSVFormat.DEFAULT
                         .withFirstRecordAsHeader()
                         .withTrim()

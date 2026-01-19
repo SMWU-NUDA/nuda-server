@@ -72,6 +72,7 @@ dependencies {
 
 	// csv
 	implementation 'org.apache.commons:commons-csv:1.10.0'
+	implementation 'commons-io:commons-io:2.15.1'
 
 	// queryDSL
 	implementation "com.querydsl:querydsl-jpa:5.0.0:jakarta"
