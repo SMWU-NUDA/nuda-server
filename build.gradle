@@ -72,6 +72,7 @@ dependencies {
 
 	// csv
 	implementation 'org.apache.commons:commons-csv:1.10.0'
+	implementation 'commons-io:commons-io:2.15.1'
 
 	// queryDSL
 	implementation "com.querydsl:querydsl-jpa:5.0.0:jakarta"
@@ -79,6 +80,10 @@ dependencies {
 	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
 	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 	testAnnotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+
+	// aws sdk
+	implementation "software.amazon.awssdk:s3"
+	implementation(platform("software.amazon.awssdk:bom:2.25.60"))
 
 	// test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'

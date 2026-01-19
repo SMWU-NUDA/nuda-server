@@ -8,7 +8,11 @@ import smu.nuda.domain.brand.entity.Brand;
 import smu.nuda.domain.brand.error.BrandErrorCode;
 import smu.nuda.domain.common.entity.BaseEntity;
 import smu.nuda.domain.product.error.ProductErrorCode;
+import smu.nuda.domain.product.policy.ProductPolicy;
+import smu.nuda.domain.product.util.ExternalProductIdGenerator;
 import smu.nuda.global.error.DomainException;
+
+import java.util.UUID;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -53,6 +57,9 @@ public class Product extends BaseEntity {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
+    @Column(name = "external_product_id", nullable = false, updatable = false)
+    private String externalProductId;
+
     @Column(columnDefinition = "TEXT")
     private String content;
 
@@ -74,14 +81,18 @@ public class Product extends BaseEntity {
     @Column(name = "thumbnail_img")
     private String thumbnailImg;
 
-    public static Product create(Brand brand, Category category, String name, int costPrice, int discountRate, String content, String thumbnailImg) {
+    public static Product create(String externalProductId, Brand brand, Category category, String name, int costPrice, int discountRate, String content, String thumbnailImg, double averageRating, int reviewCount) {
         if (brand == null) throw new DomainException(BrandErrorCode.INVALID_BRAND);
         if (category == null) throw new DomainException(ProductErrorCode.INVALID_CATEGORY);
-        if (name == null || name.isBlank()) throw new DomainException(ProductErrorCode.INVALID_PRODUCT_NAME);
-        if (costPrice < 0) throw new DomainException(ProductErrorCode.INVALID_COST_PRICE);
-        if (discountRate < 0 || discountRate > 100) throw new DomainException(ProductErrorCode.INVALID_DISCOUNT_RATE);
+        if (name == null || name.isBlank())
+            throw new DomainException(ProductErrorCode.INVALID_PRODUCT_NAME);
+
+        ProductPolicy.validateCreate(costPrice, discountRate, averageRating, reviewCount);
 
         Product product = new Product();
+        if (externalProductId == null || externalProductId.isBlank())
+            product.externalProductId = ExternalProductIdGenerator.generateInternalId();
+        else product.externalProductId = externalProductId;
         product.brand = brand;
         product.category = category;
         product.name = name;
@@ -89,6 +100,8 @@ public class Product extends BaseEntity {
         product.discountRate = discountRate;
         product.content = content;
         product.thumbnailImg = thumbnailImg;
+        product.averageRating = averageRating;
+        product.reviewCount = reviewCount;
 
         return product;
     }

@@ -7,6 +7,9 @@ enum class ProductErrorCode(
     override val message: String
 ) : ErrorCode {
 
+    INVALID_EXTERNAL_PRODUCT_ID(
+        "PRODUCT_INVALID_EXTERNAL_PRODUCT_ID", "유효하지 않은 외부 상품 식별자입니다."
+    ),
     INVALID_PRODUCT(
         "PRODUCT_INVALID_PRODUCT", "유효하지 않은 상품입니다."
     ),
@@ -21,5 +24,13 @@ enum class ProductErrorCode(
     ),
     INVALID_DISCOUNT_RATE(
         "PRODUCT_INVALID_DISCOUNT_RATE", "할인율은 0~100 사이여야 합니다."
-    );
+    ),
+    INVALID_REVIEW_COUNT(
+      "PRODUCT_INVALID_REVIEW_COUNT","리뷰 개수 정보가 올바르지 않습니다."
+    ),
+    INVALID_AVERAGE_RATING(
+      "PRODUCT_INVALID_AVERAGE_RATING","평균 평점 정보가 올바르지 않습니다."
+    ),
+
+    ;
 }

@@ -1,0 +1,3 @@
+external_product_id,brand_name,category_code,name,cost_price,discount_rate,content,thumbnail_img,average_rating,review_count
+DUP-001,BRAND_A,SMALL,상품1,1000,10,설명1,img1,4.5,10
+DUP-001,BRAND_A,SMALL,상품2,2000,20,설명2,img2,4.0,5

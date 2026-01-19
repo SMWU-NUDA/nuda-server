@@ -1,6 +1,7 @@
 package smu.nuda.domain.product.dto;
 
 public record ProductCsvRow(
+        String externalProductId,
 
         String brandName,
         String categoryCode,
@@ -10,6 +11,9 @@ public record ProductCsvRow(
 
         String content,
         String thumbnailImg,
+
+        String averageRating,
+        String reviewCount,
 
         int rowNumber
 ) {}
