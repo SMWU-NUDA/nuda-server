@@ -1,12 +1,15 @@
 package smu.nuda.domain.review.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import smu.nuda.domain.common.dto.CursorPageResponse;
 import smu.nuda.domain.member.entity.Member;
+import smu.nuda.domain.review.dto.MyReviewResponse;
 import smu.nuda.domain.review.dto.ReviewCreateRequest;
 import smu.nuda.domain.review.dto.ReviewDetailResponse;
 import smu.nuda.domain.review.entity.Review;
@@ -52,4 +55,19 @@ public class ReviewController {
         reviewService.delete(review);
         return ApiResponse.success("해당 리뷰가 성공적으로 삭제되었습니다.");
     }
+
+    @GetMapping("/me")
+    @Operation(
+            summary = "나의 리뷰 목록 조회",
+            description = "현재 로그인한 사용자가 작성한 리뷰들을 최신순으로 조회합니다."
+    )
+    @SecurityRequirement(name = "JWT")
+    @LoginRequired
+    public ApiResponse<CursorPageResponse<MyReviewResponse>> myReviews(
+            @Parameter(description = "이전 페이지의 마지막 id (첫 요청 시 null)") @RequestParam(required = false) Long cursor,
+            @Parameter(description = "한 페이지당 조회 개수 (기본값 20)") @RequestParam(defaultValue = "20") int size) {
+        Member member = authenticationGuard.currentMember();
+        return ApiResponse.success(reviewService.getMyReviews(member, cursor, size));
+    }
+
 }

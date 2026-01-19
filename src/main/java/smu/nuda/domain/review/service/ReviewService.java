@@ -3,15 +3,18 @@ package smu.nuda.domain.review.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import smu.nuda.domain.common.dto.CursorPageResponse;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.product.entity.Product;
 import smu.nuda.domain.product.error.ProductErrorCode;
 import smu.nuda.domain.product.repository.ProductRepository;
+import smu.nuda.domain.review.dto.MyReviewResponse;
 import smu.nuda.domain.review.dto.ReviewCreateRequest;
 import smu.nuda.domain.review.dto.ReviewDetailResponse;
 import smu.nuda.domain.review.entity.Review;
 import smu.nuda.domain.review.entity.ReviewImage;
 import smu.nuda.domain.review.repository.ReviewImageRepository;
+import smu.nuda.domain.review.repository.ReviewQueryRepository;
 import smu.nuda.domain.review.repository.ReviewRepository;
 import smu.nuda.global.error.DomainException;
 
@@ -23,6 +26,7 @@ import java.util.List;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
+    private final ReviewQueryRepository reviewQueryRepository;
     private final ReviewImageRepository reviewImageRepository;
     private final ProductRepository productRepository;
 
@@ -67,4 +71,19 @@ public class ReviewService {
         reviewRepository.delete(review);
     }
 
+    @Transactional(readOnly = true)
+    public CursorPageResponse<MyReviewResponse> getMyReviews(Member member, Long cursor, int size) {
+        List<MyReviewResponse> result =
+                reviewQueryRepository.findMyReviews(
+                        member.getId(),
+                        cursor,
+                        size
+                );
+
+        return CursorPageResponse.of(
+                result,
+                size,
+                MyReviewResponse::getReviewId
+        );
+    }
 }
