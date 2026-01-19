@@ -3,6 +3,7 @@ package smu.nuda.domain.auth.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import smu.nuda.domain.auth.dto.*;
@@ -94,12 +95,12 @@ public class AuthController {
     @PostMapping("/password/verifications")
     @Operation(
             summary = "기존 비밀번호 확인",
-            description = "현재 로그인한 사용자의 비밀번호와 일치하는지 확인합니다." +
+            description = "현재 로그인한 사용자의 비밀번호와 일치하는지 확인합니다. " +
                     "회원 정보 수정시 본인 확인 용도로 사용됩니다."
     )
     @SecurityRequirement(name = "JWT")
     @LoginRequired
-    public ApiResponse<String> verifyPassword(@RequestBody PasswordVerifyRequest request) {
+    public ApiResponse<String> verifyPassword(@Valid @RequestBody PasswordVerifyRequest request) {
         Member member = authenticationGuard.currentMember();
         authService.verifyPassword(member, request.getPassword());
         return ApiResponse.success("비밀번호 인증에 성공하였습니다.");

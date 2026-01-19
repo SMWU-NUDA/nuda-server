@@ -1,8 +1,9 @@
 package smu.nuda.domain.auth.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
 @Getter
 public class PasswordVerifyRequest {
-    private String password;
+    @NotBlank private String password;
 }
