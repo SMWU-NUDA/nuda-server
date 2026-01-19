@@ -1,5 +1,6 @@
 package smu.nuda.domain.auth.service;
 
+import jakarta.security.auth.message.AuthException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -158,6 +159,12 @@ public class AuthService {
         boolean exists = memberRepository.existsByUsername(username);
         if (exists) {
             throw new DomainException(MemberErrorCode.USERNAME_DUPLICATED, username);
+        }
+    }
+
+    public void verifyPassword(Member member, String rawPassword) {
+        if (!passwordEncoder.matches(rawPassword, member.getPassword())) {
+            throw new DomainException(AuthErrorCode.INVALID_PASSWORD);
         }
     }
 
