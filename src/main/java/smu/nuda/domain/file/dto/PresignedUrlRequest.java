@@ -13,6 +13,7 @@ public class PresignedUrlRequest {
     private List<FileMeta> files;
 
     @Getter
+    @NoArgsConstructor
     public static class FileMeta {
         private String fileName;
         private String contentType;
