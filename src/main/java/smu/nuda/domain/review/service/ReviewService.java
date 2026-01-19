@@ -61,4 +61,9 @@ public class ReviewService {
         }
     }
 
+    @Transactional
+    public void delete(Review review) {
+        reviewRepository.delete(review);
+    }
+
 }
