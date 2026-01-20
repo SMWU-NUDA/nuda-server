@@ -32,7 +32,7 @@ public class Ingredient extends BaseEntity {
     @Column(name = "risk_level", length = 20, nullable = false)
     private RiskLevel riskLevel;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     public static Ingredient of(String name, RiskLevel riskLevel, String content) {

@@ -41,7 +41,7 @@ public class IngredientRisk extends BaseEntity {
     @Column(length = 255)
     private String toxicity;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String referenceUrl;
 
     public static IngredientRisk of(Ingredient ingredient, RiskSource source, RiskLevel riskLevel, String toxicity, String referenceUrl) {

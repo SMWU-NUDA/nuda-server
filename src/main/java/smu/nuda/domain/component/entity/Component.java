@@ -28,7 +28,7 @@ public class Component extends BaseEntity {
     @Column(length = 100, nullable = false)
     private String name;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @Enumerated(EnumType.STRING)
