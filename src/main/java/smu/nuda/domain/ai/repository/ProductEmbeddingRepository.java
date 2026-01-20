@@ -1,7 +1,7 @@
-package smu.nuda.domain.product.repository;
+package smu.nuda.domain.ai.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import smu.nuda.domain.product.entity.ProductEmbedding;
+import smu.nuda.domain.ai.entity.ProductEmbedding;
 
 public interface ProductEmbeddingRepository extends JpaRepository<ProductEmbedding, Long> {
 }

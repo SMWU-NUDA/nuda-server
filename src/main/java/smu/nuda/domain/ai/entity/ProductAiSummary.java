@@ -1,10 +1,11 @@
-package smu.nuda.domain.product.entity;
+package smu.nuda.domain.ai.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import smu.nuda.domain.common.entity.BaseEntity;
+import smu.nuda.domain.product.entity.Product;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

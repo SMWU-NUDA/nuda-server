@@ -1,7 +1,7 @@
-package smu.nuda.domain.product.repository;
+package smu.nuda.domain.ai.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import smu.nuda.domain.product.entity.ProductAiSummary;
+import smu.nuda.domain.ai.entity.ProductAiSummary;
 
 public interface ProductAiSummaryRepository extends JpaRepository<ProductAiSummary, Long> {
 }

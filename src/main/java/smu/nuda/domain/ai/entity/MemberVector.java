@@ -1,9 +1,10 @@
-package smu.nuda.domain.member.entity;
+package smu.nuda.domain.ai.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import smu.nuda.domain.common.entity.BaseEntity;
+import smu.nuda.domain.member.entity.Member;
 
 import static lombok.AccessLevel.PROTECTED;
 
