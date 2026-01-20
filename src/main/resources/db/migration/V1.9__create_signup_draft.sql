@@ -1,3 +1,10 @@
+CREATE SEQUENCE signup_draft_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
 CREATE TABLE signup_draft (
     id BIGINT PRIMARY KEY DEFAULT nextval('signup_draft_seq'),
     signup_token VARCHAR(64) NOT NULL UNIQUE,

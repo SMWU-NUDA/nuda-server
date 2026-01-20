@@ -1,3 +1,10 @@
+CREATE SEQUENCE product_seq
+    START WITH 1
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 50;
+
 CREATE TABLE product (
     id BIGINT PRIMARY KEY DEFAULT nextval('product_seq'),
     external_product_id VARCHAR(100) NOT NULL UNIQUE,

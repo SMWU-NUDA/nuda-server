@@ -1,3 +1,10 @@
+CREATE SEQUENCE product_embedding_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
 CREATE EXTENSION IF NOT EXISTS vector;
 
 CREATE TABLE product_embedding (

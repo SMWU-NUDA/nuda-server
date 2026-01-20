@@ -1,3 +1,10 @@
+CREATE SEQUENCE review_like_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
 CREATE TABLE review_like (
     id BIGINT PRIMARY KEY DEFAULT nextval('review_like_seq'),
     review_id BIGINT NOT NULL,

@@ -1,3 +1,10 @@
+CREATE SEQUENCE review_seq
+    START WITH 1
+    INCREMENT BY 100
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 100;
+
 CREATE TABLE review (
     id BIGINT PRIMARY KEY DEFAULT nextval('review_seq'),
     member_id BIGINT NOT NULL,

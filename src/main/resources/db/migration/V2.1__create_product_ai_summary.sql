@@ -1,3 +1,10 @@
+CREATE SEQUENCE product_ai_summary_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
 CREATE TABLE product_ai_summary (
     id BIGINT PRIMARY KEY DEFAULT nextval('product_ai_summary_seq'),
     product_id BIGINT NOT NULL UNIQUE,

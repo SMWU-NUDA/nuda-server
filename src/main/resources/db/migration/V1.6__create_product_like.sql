@@ -1,3 +1,10 @@
+CREATE SEQUENCE product_like_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
 CREATE TABLE product_like (
     id BIGINT PRIMARY KEY DEFAULT nextval('product_like_seq'),
     member_id BIGINT NOT NULL,

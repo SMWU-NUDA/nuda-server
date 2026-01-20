@@ -1,3 +1,10 @@
+CREATE SEQUENCE review_image_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
 CREATE TABLE review_image (
     id BIGINT PRIMARY KEY DEFAULT nextval('review_image_seq'),
     review_id BIGINT NOT NULL,

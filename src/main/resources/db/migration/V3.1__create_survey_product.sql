@@ -1,3 +1,10 @@
+CREATE SEQUENCE survey_product_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
 CREATE TABLE survey_product (
     id BIGINT PRIMARY KEY DEFAULT nextval('survey_product_seq'),
     survey_id BIGINT NOT NULL,
