@@ -14,3 +14,6 @@ CREATE TABLE ingredient_risk (
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now()
 );
+
+CREATE INDEX idx_ingredient_risk_ingredient ON ingredient_risk(ingredient_id);
+CREATE INDEX idx_ingredient_risk_ingredient_source ON ingredient_risk(ingredient_id, source);

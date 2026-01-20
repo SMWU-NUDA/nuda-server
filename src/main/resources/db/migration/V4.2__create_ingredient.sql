@@ -10,3 +10,5 @@ CREATE TABLE ingredient (
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now()
 );
+
+CREATE INDEX idx_ingredient_name ON ingredient(name);

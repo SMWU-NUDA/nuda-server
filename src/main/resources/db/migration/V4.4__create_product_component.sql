@@ -15,3 +15,5 @@ CREATE TABLE product_component (
     CONSTRAINT uq_product_component
         UNIQUE (product_id, component_id)
 );
+
+CREATE INDEX idx_product_component_component ON product_component(component_id);

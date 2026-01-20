@@ -18,3 +18,7 @@ CREATE TABLE product_ingredient (
     CONSTRAINT uq_product_component_ingredient
         UNIQUE (product_id, component_id, ingredient_id)
 );
+
+CREATE INDEX idx_product_ingredient_product ON product_ingredient(product_id);
+CREATE INDEX idx_product_ingredient_ingredient ON product_ingredient(ingredient_id);
+CREATE INDEX idx_product_ingredient_product_component ON product_ingredient(product_id, component_id);

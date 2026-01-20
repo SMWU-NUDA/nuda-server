@@ -16,3 +16,5 @@ CREATE TABLE ingredient_like (
     CONSTRAINT uq_member_ingredient_like
         UNIQUE (member_id, ingredient_id)
 );
+
+CREATE INDEX idx_ingredient_like_member_preference ON ingredient_like(member_id, preference);
