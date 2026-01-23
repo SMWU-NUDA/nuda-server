@@ -1,6 +1,7 @@
 package smu.nuda.domain.auth.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import smu.nuda.domain.auth.dto.*;
 import smu.nuda.domain.auth.service.AuthService;
+import smu.nuda.domain.member.dto.MeResponse;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.global.guard.annotation.LoginRequired;
 import smu.nuda.global.guard.guard.AuthenticationGuard;
@@ -27,7 +29,7 @@ public class AuthController {
             summary = "이메일 인증번호 요청",
             description = "회원가입을 위해 입력한 이메일로 인증번호를 발송합니다. 이미 가입된 이메일인 경우 요청이 거부됩니다."
     )
-    public ApiResponse<String> requestVerification(@RequestBody EmailVerificationRequest request) {
+    public ApiResponse<String> requestVerification(@RequestBody EmailVerifyRequest request) {
         authService.requestVerificationCode(request.getEmail());
         return ApiResponse.success("해당 이메일로 인증번호를 전송했습니다.");
     }
@@ -57,6 +59,17 @@ public class AuthController {
     )
     public ApiResponse<ReissueResponse> reissue(@RequestBody ReissueRequest request) {
         return ApiResponse.success(authService.reissue(request.getRefreshToken()));
+    }
+
+    @GetMapping("/me")
+    @Operation(
+            summary = "Access 토큰 검증",
+            description = "헤더의 Access Token이 유효한지 검증합니다."
+    )
+    @SecurityRequirement(name = "JWT")
+    public ApiResponse<TokenVerifyResponse> getMe(){
+        Member member = authenticationGuard.currentMember();
+        return ApiResponse.success(TokenVerifyResponse.from(member));
     }
 
     @PostMapping("/logout")
