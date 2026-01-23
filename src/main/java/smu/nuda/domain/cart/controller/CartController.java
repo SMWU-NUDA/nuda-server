@@ -68,10 +68,23 @@ public class CartController {
     )
     @SecurityRequirement(name = "JWT")
     @LoginRequired
-    public ApiResponse<String> deleteSelectedItem(@RequestBody CartItemDeleteRequest request) {
+    public ApiResponse<String> deleteSelectedItems(@RequestBody CartItemDeleteRequest request) {
         Member member = authenticationGuard.currentMember();
-        cartService.deleteItems(request.getCartItemIds(), member);
+        cartService.deleteselectedItems(request.getCartItemIds(), member);
         return ApiResponse.success("선택한 상품이 장바구니에서 삭제되었습니다.");
+    }
+
+    @DeleteMapping("/items/all")
+    @Operation(
+            summary = "장바구니 전체 상품 삭제",
+            description = "장바구니에 담긴 전체 상품을 삭제합니다."
+    )
+    @SecurityRequirement(name = "JWT")
+    @LoginRequired
+    public ApiResponse<String> deleteAllItems() {
+        Member member = authenticationGuard.currentMember();
+        cartService.deleteAllItems(member);
+        return ApiResponse.success("장바구니에 담긴 모든 상품이 삭제되었습니다.");
     }
 
 }
