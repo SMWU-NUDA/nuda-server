@@ -8,7 +8,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class CartResponse {
-    private List<CartBrandInfo> brands;
+    private List<CartBrandGroup> brands;
     private int totalQuantity;
     private int totalPrice;
 }

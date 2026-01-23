@@ -7,8 +7,8 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public class CartBrandInfo {
+public class CartBrandGroup {
     private Long brandId;
     private String brandName;
-    private List<CartProductInfo> products;
+    private List<CartProductItem> products;
 }

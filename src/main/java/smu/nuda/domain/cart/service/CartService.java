@@ -7,8 +7,8 @@ import org.hibernate.PessimisticLockException;
 import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import smu.nuda.domain.cart.dto.CartBrandInfo;
-import smu.nuda.domain.cart.dto.CartProductInfo;
+import smu.nuda.domain.cart.dto.CartBrandGroup;
+import smu.nuda.domain.cart.dto.CartProductItem;
 import smu.nuda.domain.cart.dto.CartProductResponse;
 import smu.nuda.domain.cart.dto.CartResponse;
 import smu.nuda.domain.cart.entity.Cart;
@@ -68,21 +68,23 @@ public class CartService {
                         LinkedHashMap::new,
                         Collectors.toList()
                 ));
-        List<CartBrandInfo> brands = grouped.values().stream()
+        List<CartBrandGroup> brands = grouped.values().stream()
                 .map(group -> {
                     Tuple first = group.get(0);
 
                     Long brandId = first.get(brand.id);
                     String brandName = first.get(brand.name);
 
-                    List<CartProductInfo> products = group.stream()
+                    List<CartProductItem> products = group.stream()
                             .map(row -> {
+                                Long cartItemId = row.get(cartItem.id);
                                 Long productId = row.get(product.id);
                                 String productName = row.get(product.name);
                                 int quantity = row.get(cartItem.quantity);
                                 int price = row.get(product.costPrice);
 
-                                return new CartProductInfo(
+                                return new CartProductItem(
+                                        cartItemId,
                                         productId,
                                         productName,
                                         quantity,
@@ -91,17 +93,22 @@ public class CartService {
                                 );
                             }).toList();
 
-                    return new CartBrandInfo(
+                    return new CartBrandGroup(
                             brandId,
                             brandName,
                             products
                     );
                 }).toList();
 
-        int totalQuantity = rows.stream()
-                .mapToInt(row -> row.get(cartItem.quantity)).sum();
-        int totalPrice = rows.stream()
-                .mapToInt(row -> row.get(cartItem.quantity) * row.get(product.costPrice)).sum();
+        int totalQuantity = 0;
+        int totalPrice = 0;
+        for (Tuple row : rows) {
+            int quantity = row.get(cartItem.quantity);
+            int price = row.get(product.costPrice);
+
+            totalQuantity += quantity;
+            totalPrice += quantity * price;
+        }
 
         return new CartResponse(brands, totalQuantity, totalPrice);
     }
