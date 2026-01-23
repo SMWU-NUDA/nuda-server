@@ -15,5 +15,11 @@ enum class CartErrorCode (
     CART_NOT_FOUND(
         "CART_NOT_FOUND","장바구니 정보를 찾을 수 없습니다."
     ),
+    INVALID_CART_ITEM(
+        "CART_INVALID_CART_ITEM","존재하지 않거나 유효하지 않은 장바구니 아이템 ID입니다."
+    ),
+    NOT_MY_CART_ITEM(
+        "CART_NOT_MY_CART_ITEM", "해당 계정의 장바구니에 담긴 상품이 아닙니다."
+    )
     ;
 }

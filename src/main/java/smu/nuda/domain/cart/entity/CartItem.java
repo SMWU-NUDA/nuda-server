@@ -68,10 +68,12 @@ public class CartItem {
         this.quantity += amount;
     }
 
-    public void changeQuantity(int quantity) {
-        if (quantity <= 0) {
+    public void changeQuantity(int delta) {
+        int newQuantity = this.quantity + delta;
+        if (newQuantity < 1) {
             throw new DomainException(CartErrorCode.INVALID_QUANTITY);
         }
-        this.quantity = quantity;
+        this.quantity = newQuantity;
     }
+
 }

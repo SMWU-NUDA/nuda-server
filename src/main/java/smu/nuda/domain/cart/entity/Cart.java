@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import smu.nuda.domain.cart.error.CartErrorCode;
+import smu.nuda.domain.member.entity.Member;
+import smu.nuda.global.error.DomainException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,5 +72,15 @@ public class Cart {
     void removeItem(CartItem item) {
         items.remove(item);
         item.removeCart();
+    }
+
+    public void validateOwner(Member member) {
+        if (member == null) {
+            throw new DomainException(CartErrorCode.NOT_MY_CART_ITEM);
+        }
+
+        if (!this.memberId.equals(member.getId())) {
+            throw new DomainException(CartErrorCode.NOT_MY_CART_ITEM);
+        }
     }
 }
