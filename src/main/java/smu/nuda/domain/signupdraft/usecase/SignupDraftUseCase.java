@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import smu.nuda.domain.cart.entity.Cart;
+import smu.nuda.domain.cart.repository.CartRepository;
 import smu.nuda.domain.member.dto.DeliveryRequest;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.member.repository.MemberRepository;
@@ -39,6 +41,7 @@ public class SignupDraftUseCase {
     private final SurveyRepository surveyRepository;
     private final ProductRepository productRepository;
     private final SurveyProductRepository surveyProductRepository;
+    private final CartRepository cartRepository;
     private final PasswordEncoder passwordEncoder;
     private final ObjectMapper objectMapper;
     private final Clock clock;
@@ -141,6 +144,9 @@ public class SignupDraftUseCase {
 
         List<SurveyProduct> surveyProductList = SurveyProduct.of(survey, products);
         surveyProductRepository.saveAll(surveyProductList);
+
+        Cart cart = new Cart(member.getId());
+        cartRepository.save(cart);
 
         // Draft 종료
         signupDraftRepository.delete(draft);
