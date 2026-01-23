@@ -45,6 +45,20 @@ public class Cart {
         this.memberId = memberId;
     }
 
+    public int addProduct(Long productId) {
+        CartItem cartItem = items.stream()
+                .filter(item -> item.getProductId().equals(productId))
+                .findFirst()
+                .orElseGet(() -> {
+                    CartItem newItem = new CartItem(productId,1);
+                    items.add(newItem);
+                    return newItem;
+                });
+
+        cartItem.increaseQuantity(1);
+        return cartItem.getQuantity();
+    }
+
     void addItem(CartItem item) {
         items.add(item);
         item.assignCart(this);
