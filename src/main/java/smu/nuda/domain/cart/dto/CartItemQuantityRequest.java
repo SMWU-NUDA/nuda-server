@@ -7,6 +7,6 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class CartProductQuantityRequest {
+public class CartItemQuantityRequest {
     @NotNull private Integer delta;
 }

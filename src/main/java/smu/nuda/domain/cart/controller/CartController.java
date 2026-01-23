@@ -5,7 +5,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import smu.nuda.domain.cart.dto.CartProductQuantityRequest;
+import smu.nuda.domain.cart.dto.CartItemQuantityRequest;
+import smu.nuda.domain.cart.dto.CartItemDeleteRequest;
 import smu.nuda.domain.cart.dto.CartProductResponse;
 import smu.nuda.domain.cart.dto.CartResponse;
 import smu.nuda.domain.cart.service.CartService;
@@ -49,15 +50,28 @@ public class CartController {
 
     @PatchMapping("/cart/items/{cartItemId}")
     @Operation(
-            summary = "장바구니 상품 수량 변경",
+            summary = "장바구니 상품 수량 수정",
             description = "장바구니에 담긴 특정 상품의 수량을 증감시킵니다. " +
                     "**delta** 값에 양수(1)를 넣으면 증가, 음수(-1)를 넣으면 감소합니다."
     )
     @SecurityRequirement(name = "JWT")
     @LoginRequired
-    public CartProductResponse changeQuantity(@PathVariable Long cartItemId, @RequestBody CartProductQuantityRequest request) {
+    public ApiResponse<CartProductResponse> changeQuantity(@PathVariable Long cartItemId, @RequestBody CartItemQuantityRequest request) {
         Member member = authenticationGuard.currentMember();
-        return cartService.changeQuantity(cartItemId, request.getDelta(), member);
+        return ApiResponse.success(cartService.changeQuantity(cartItemId, request.getDelta(), member));
+    }
+
+    @DeleteMapping("/items")
+    @Operation(
+            summary = "장바구니 선택 상품 삭제",
+            description = "체크박스에 선택된 상품을 삭제합니다. 체크박스 선택된 상품의 cartItem을 리스트로 요청해주세요."
+    )
+    @SecurityRequirement(name = "JWT")
+    @LoginRequired
+    public ApiResponse<String> deleteSelectedItem(@RequestBody CartItemDeleteRequest request) {
+        Member member = authenticationGuard.currentMember();
+        cartService.deleteItems(request.getCartItemIds(), member);
+        return ApiResponse.success("선택한 상품이 장바구니에서 삭제되었습니다.");
     }
 
 }

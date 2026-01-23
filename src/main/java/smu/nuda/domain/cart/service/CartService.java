@@ -137,4 +137,18 @@ public class CartService {
                 .build();
     }
 
+    @Transactional
+    public void deleteItems(List<Long> cartItemIds, Member member) {
+        List<CartItem> cartItems = cartItemRepository.findAllById(cartItemIds);
+
+        if (cartItems.size() != cartItemIds.size()) {
+            throw new DomainException(CartErrorCode.INVALID_CART_ITEM);
+        }
+        for (CartItem cartItem : cartItems) {
+            cartItem.getCart().validateOwner(member);
+        }
+
+        cartItemRepository.deleteAll(cartItems);
+    }
+
 }
