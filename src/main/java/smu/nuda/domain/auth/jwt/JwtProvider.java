@@ -1,14 +1,10 @@
 package smu.nuda.domain.auth.jwt;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import smu.nuda.domain.auth.error.AuthErrorCode;
-import smu.nuda.domain.member.repository.MemberRepository;
 import smu.nuda.global.error.DomainException;
 
 import java.security.Key;
@@ -71,9 +67,7 @@ public class JwtProvider {
 
     public void validateTokenTypeOrThrow(String token, TokenType expected) {
         TokenType actual = extractTokenType(token);
-        if (actual != expected) {
-            throw new IllegalArgumentException("Invalid token type. expected=" + expected + ", actual=" + actual);
-        }
+        if (actual != expected) throw new DomainException(AuthErrorCode.INVALID_TOKEN_TYPE);
     }
 
 }
