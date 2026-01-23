@@ -1,14 +1,14 @@
 package smu.nuda.domain.cart.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-@Builder
-public class CartItemResponse {
+public class CartProductInfo {
     private Long productId;
+    private String productName;
     private int quantity;
-
+    private int price;
+    private int totalPrice; // quantity * price
 }

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Entity
 @Table(
@@ -46,17 +47,18 @@ public class Cart {
     }
 
     public int addProduct(Long productId) {
-        CartItem cartItem = items.stream()
+        Optional<CartItem> existingItem = items.stream()
                 .filter(item -> item.getProductId().equals(productId))
-                .findFirst()
-                .orElseGet(() -> {
-                    CartItem newItem = new CartItem(productId,1);
-                    items.add(newItem);
-                    return newItem;
-                });
+                .findFirst();
 
-        cartItem.increaseQuantity(1);
-        return cartItem.getQuantity();
+        if (existingItem.isPresent()) { // 이미 존재하면 수량만 증가
+            existingItem.get().increaseQuantity(1);
+            return existingItem.get().getQuantity();
+        } else { // 없으면 새로 생성 -> 수량 1개
+            CartItem newItem = new CartItem(productId, 1);
+            addItem(newItem);
+            return newItem.getQuantity();
+        }
     }
 
     void addItem(CartItem item) {

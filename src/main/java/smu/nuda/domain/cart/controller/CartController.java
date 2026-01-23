@@ -5,7 +5,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import smu.nuda.domain.cart.dto.CartItemResponse;
+import smu.nuda.domain.cart.dto.CartProductResponse;
+import smu.nuda.domain.cart.dto.CartResponse;
 import smu.nuda.domain.cart.service.CartService;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.global.guard.annotation.LoginRequired;
@@ -28,8 +29,20 @@ public class CartController {
     )
     @SecurityRequirement(name = "JWT")
     @LoginRequired
-    public ApiResponse<CartItemResponse> addProduct(@PathVariable Long productId) {
+    public ApiResponse<CartProductResponse> addProduct(@PathVariable Long productId) {
         Member member = authenticationGuard.currentMember();
         return ApiResponse.success(cartService.addProduct(member.getId(), productId));
+    }
+
+    @GetMapping
+    @Operation(
+            summary = "장바구니 상품 전체 조회",
+            description = "장바구니에 담긴 전체 상품을 브랜드 별로 그룹지어 조회합니다."
+    )
+    @SecurityRequirement(name = "JWT")
+    @LoginRequired
+    public ApiResponse<CartResponse> getCart() {
+        Member member = authenticationGuard.currentMember();
+        return ApiResponse.success(cartService.getCart(member.getId()));
     }
 }
