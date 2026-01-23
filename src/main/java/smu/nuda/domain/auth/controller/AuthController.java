@@ -1,7 +1,6 @@
 package smu.nuda.domain.auth.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -67,9 +66,10 @@ public class AuthController {
             description = "헤더의 Access Token이 유효한지 검증합니다."
     )
     @SecurityRequirement(name = "JWT")
-    public ApiResponse<TokenVerifyResponse> getMe(){
+    @LoginRequired
+    public ApiResponse<MeResponse> getMe(){
         Member member = authenticationGuard.currentMember();
-        return ApiResponse.success(TokenVerifyResponse.from(member));
+        return ApiResponse.success(MeResponse.from(member));
     }
 
     @PostMapping("/logout")
@@ -77,8 +77,8 @@ public class AuthController {
             summary = "로그아웃",
             description = "현재 로그인된 사용자의 Refresh Token을 만료시켜 로그아웃 처리합니다."
     )
-    @LoginRequired
     @SecurityRequirement(name = "JWT")
+    @LoginRequired
     public ApiResponse<String> logout() {
         Member member = authenticationGuard.currentMember();
         authService.logout(member);

@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import smu.nuda.domain.auth.error.AuthErrorCode;
 import smu.nuda.global.error.DomainException;
-import smu.nuda.global.security.exception.JwtAuthenticationException;
 
 import java.security.Key;
 import java.util.Date;
