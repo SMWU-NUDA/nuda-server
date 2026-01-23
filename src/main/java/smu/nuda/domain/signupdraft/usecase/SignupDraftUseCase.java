@@ -11,8 +11,7 @@ import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.member.repository.MemberRepository;
 import smu.nuda.domain.product.entity.Product;
 import smu.nuda.domain.product.repository.ProductRepository;
-import smu.nuda.domain.signupdraft.dto.AccountRequest;
-import smu.nuda.domain.signupdraft.dto.SignupDraftResponse;
+import smu.nuda.domain.signupdraft.dto.*;
 import smu.nuda.domain.signupdraft.entity.SignupDraft;
 import smu.nuda.domain.signupdraft.entity.enums.SignupStep;
 import smu.nuda.domain.signupdraft.error.SignupDraftErrorCode;
@@ -24,6 +23,7 @@ import smu.nuda.domain.survey.entity.SurveyProduct;
 import smu.nuda.domain.survey.repository.SurveyProductRepository;
 import smu.nuda.domain.survey.repository.SurveyRepository;
 import smu.nuda.global.error.DomainException;
+import smu.nuda.global.util.DateFormatUtil;
 
 import java.time.Clock;
 import java.util.List;
@@ -56,13 +56,39 @@ public class SignupDraftUseCase {
     }
 
     @Transactional(readOnly = true)
-    public SignupDraftResponse getDraft(String signupToken) {
+    public SignupDraftDetailResponse getDraft(String signupToken) {
         SignupDraft draft = signupDraftRepository.findBySignupToken(signupToken)
                 .orElseThrow(() -> new DomainException(SignupDraftErrorCode.DRAFT_NOT_FOUND));
 
-        return SignupDraftResponse.builder()
-                .signupToken(draft.getSignupToken())
+        AccountInfo account = AccountInfo.builder()
+                .email(draft.getEmail())
+                .username(draft.getUsername())
+                .nickname(draft.getNickname())
+                .build();
+
+        DeliveryInfo delivery = DeliveryInfo.builder()
+                .recipient(draft.getRecipient())
+                .phoneNum(draft.getPhoneNum())
+                .postalCode(draft.getPostalCode())
+                .address1(draft.getAddress1())
+                .address2(draft.getAddress2())
+                .build();
+
+        SurveyInfo survey = SurveyInfo.builder()
+                .irritationLevel(draft.getIrritationLevel())
+                .scent(draft.getScent())
+                .changeFrequency(draft.getChangeFrequency())
+                .thickness(draft.getThickness())
+                .priority(draft.getPriority())
+                .productIds(draft.parseToProductIdList(objectMapper))
+                .build();
+
+        return SignupDraftDetailResponse.builder()
                 .currentStep(draft.getCurrentStep())
+                .accountInfo(account)
+                .deliveryInfo(delivery)
+                .surveyInfo(survey)
+                .expiresAt(DateFormatUtil.formatDate(draft.getExpiresAt()))
                 .build();
     }
 
