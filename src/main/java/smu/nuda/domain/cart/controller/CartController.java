@@ -70,7 +70,20 @@ public class CartController {
     @LoginRequired
     public ApiResponse<String> deleteSelectedItems(@RequestBody CartItemDeleteRequest request) {
         Member member = authenticationGuard.currentMember();
-        cartService.deleteselectedItems(request.getCartItemIds(), member);
+        cartService.deleteSelectedItems(request.getCartItemIds(), member);
+        return ApiResponse.success("선택한 상품이 장바구니에서 삭제되었습니다.");
+    }
+
+    @DeleteMapping("/items/{cartItemId}")
+    @Operation(
+            summary = "장바구니 상품 단건 삭제",
+            description = "상품 옆 [X] 버튼을 눌렀을 때 특정 상품을 삭제합니다."
+    )
+    @SecurityRequirement(name = "JWT")
+    @LoginRequired
+    public ApiResponse<String> deleteCartItem(@PathVariable Long cartItemId) {
+        Member member = authenticationGuard.currentMember();
+        cartService.deleteItem(cartItemId, member);
         return ApiResponse.success("선택한 상품이 장바구니에서 삭제되었습니다.");
     }
 
@@ -81,9 +94,9 @@ public class CartController {
     )
     @SecurityRequirement(name = "JWT")
     @LoginRequired
-    public ApiResponse<String> deleteAllItems() {
+    public ApiResponse<String> clearCart() {
         Member member = authenticationGuard.currentMember();
-        cartService.deleteAllItems(member);
+        cartService.clearCart(member);
         return ApiResponse.success("장바구니에 담긴 모든 상품이 삭제되었습니다.");
     }
 

@@ -138,7 +138,7 @@ public class CartService {
     }
 
     @Transactional
-    public void deleteselectedItems(List<Long> cartItemIds, Member member) {
+    public void deleteSelectedItems(List<Long> cartItemIds, Member member) {
         List<CartItem> cartItems = cartItemRepository.findAllById(cartItemIds);
 
         if (cartItems.size() != cartItemIds.size()) {
@@ -152,7 +152,16 @@ public class CartService {
     }
 
     @Transactional
-    public void deleteAllItems(Member member) {
+    public void deleteItem(Long cartItemId, Member member) {
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new DomainException(CartErrorCode.INVALID_CART_ITEM));
+        cartItem.getCart().validateOwner(member);
+
+        cartItemRepository.delete(cartItem);
+    }
+
+    @Transactional
+    public void clearCart(Member member) {
         Cart cart = cartRepository.findByMemberId(member.getId())
                 .orElseThrow(() -> new DomainException(CartErrorCode.CART_NOT_FOUND));
         cart.validateOwner(member);
