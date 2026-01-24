@@ -125,6 +125,7 @@ class CartServiceTest {
 
         // [then] 일부 요청은 성공하여 수량이 반영되고, 나머지는 타임아웃 예외가 정상적으로 카운트됨
         assertThat(successCount.get()).isGreaterThan(0);
+        assertThat(successCount.get() + timeoutCount.get()).isEqualTo(threadCount);
         CartItem cartItem = cartItemRepository.findByMemberIdAndProductId(memberId, productId)
                 .orElseThrow();
         assertThat(cartItem.getQuantity()).isEqualTo(successCount.get());
