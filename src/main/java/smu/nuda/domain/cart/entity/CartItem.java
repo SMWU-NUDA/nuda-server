@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import smu.nuda.domain.cart.error.CartErrorCode;
+import smu.nuda.domain.common.entity.BaseEntity;
 import smu.nuda.global.error.DomainException;
 
 @Entity
@@ -19,7 +20,7 @@ import smu.nuda.global.error.DomainException;
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CartItem {
+public class CartItem extends BaseEntity {
 
     @Id
     @GeneratedValue(
