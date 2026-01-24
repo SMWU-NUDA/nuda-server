@@ -11,6 +11,9 @@ import smu.nuda.domain.cart.entity.CartItem;
 import smu.nuda.domain.cart.repository.CartItemRepository;
 import smu.nuda.domain.cart.repository.CartRepository;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -22,9 +25,8 @@ import static org.assertj.core.api.Assertions.assertThat;
     장바구니 서비스의 핵심 비즈니스 로직 및 동시성 제어를 검증
 
     - 동일 상품 추가 시 기존 아이템의 수량 증가(increaseQuantity) 로직 검증
-    - 비관적 락(Pessimistic Lock)을 이용한 멀티 스레드 환경에서의 데이터 정합성 보장
     - 락 경합 발생 시 타임아웃 예외 처리 및 시스템 안정성 확인
-    - 회원가입 시 생성된 장바구니 레코드를 기준으로 한 순차적 트랜잭션 처리 검증
+    - Race Condition 방지
 */
 
 @Slf4j
@@ -55,7 +57,6 @@ class CartServiceTest {
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch doneLatch = new CountDownLatch(threadCount);
         AtomicInteger successCount = new AtomicInteger(0);
-        AtomicInteger failCount = new AtomicInteger(0);
 
         // [when] 모든 스레드가 동시에 addProduct를 호출하여 경합 발생
         for (int i = 0; i < threadCount; i++) {
@@ -65,8 +66,7 @@ class CartServiceTest {
                     cartService.addProduct(memberId, productId);
                     successCount.incrementAndGet();
                 } catch (Exception e) {
-                    failCount.incrementAndGet();
-                    System.err.println("Error in thread: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+                    log.error("Failed to add product: {}", e.getMessage());
                 } finally {
                     doneLatch.countDown();
                 }
@@ -76,13 +76,16 @@ class CartServiceTest {
         startLatch.countDown(); // 모든 스레드 동시 시작
         doneLatch.await(); // 모든 스레드 완료 대기
         executorService.shutdown();
-        Thread.sleep(500);
 
         // [then] 최종 장바구니 아이템의 수량이 스레드 수인 10과 일치함
         CartItem cartItem = cartItemRepository.findByMemberIdAndProductId(memberId, productId)
                 .orElseThrow(() -> new AssertionError("CartItem not found"));
         assertThat(successCount.get()).isEqualTo(threadCount);
         assertThat(cartItem.getQuantity()).isEqualTo(threadCount);
+
+        // Race Condition이 발생하지 않음 -> CartItem이 중복 생성되지 않음
+        long totalCartItems = cartItemRepository.count();
+        assertThat(totalCartItems).isEqualTo(1L);
     }
 
     @Test
@@ -111,7 +114,7 @@ class CartServiceTest {
                     if (e.getMessage() != null && e.getMessage().contains("LOCK_TIMEOUT")) {
                         timeoutCount.incrementAndGet();
                     }
-                    System.err.println("Thread exception: " + e.getClass().getSimpleName());
+                    log.debug("Thread exception: {}", e.getClass().getSimpleName());
                 } finally {
                     doneLatch.countDown();
                 }
@@ -124,52 +127,14 @@ class CartServiceTest {
         Thread.sleep(500);
 
         // [then] 일부 요청은 성공하여 수량이 반영되고, 나머지는 타임아웃 예외가 정상적으로 카운트됨
+        log.info("Success: {}, Timeout: {}", successCount.get(), timeoutCount.get());
+
         assertThat(successCount.get()).isGreaterThan(0);
         assertThat(successCount.get() + timeoutCount.get()).isEqualTo(threadCount);
+
         CartItem cartItem = cartItemRepository.findByMemberIdAndProductId(memberId, productId)
                 .orElseThrow();
         assertThat(cartItem.getQuantity()).isEqualTo(successCount.get());
-    }
-
-    @Test
-    @DisplayName("비관적 락으로 인해 동시 요청이 순차적으로 처리된다")
-    void addProduct_concurrent_requests_processed_sequentially() throws Exception {
-        // [given] 5개의 동시 요청하고 각 요청이 비관적 락에 의해 순서대로 처리되도록 함
-        Long memberId = 1L;
-        Long productId = 101L;
-        int threadCount = 5;
-        cartRepository.save(new Cart(memberId));
-
-        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
-        CountDownLatch startLatch = new CountDownLatch(1);
-        CountDownLatch doneLatch = new CountDownLatch(threadCount);
-        AtomicInteger successCount = new AtomicInteger(0);
-
-        // [when] 스레드들이 동시에 실행되더라도 DB의 FOR UPDATE 잠금에 의해 한 트랜잭션씩 순차 실행됨
-        for (int i = 0; i < threadCount; i++) {
-            executorService.submit(() -> {
-                try {
-                    startLatch.await();
-                    cartService.addProduct(memberId, productId);
-                    successCount.incrementAndGet();
-                } catch (Exception e) {
-                    log.error("Concurrent processing failed");
-                } finally {
-                    doneLatch.countDown();
-                }
-            });
-        }
-
-        startLatch.countDown();
-        doneLatch.await();
-        executorService.shutdown();
-        Thread.sleep(500);
-
-        // [then] 모든 요청이 성공적으로 완료되어 최종 수량이 5가 됨
-        assertThat(successCount.get()).isEqualTo(threadCount);
-        CartItem cartItem = cartItemRepository.findByMemberIdAndProductId(memberId, productId)
-                .orElseThrow();
-        assertThat(cartItem.getQuantity()).isEqualTo(threadCount);
     }
 
 }
