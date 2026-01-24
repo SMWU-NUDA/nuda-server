@@ -11,7 +11,7 @@ enum class ProductErrorCode(
         "PRODUCT_INVALID_EXTERNAL_PRODUCT_ID", "유효하지 않은 외부 상품 식별자입니다."
     ),
     INVALID_PRODUCT(
-        "PRODUCT_INVALID_PRODUCT", "유효하지 않은 상품입니다."
+        "PRODUCT_INVALID", "유효하지 않은 상품입니다."
     ),
     INVALID_CATEGORY(
         "PRODUCT_INVALID_CATEGORY", "유효하지 않은 카테고리입니다."

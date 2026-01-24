@@ -45,6 +45,9 @@ SELECT
 FROM member m
 WHERE m.username = 'admin';
 
+INSERT INTO cart (member_id)
+SELECT id FROM member WHERE username = 'admin';
+
 -- csv 대량 업로드 용 계정
 INSERT INTO member (
     nickname, username, password, email,

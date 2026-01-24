@@ -20,7 +20,7 @@ import java.util.List;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class ProductDetailPerformanceTest {
+public class ProductServiceTest {
 
     @Autowired ProductService productService;
     @Autowired CacheManager cacheManager;

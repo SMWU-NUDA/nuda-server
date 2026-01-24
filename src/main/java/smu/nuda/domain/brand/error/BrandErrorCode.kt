@@ -8,7 +8,7 @@ enum class BrandErrorCode (
 ) : ErrorCode {
 
     INVALID_BRAND(
-        "BRAND_INVALID_BRAND", "유효하지 않은 브랜드입니다."
+        "BRAND_INVALID", "유효하지 않은 브랜드입니다."
     ),
 
     ;

@@ -12,8 +12,6 @@ import smu.nuda.domain.product.policy.ProductPolicy;
 import smu.nuda.domain.product.util.ExternalProductIdGenerator;
 import smu.nuda.global.error.DomainException;
 
-import java.util.UUID;
-
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
