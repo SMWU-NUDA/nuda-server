@@ -18,7 +18,7 @@ import smu.nuda.global.response.ApiResponse;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/cart")
-@Tag(name = "[CART] 장바구니 API", description = "정바구니 관련 API")
+@Tag(name = "[CART] 장바구니 API", description = "장바구니 관련 API")
 public class CartController {
 
     private final CartService cartService;
@@ -48,7 +48,7 @@ public class CartController {
         return ApiResponse.success(cartService.getCart(member));
     }
 
-    @PatchMapping("/cart/items/{cartItemId}")
+    @PatchMapping("/items/{cartItemId}")
     @Operation(
             summary = "장바구니 상품 수량 수정",
             description = "장바구니에 담긴 특정 상품의 수량을 증감시킵니다. " +

@@ -44,8 +44,7 @@ public class CartService {
     @Transactional
     public CartProductResponse addProduct(Long memberId, Long productId) {
         try {
-            Product product = productRepository.findById(productId)
-                    .orElseThrow(() -> new DomainException(ProductErrorCode.INVALID_PRODUCT));
+            productRepository.findById(productId).orElseThrow(() -> new DomainException(ProductErrorCode.INVALID_PRODUCT));
             Cart cart = cartRepository.findByMemberIdForUpdate(memberId)
                     .orElseThrow(() -> new DomainException(CartErrorCode.CART_NOT_FOUND));
 

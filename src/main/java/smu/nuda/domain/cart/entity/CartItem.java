@@ -64,7 +64,7 @@ public class CartItem {
     }
 
     public void increaseQuantity(int amount) {
-        if (amount <= 0) return;
+        if (amount <= 0) throw new DomainException(CartErrorCode.INVALID_QUANTITY);
         this.quantity += amount;
     }
 
