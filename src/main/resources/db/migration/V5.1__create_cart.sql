@@ -6,5 +6,7 @@ CREATE TABLE cart (
     id BIGINT PRIMARY KEY DEFAULT nextval('cart_seq'),
     member_id BIGINT NOT NULL,
 
-    CONSTRAINT uk_cart_member UNIQUE (member_id)
+    CONSTRAINT uk_cart_member UNIQUE (member_id),
+    CONSTRAINT fk_cart_member
+        FOREIGN KEY (member_id) REFERENCES member(id) ON DELETE CASCADE
 );
