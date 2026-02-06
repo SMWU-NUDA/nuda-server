@@ -20,6 +20,10 @@ enum class CartErrorCode (
     ),
     NOT_MY_CART_ITEM(
         "CART_NOT_MY_CART_ITEM", "해당 계정의 장바구니에 담긴 상품이 아닙니다."
-    )
+    ),
+    QUANTITY_MISMATCH(
+        "ORDER_QUANTITY_MISMATCH","선택하신 상품 수량과 주문하려는 수량이 일치하지 않습니다."
+    ),
+
     ;
 }

@@ -3,6 +3,7 @@ package smu.nuda.domain.order.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import smu.nuda.domain.cart.service.CartService;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.order.dto.*;
 import smu.nuda.domain.order.entity.Order;
@@ -29,9 +30,13 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final OrderNumberPolicy orderNumberPolicy;
+    private final CartService cartService;
 
     @Transactional
     public OrderCreateResponse createOrder(Member member, OrderCreateRequest request) {
+
+        // Cart 기준 주문 가능 여부 검증
+        cartService.validateOrderableItems(member, request.getItems());
 
         // 주문할 상품 ID 추출
         List<Long> productIds = request.getItems().stream()
