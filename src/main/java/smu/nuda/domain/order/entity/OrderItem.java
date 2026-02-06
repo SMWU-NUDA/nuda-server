@@ -35,17 +35,21 @@ public class OrderItem extends BaseEntity {
     private int quantity;
 
     @Column(name = "unit_price", nullable = false)
-    private int unitPrice;
+    private int unitPrice; // 단가
 
     @Column(nullable = false)
-    private int price;
+    private int price; // 총액
 
-    public static OrderItem create(Long productId, int quantity, int unitPrice) {
+    public static OrderItem create(Order order, Long productId, int unitPrice, int quantity) {
         OrderItem item = new OrderItem();
+        item.order = order;
         item.productId = productId;
-        item.quantity = quantity;
         item.unitPrice = unitPrice;
-        item.price = quantity * unitPrice;
+        item.quantity = quantity;
+        item.price = unitPrice * quantity;
+
+        // Order 연관관계 리스트에 추가
+        if (order != null) order.getOrderItems().add(item);
         return item;
     }
 

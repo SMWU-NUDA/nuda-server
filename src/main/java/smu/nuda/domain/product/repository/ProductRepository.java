@@ -12,4 +12,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("select p.externalProductId from Product p")
     List<String> findAllExternalProductIds();
     Optional<Product> findByExternalProductIdAndCategory_Code(String externalProductId, CategoryCode categoryCode);
+    List<Product> findAllByIdIn(List<Long> productIds);
 }
