@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.payment.dto.PaymentCompleteRequest;
+import smu.nuda.domain.payment.dto.PaymentCompleteResponse;
 import smu.nuda.domain.payment.dto.PaymentRequestResponse;
 import smu.nuda.domain.payment.error.PaymentErrorCode;
 import smu.nuda.domain.payment.service.PaymentService;
@@ -44,12 +45,9 @@ public class PaymentController {
     )
     @SecurityRequirement(name = "JWT")
     @LoginRequired
-    public ApiResponse<String> completePayment( @Valid @RequestBody PaymentCompleteRequest request) {
+    public ApiResponse<PaymentCompleteResponse> completePayment( @Valid @RequestBody PaymentCompleteRequest request) {
         Member member = authenticationGuard.currentMember();
-        boolean isSuccess = paymentService.completePayment(request);
-
-        if (isSuccess) return ApiResponse.success("결제가 성공적으로 완료되었습니다.");
-        else return ApiResponse.fail(PaymentErrorCode.PAYMENT_FAILED,"결제에 실패하였습니다. 다시 시도해 주세요.");
+        return ApiResponse.success(paymentService.completePayment(member, request));
     }
 
     @PostMapping("/{paymentId}/complete-test")
@@ -59,10 +57,9 @@ public class PaymentController {
     )
     @SecurityRequirement(name = "JWT")
     @LoginRequired
-    public ApiResponse<String> completeTestPayment(@PathVariable Long paymentId) {
+    public ApiResponse<PaymentCompleteResponse> completeTestPayment(@PathVariable Long paymentId) {
         Member member = authenticationGuard.currentMember();
-        paymentService.completeTestPayment(paymentId);
-        return ApiResponse.success("결제가 성공적으로 완료되었습니다.");
+        return ApiResponse.success(paymentService.completeTestPayment(member, paymentId));
     }
 
 }

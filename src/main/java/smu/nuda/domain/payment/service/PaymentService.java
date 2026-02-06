@@ -3,23 +3,38 @@ package smu.nuda.domain.payment.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import smu.nuda.domain.brand.entity.Brand;
 import smu.nuda.domain.cart.service.CartService;
+import smu.nuda.domain.member.dto.DeliveryResponse;
+import smu.nuda.domain.member.entity.Member;
+import smu.nuda.domain.order.dto.OrderBrandGroup;
+import smu.nuda.domain.order.dto.OrderProductItem;
 import smu.nuda.domain.order.entity.Order;
+import smu.nuda.domain.order.entity.OrderItem;
 import smu.nuda.domain.order.repository.OrderRepository;
 import smu.nuda.domain.payment.dto.PaymentCompleteRequest;
+import smu.nuda.domain.payment.dto.PaymentCompleteResponse;
 import smu.nuda.domain.payment.dto.PaymentRequestResponse;
 import smu.nuda.domain.payment.entity.Payment;
 import smu.nuda.domain.payment.entity.enums.PaymentStatus;
 import smu.nuda.domain.payment.error.PaymentErrorCode;
 import smu.nuda.domain.payment.repository.PaymentRepository;
+import smu.nuda.domain.product.entity.Product;
+import smu.nuda.domain.product.repository.ProductRepository;
+import smu.nuda.domain.signupdraft.dto.DeliveryInfo;
 import smu.nuda.global.error.DomainException;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
 
+    private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
     private final CartService cartService;
@@ -62,7 +77,7 @@ public class PaymentService {
     }
 
     @Transactional
-    public boolean completePayment(PaymentCompleteRequest request) {
+    public PaymentCompleteResponse completePayment(Member member, PaymentCompleteRequest request) {
 
         // 요청한 paymentKey에 해당하는 Payment, Order 조회
         Payment payment = paymentRepository.findByPaymentKey(request.getPaymentKey())
@@ -73,23 +88,21 @@ public class PaymentService {
         if (payment.getStatus() == PaymentStatus.SUCCESS) throw new DomainException(PaymentErrorCode.ALREADY_PAID);
         if (!order.getId().equals(request.getOrderId())) throw new DomainException(PaymentErrorCode.ORDER_MISMATCH);
         if (payment.getAmount() != request.getAmount()) throw new DomainException(PaymentErrorCode.INVALID_AMOUNT);
-
-        if (Boolean.TRUE.equals(request.getSuccess())) {
-            payment.approve();
-            order.completePayment();
-
-            // 결제 완료한 장바구니 상품 삭제
-            cartService.removeOrderedItems(order);
-            return true;
-        } else {
+        if (!Boolean.TRUE.equals(request.getSuccess())) {
             payment.fail();
             order.failPayment();
-            return false;
+            throw new DomainException(PaymentErrorCode.PAYMENT_FAILED);
         }
+
+        payment.approve();
+        order.completePayment();
+        cartService.removeOrderedItems(order);
+
+        return buildOrderCompleteResponse(member, order);
     }
 
     @Transactional
-    public boolean completeTestPayment(Long paymentId) {
+    public PaymentCompleteResponse completeTestPayment(Member member, Long paymentId) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new DomainException(PaymentErrorCode.PAYMENT_NOT_FOUND));
         Order order = payment.getOrder();
@@ -102,7 +115,66 @@ public class PaymentService {
         order.completePayment();
         cartService.removeOrderedItems(order);
 
-        return true;
+        return buildOrderCompleteResponse(member, order);
     }
+
+    private PaymentCompleteResponse buildOrderCompleteResponse(Member member, Order order) {
+        DeliveryResponse deliveryResponse = DeliveryResponse.from(member);
+
+        // 브랜드별 상품 그룹핑
+        List<OrderBrandGroup> brandGroups = groupByBrand(order);
+
+        return new PaymentCompleteResponse(
+                order.getOrderNum(),
+                deliveryResponse,
+                brandGroups
+        );
+    }
+
+    private List<OrderBrandGroup> groupByBrand(Order order) {
+
+        // 주문한 상품 목록 조회
+        List<Long> productIds = order.getOrderItems().stream()
+                .map(OrderItem::getProductId)
+                .distinct()
+                .toList();
+        List<Product> products = productRepository.findAllById(productIds);
+        Map<Long, Product> productMap = products.stream()
+                .collect(Collectors.toMap(Product::getId, Function.identity()));
+
+        // Brand 별 상품 그룹핑
+        Map<Brand, List<OrderItem>> grouped = order.getOrderItems().stream()
+                .collect(Collectors.groupingBy(
+                        item -> productMap.get(item.getProductId()).getBrand()
+                ));
+
+        return grouped.entrySet().stream()
+                .map(entry -> {
+                    Brand brand = entry.getKey();
+                    List<OrderItem> items = entry.getValue();
+
+                    List<OrderProductItem> productItems = items.stream()
+                            .map(item -> {
+                                Product product = productMap.get(item.getProductId());
+                                return new OrderProductItem(
+                                        product.getId(),
+                                        product.getName(),
+                                        item.getQuantity(),
+                                        item.getUnitPrice(),
+                                        item.getQuantity() * item.getUnitPrice()
+                                );
+                            })
+                            .toList();
+
+                    return new OrderBrandGroup(
+                            brand.getId(),
+                            brand.getName(),
+                            productItems
+                    );
+                })
+                .toList();
+    }
+
+
 
 }
