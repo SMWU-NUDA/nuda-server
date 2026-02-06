@@ -5,13 +5,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.order.dto.OrderCreateRequest;
 import smu.nuda.domain.order.dto.OrderCreateResponse;
+import smu.nuda.domain.order.dto.OrderHistoryResponse;
 import smu.nuda.domain.order.service.OrderService;
 import smu.nuda.global.guard.annotation.LoginRequired;
 import smu.nuda.global.guard.guard.AuthenticationGuard;
@@ -36,6 +34,18 @@ public class OrderController {
     public ApiResponse<OrderCreateResponse> createOrder(@Valid @RequestBody OrderCreateRequest orderCreateRequest) {
         Member member = authenticationGuard.currentMember();
         return ApiResponse.success(orderService.createOrder(member, orderCreateRequest));
+    }
+
+    @GetMapping
+    @Operation(
+            summary = "주문 내역 조회",
+            description = "전체 주문 이력을 조회합니다. 최신 주문순으로 정렬되어 반환됩니다."
+    )
+    @SecurityRequirement(name = "JWT")
+    @LoginRequired
+    public ApiResponse<OrderHistoryResponse> getOrderHistory() {
+        Member member = authenticationGuard.currentMember();
+        return ApiResponse.success(orderService.getOrderHistory(member));
     }
 
 }

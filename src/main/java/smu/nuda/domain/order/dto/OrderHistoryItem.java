@@ -1,0 +1,15 @@
+package smu.nuda.domain.order.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+import java.util.List;
+
+@Getter
+@AllArgsConstructor
+public class OrderHistoryItem {
+    private String orderDate;
+    private Long orderNum;
+    private int totalAmount;
+    private List<OrderBrandGroup> brands;
+}

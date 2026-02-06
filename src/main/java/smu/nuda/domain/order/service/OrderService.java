@@ -3,6 +3,7 @@ package smu.nuda.domain.order.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import smu.nuda.domain.brand.entity.Brand;
 import smu.nuda.domain.cart.service.CartService;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.order.dto.*;
@@ -15,6 +16,7 @@ import smu.nuda.domain.order.repository.OrderRepository;
 import smu.nuda.domain.product.entity.Product;
 import smu.nuda.domain.product.repository.ProductRepository;
 import smu.nuda.global.error.DomainException;
+import smu.nuda.global.util.DateFormatUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -119,5 +121,75 @@ public class OrderService {
         );
 
     }
+
+    @Transactional(readOnly = true)
+    public OrderHistoryResponse getOrderHistory(Member member) {
+
+        List<Order> orders = orderRepository.findAllByMemberIdOrderByCreatedAtDesc(member.getId());
+        if (orders.isEmpty()) return new OrderHistoryResponse(List.of());
+
+        // 모든 주문의 OrderItem 수집
+        List<OrderItem> allItems = orders.stream()
+                .flatMap(o -> o.getOrderItems().stream())
+                .toList();
+
+        // 상품 일괄 조회
+        List<Long> productIds = allItems.stream()
+                .map(OrderItem::getProductId)
+                .distinct()
+                .toList();
+
+        Map<Long, Product> productMap =
+                productRepository.findAllById(productIds).stream()
+                        .collect(Collectors.toMap(Product::getId, Function.identity()));
+
+        List<OrderHistoryItem> orderHistoryItems =
+                orders.stream()
+                        .map(order -> mapToOrderHistoryItem(order, productMap))
+                        .toList();
+
+        return new OrderHistoryResponse(orderHistoryItems);
+    }
+
+    private OrderHistoryItem mapToOrderHistoryItem(Order order, Map<Long, Product> productMap) {
+        Map<Brand, List<OrderItem>> grouped = order.getOrderItems().stream()
+                .collect(Collectors.groupingBy(
+                        item -> productMap.get(item.getProductId()).getBrand()
+                ));
+
+        List<OrderBrandGroup> brandGroups = grouped.entrySet().stream()
+                .map(entry -> {
+                    Brand brand = entry.getKey();
+                    List<OrderItem> items = entry.getValue();
+
+                    List<OrderProductItem> products = items.stream()
+                            .map(item -> {
+                                Product product = productMap.get(item.getProductId());
+                                return new OrderProductItem(
+                                        product.getId(),
+                                        product.getName(),
+                                        item.getQuantity(),
+                                        item.getQuantity(),
+                                        item.getQuantity() * item.getUnitPrice()
+                                );
+                            })
+                            .toList();
+
+                    return new OrderBrandGroup(
+                            brand.getId(),
+                            brand.getName(),
+                            products
+                    );
+                })
+                .toList();
+
+        return new OrderHistoryItem(
+                DateFormatUtil.formatDate(order.getCreatedAt()),
+                order.getOrderNum(),
+                order.getTotalAmount(),
+                brandGroups
+        );
+    }
+
 
 }
