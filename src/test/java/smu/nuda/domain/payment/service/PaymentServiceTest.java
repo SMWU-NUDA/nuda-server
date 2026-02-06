@@ -1,6 +1,7 @@
 package smu.nuda.domain.payment.service;
 
 import jakarta.persistence.EntityManager;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import smu.nuda.domain.order.entity.enums.OrderStatus;
 import smu.nuda.domain.order.repository.OrderRepository;
 import smu.nuda.domain.order.service.OrderService;
 import smu.nuda.domain.payment.dto.PaymentCompleteRequest;
+import smu.nuda.domain.payment.dto.PaymentCompleteResponse;
 import smu.nuda.domain.payment.dto.PaymentRequestResponse;
 import smu.nuda.domain.payment.entity.Payment;
 import smu.nuda.domain.payment.entity.enums.PaymentStatus;
@@ -53,8 +55,14 @@ public class PaymentServiceTest {
     @Autowired MemberTestFactory memberTestFactory;
     @Autowired private EntityManager em;
 
+    private Member member;
+
+    @BeforeEach
+    void setUp() {
+        member = memberTestFactory.active();
+    }
+
     private Order createPendingOrder(int totalAmount) {
-        Member member = memberTestFactory.active();
         Order order = Order.create(
                 member.getId(),
                 299902080001L,
@@ -111,10 +119,11 @@ public class PaymentServiceTest {
         );
 
         // [When] PG사로부터 결제 완료 콜백 호출
-        boolean result = paymentService.completePayment(request);
+        PaymentCompleteResponse result = paymentService.completePayment(member, request);
 
         // [Then] 결제 및 주문 상태가 최종 성공(SUCCESS, PAID)으로 변경되었는지 확인
-        assertThat(result).isTrue();
+        assertThat(result).isNotNull();
+        assertThat(result.getOrderNum()).isEqualTo(order.getOrderNum());
         assertThat(payment.getStatus()).isEqualTo(PaymentStatus.SUCCESS);
         assertThat(order.getStatus()).isEqualTo(OrderStatus.PAID);
     }
@@ -133,10 +142,10 @@ public class PaymentServiceTest {
                 order.getTotalAmount(),
                 true
         );
-        paymentService.completePayment(request);
+        paymentService.completePayment(member, request);
 
         // [When, Then] 중복된 완료 요청 시 ALREADY_PAID 예외 발생 확인
-        assertThatThrownBy(() -> paymentService.completePayment(request))
+        assertThatThrownBy(() -> paymentService.completePayment(member, request))
                 .isInstanceOf(DomainException.class)
                 .hasMessageContaining(PaymentErrorCode.ALREADY_PAID.getMessage());
     }
@@ -157,7 +166,7 @@ public class PaymentServiceTest {
         );
 
         // [When, Then] 금액 불일치(INVALID_AMOUNT) 검증 예외 발생 확인
-        assertThatThrownBy(() -> paymentService.completePayment(request))
+        assertThatThrownBy(() -> paymentService.completePayment(member, request))
                 .isInstanceOf(DomainException.class)
                 .hasMessageContaining(PaymentErrorCode.INVALID_AMOUNT.getMessage());
     }
@@ -166,9 +175,7 @@ public class PaymentServiceTest {
     @DisplayName("결제 완료 시 주문에 포함된 상품만 장바구니에서 삭제된다")
     void completePayment_removesOnlyOrderedCartItems() {
         // [Given] 회원의 장바구니에 상품 A 2개, 상품 B 1개
-        Member member = memberTestFactory.active();
-        Long memberId = member.getId();
-        Cart cart = cartRepository.save(new Cart(memberId));
+        Cart cart = cartRepository.save(new Cart(member.getId()));
 
         Long productA = 1L;
         Long productB = 51L;
@@ -198,10 +205,10 @@ public class PaymentServiceTest {
         );
 
         // [When] 최종 결제 완료 처리 수행
-        paymentService.completePayment(request);
+        paymentService.completePayment(member, request);
 
         // [Then] 장바구니에서 주문된 상품 A는 제거되고 주문되지 않은 상품 B만 남아있는지 확인
-        List<CartItem> remainingItems = cartItemRepository.findByCart_MemberId(memberId);
+        List<CartItem> remainingItems = cartItemRepository.findByCart_MemberId(member.getId());
         assertThat(remainingItems).hasSize(1);
         assertThat(remainingItems.get(0).getProductId()).isEqualTo(productB);
     }
