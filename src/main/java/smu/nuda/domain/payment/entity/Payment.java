@@ -5,7 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import smu.nuda.domain.order.entity.Order;
-import smu.nuda.domain.payment.entity.enums.Status;
+import smu.nuda.domain.payment.entity.enums.PaymentStatus;
 import smu.nuda.domain.payment.error.PaymentErrorCode;
 import smu.nuda.global.error.DomainException;
 
@@ -47,7 +47,7 @@ public class Payment {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private Status status;
+    private PaymentStatus status;
 
     @Column(name = "requested_at", nullable = false)
     private LocalDateTime requestedAt;
@@ -60,26 +60,26 @@ public class Payment {
         payment.order = order;
         payment.paymentKey = paymentKey;
         payment.amount = amount;
-        payment.status = Status.REQUESTED;
+        payment.status = PaymentStatus.REQUESTED;
         payment.requestedAt = LocalDateTime.now();
         return payment;
     }
 
     public void approve() {
         validateApprovable();
-        this.status = Status.SUCCESS;
+        this.status = PaymentStatus.SUCCESS;
         this.approvedAt = LocalDateTime.now();
     }
 
     public void fail() {
-        if (this.status != Status.REQUESTED) {
+        if (this.status != PaymentStatus.REQUESTED) {
             return;
         }
-        this.status = Status.FAILED;
+        this.status = PaymentStatus.FAILED;
     }
 
     private void validateApprovable() {
-        if (this.status != Status.REQUESTED) {
+        if (this.status != PaymentStatus.REQUESTED) {
             throw new DomainException(PaymentErrorCode.INVALID_ORDER_STATUS);
         }
     }

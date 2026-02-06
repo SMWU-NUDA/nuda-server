@@ -20,6 +20,7 @@ import smu.nuda.domain.cart.repository.CartQueryRepository;
 import smu.nuda.domain.cart.repository.CartRepository;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.order.dto.OrderItemRequest;
+import smu.nuda.domain.order.entity.Order;
 import smu.nuda.domain.product.entity.Product;
 import smu.nuda.domain.product.error.ProductErrorCode;
 import smu.nuda.domain.product.repository.ProductRepository;
@@ -28,6 +29,7 @@ import smu.nuda.global.error.DomainException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static smu.nuda.domain.brand.entity.QBrand.brand;
@@ -176,6 +178,22 @@ public class CartService {
     public void validateOrderableItems(Member member, List<OrderItemRequest> orderItems) {
         List<CartItem> cartItems = cartItemRepository.findByCart_MemberId(member.getId());
         CartPolicy.validateOrderableItems(cartItems, orderItems);
+    }
+
+    @Transactional
+    public void removeOrderedItems(Order order) {
+        // 주문한 productId 목록 추출
+        Set<Long> orderedProductIds = order.getOrderItems().stream()
+                .map(orderItem -> orderItem.getProductId())
+                .collect(Collectors.toSet());
+        if (orderedProductIds.isEmpty()) return;
+
+        // 장바구니 상품 중 주문한 상품만 조회
+        List<CartItem> cartItemsToDelete = cartItemRepository.findByCartMemberIdAndProductIdIn(
+                order.getMemberId(),
+                orderedProductIds
+        );
+        cartItemRepository.deleteAll(cartItemsToDelete);
     }
 
 }

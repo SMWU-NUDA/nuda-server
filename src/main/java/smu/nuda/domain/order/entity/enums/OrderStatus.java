@@ -1,6 +1,6 @@
 package smu.nuda.domain.order.entity.enums;
 
-public enum Status {
+public enum OrderStatus {
     PENDING,
     PAID,
     CANCELED,

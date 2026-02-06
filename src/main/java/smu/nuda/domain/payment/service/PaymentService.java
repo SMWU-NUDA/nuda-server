@@ -3,10 +3,13 @@ package smu.nuda.domain.payment.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import smu.nuda.domain.cart.service.CartService;
 import smu.nuda.domain.order.entity.Order;
 import smu.nuda.domain.order.repository.OrderRepository;
-import smu.nuda.domain.payment.dto.PaymentReqResponse;
+import smu.nuda.domain.payment.dto.PaymentCompleteRequest;
+import smu.nuda.domain.payment.dto.PaymentRequestResponse;
 import smu.nuda.domain.payment.entity.Payment;
+import smu.nuda.domain.payment.entity.enums.PaymentStatus;
 import smu.nuda.domain.payment.error.PaymentErrorCode;
 import smu.nuda.domain.payment.repository.PaymentRepository;
 import smu.nuda.global.error.DomainException;
@@ -16,11 +19,13 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
+
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
+    private final CartService cartService;
 
     @Transactional
-    public PaymentReqResponse requestPayment(Long orderId) {
+    public PaymentRequestResponse requestPayment(Long orderId) {
 
         // 요청한 주문 조회
         Order order = orderRepository.findById(orderId)
@@ -37,7 +42,7 @@ public class PaymentService {
         Payment payment = Payment.request(order, paymentKey, amount);
         paymentRepository.save(payment);
 
-        return new PaymentReqResponse(
+        return new PaymentRequestResponse(
                 payment.getId(),
                 order.getId(),
                 order.getOrderNum(),
@@ -54,5 +59,33 @@ public class PaymentService {
 
     private String buildRedirectUrl(Payment payment) {
         return "https://pg.test/pay/" + payment.getPaymentKey();
+    }
+
+    @Transactional
+    public boolean completePayment(PaymentCompleteRequest request) {
+
+        // 요청한 paymentKey에 해당하는 Payment, Order 조회
+        Payment payment = paymentRepository.findByPaymentKey(request.getPaymentKey())
+                .orElseThrow(() -> new DomainException(PaymentErrorCode.PAYMENT_NOT_FOUND));
+        Order order = payment.getOrder();
+
+        // 결제 가능 여부 검증
+        if (payment.getStatus() == PaymentStatus.SUCCESS) throw new DomainException(PaymentErrorCode.ALREADY_PAID);
+        if (!order.getId().equals(request.getOrderId())) throw new DomainException(PaymentErrorCode.ORDER_MISMATCH);
+        if (payment.getAmount() != request.getAmount()) throw new DomainException(PaymentErrorCode.INVALID_AMOUNT);
+
+        if (Boolean.TRUE.equals(request.getSuccess())) {
+            payment.approve();
+            order.completePayment();
+
+            // 결제 완료한 장바구니 상품 삭제
+            cartService.removeOrderedItems(order);
+            return true;
+        } else {
+            payment.fail();
+            order.failPayment();
+            return false;
+        }
+
     }
 }

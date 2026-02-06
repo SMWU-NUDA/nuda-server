@@ -6,7 +6,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import smu.nuda.domain.member.entity.Member;
-import smu.nuda.domain.payment.dto.PaymentReqResponse;
+import smu.nuda.domain.payment.dto.PaymentCompleteRequest;
+import smu.nuda.domain.payment.dto.PaymentRequestResponse;
+import smu.nuda.domain.payment.error.PaymentErrorCode;
 import smu.nuda.domain.payment.service.PaymentService;
 import smu.nuda.global.guard.annotation.LoginRequired;
 import smu.nuda.global.guard.guard.AuthenticationGuard;
@@ -29,8 +31,24 @@ public class PaymentController {
     )
     @SecurityRequirement(name = "JWT")
     @LoginRequired
-    public ApiResponse<PaymentReqResponse> requestPayment(@PathVariable Long orderId) {
+    public ApiResponse<PaymentRequestResponse> requestPayment(@PathVariable Long orderId) {
         Member member = authenticationGuard.currentMember();
         return ApiResponse.success(paymentService.requestPayment(orderId));
     }
+
+    @PostMapping("/complete")
+    @Operation(
+            summary = "결제(Mock) 완료 콜백",
+            description = "실제 PG사 승인 결과를 받아 주문 및 결제 상태를 업데이트합니다."
+    )
+    @SecurityRequirement(name = "JWT")
+    @LoginRequired
+    public ApiResponse<String> completePayment(@RequestBody PaymentCompleteRequest request) {
+        Member member = authenticationGuard.currentMember();
+        boolean isSuccess = paymentService.completePayment(request);
+
+        if (isSuccess) return ApiResponse.success("결제가 성공적으로 완료되었습니다.");
+        else return ApiResponse.fail(PaymentErrorCode.PAYMENT_FAILED,"결제에 실패하였습니다. 다시 시도해 주세요.");
+    }
+
 }

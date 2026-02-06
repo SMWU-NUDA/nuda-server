@@ -1,6 +1,6 @@
 package smu.nuda.domain.payment.entity.enums;
 
-public enum Status {
+public enum PaymentStatus {
     REQUESTED,
     SUCCESS,
     FAILED

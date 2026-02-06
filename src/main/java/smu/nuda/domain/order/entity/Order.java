@@ -5,7 +5,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import smu.nuda.domain.common.entity.BaseEntity;
-import smu.nuda.domain.order.entity.enums.Status;
+import smu.nuda.domain.order.entity.enums.OrderStatus;
+import smu.nuda.domain.payment.error.PaymentErrorCode;
+import smu.nuda.global.error.DomainException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +41,7 @@ public class Order extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private Status status;
+    private OrderStatus status;
 
     @OneToMany(
             mappedBy = "order",
@@ -53,12 +55,22 @@ public class Order extends BaseEntity {
         order.memberId = memberId;
         order.orderNum = orderNum;
         order.totalAmount = totalAmount;
-        order.status = Status.PENDING;
+        order.status = OrderStatus.PENDING;
         return order;
     }
 
     public boolean isPending() {
-        return this.status == Status.PENDING;
+        return this.status == OrderStatus.PENDING;
     }
 
+    public void completePayment() {
+        if (!isPending()) throw new DomainException(PaymentErrorCode.INVALID_ORDER_STATUS);
+        this.status = OrderStatus.PAID;
+    }
+
+    public void failPayment() {
+        if (isPending()) {
+            this.status = OrderStatus.CANCELED;
+        }
+    }
 }

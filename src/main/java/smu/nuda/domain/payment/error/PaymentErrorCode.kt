@@ -14,7 +14,22 @@ enum class PaymentErrorCode (
     ),
     ALREADY_REQUESTED(
         "PAYMENT_ALREADY_REQUESTED", "이미 결제가 진행 중이거나 완료된 주문입니다."
-    )
+    ),
+    PAYMENT_NOT_FOUND(
+        "PAYMENT_NOT_FOUND", "결제 내역을 찾을 수 없습니다."
+    ),
+    ALREADY_PAID(
+        "PAYMENT_ALREADY_PAID", "이미 결제가 완료된 주문입니다."
+    ),
+    ORDER_MISMATCH(
+        "PAYMENT_ORDER_MISMATCH", "결제 요청된 주문 정보가 일치하지 않습니다."
+    ),
+    INVALID_AMOUNT(
+        "PAYMENT_INVALID_AMOUNT", "결제 요청 금액과 실제 주문 금액이 일치하지 않습니다."
+    ),
+    PAYMENT_FAILED(
+        "PAYMENT_FAILED", "결제 승인에 실패하였습니다."
+    ),
 
     ;
 }
