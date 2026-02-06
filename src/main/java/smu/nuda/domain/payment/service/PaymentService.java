@@ -86,6 +86,23 @@ public class PaymentService {
             order.failPayment();
             return false;
         }
-
     }
+
+    @Transactional
+    public boolean completeTestPayment(Long paymentId) {
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new DomainException(PaymentErrorCode.PAYMENT_NOT_FOUND));
+        Order order = payment.getOrder();
+
+        if (payment.getStatus() == PaymentStatus.SUCCESS) throw new DomainException(PaymentErrorCode.ALREADY_PAID);
+        if (payment.getStatus() != PaymentStatus.REQUESTED) throw new DomainException(PaymentErrorCode.INVALID_ORDER_STATUS);
+
+        // 서버 기준으로 강제 승인
+        payment.approve();
+        order.completePayment();
+        cartService.removeOrderedItems(order);
+
+        return true;
+    }
+
 }

@@ -3,6 +3,7 @@ package smu.nuda.domain.payment.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import smu.nuda.domain.member.entity.Member;
@@ -43,12 +44,25 @@ public class PaymentController {
     )
     @SecurityRequirement(name = "JWT")
     @LoginRequired
-    public ApiResponse<String> completePayment(@RequestBody PaymentCompleteRequest request) {
+    public ApiResponse<String> completePayment( @Valid @RequestBody PaymentCompleteRequest request) {
         Member member = authenticationGuard.currentMember();
         boolean isSuccess = paymentService.completePayment(request);
 
         if (isSuccess) return ApiResponse.success("결제가 성공적으로 완료되었습니다.");
         else return ApiResponse.fail(PaymentErrorCode.PAYMENT_FAILED,"결제에 실패하였습니다. 다시 시도해 주세요.");
+    }
+
+    @PostMapping("/{paymentId}/complete-test")
+    @Operation(
+            summary = "결제(Mock) 테스트용 완료",
+            description = "외부 PG사의 paymentKey 없이 서버 기준으로 즉시 결제 승인을 시도하는 테스트용 API입니다."
+    )
+    @SecurityRequirement(name = "JWT")
+    @LoginRequired
+    public ApiResponse<String> completeTestPayment(@PathVariable Long paymentId) {
+        Member member = authenticationGuard.currentMember();
+        paymentService.completeTestPayment(paymentId);
+        return ApiResponse.success("결제가 성공적으로 완료되었습니다.");
     }
 
 }
