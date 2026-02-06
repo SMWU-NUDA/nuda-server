@@ -80,7 +80,7 @@ public class Payment {
 
     private void validateApprovable() {
         if (this.status != Status.REQUESTED) {
-            throw new DomainException(PaymentErrorCode.INVALID_STATUS);
+            throw new DomainException(PaymentErrorCode.INVALID_ORDER_STATUS);
         }
     }
 }

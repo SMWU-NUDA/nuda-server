@@ -17,7 +17,7 @@ import smu.nuda.global.response.ApiResponse;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/cart")
+@RequestMapping("/carts")
 @Tag(name = "[CART] 장바구니 API", description = "장바구니 관련 API")
 public class CartController {
 

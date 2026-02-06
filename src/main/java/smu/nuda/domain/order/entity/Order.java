@@ -57,4 +57,8 @@ public class Order extends BaseEntity {
         return order;
     }
 
+    public boolean isPending() {
+        return this.status == Status.PENDING;
+    }
+
 }
