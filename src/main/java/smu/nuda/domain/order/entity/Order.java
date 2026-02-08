@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import smu.nuda.domain.common.entity.BaseEntity;
 import smu.nuda.domain.order.entity.enums.OrderStatus;
-import smu.nuda.domain.payment.error.PaymentErrorCode;
+import smu.nuda.domain.order.error.OrderErrorCode;
 import smu.nuda.global.error.DomainException;
 
 import java.util.ArrayList;
@@ -64,7 +64,7 @@ public class Order extends BaseEntity {
     }
 
     public void completePayment() {
-        if (!isPending()) throw new DomainException(PaymentErrorCode.INVALID_ORDER_STATUS);
+        if (!isPending()) throw new DomainException(OrderErrorCode.INVALID_ORDER_STATUS);
         this.status = OrderStatus.PAID;
     }
 
@@ -72,5 +72,9 @@ public class Order extends BaseEntity {
         if (isPending()) {
             this.status = OrderStatus.CANCELED;
         }
+    }
+
+    public void addItem(OrderItem item) {
+        this.orderItems.add(item);
     }
 }

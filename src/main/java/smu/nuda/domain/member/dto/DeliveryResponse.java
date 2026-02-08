@@ -1,7 +1,6 @@
 package smu.nuda.domain.member.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import smu.nuda.domain.member.entity.Member;
 

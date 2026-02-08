@@ -89,7 +89,7 @@ public class OrderService {
         return new OrderCreateResponse(
                 order.getId(),
                 order.getOrderNum(),
-                order.getStatus().name(),
+                order.getStatus(),
                 order.getTotalAmount(),
                 brandGroups
         );

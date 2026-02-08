@@ -5,6 +5,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import smu.nuda.domain.common.entity.BaseEntity;
+import smu.nuda.domain.order.error.OrderErrorCode;
+import smu.nuda.global.error.DomainException;
 
 @Entity
 @Table(name = "order_item")
@@ -41,6 +43,7 @@ public class OrderItem extends BaseEntity {
     private int price; // 총액
 
     public static OrderItem create(Order order, Long productId, int unitPrice, int quantity) {
+        if (order == null) throw new DomainException(OrderErrorCode.ORDER_NOT_FOUND);
         OrderItem item = new OrderItem();
         item.order = order;
         item.productId = productId;
@@ -49,7 +52,7 @@ public class OrderItem extends BaseEntity {
         item.price = unitPrice * quantity;
 
         // Order 연관관계 리스트에 추가
-        if (order != null) order.getOrderItems().add(item);
+        order.addItem(item);
         return item;
     }
 

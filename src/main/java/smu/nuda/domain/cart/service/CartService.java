@@ -175,6 +175,7 @@ public class CartService {
         cartItemRepository.deleteAll(cartItems);
     }
 
+    @Transactional(readOnly = true)
     public void validateOrderableItems(Member member, List<OrderItemRequest> orderItems) {
         List<CartItem> cartItems = cartItemRepository.findByCart_MemberId(member.getId());
         CartPolicy.validateOrderableItems(cartItems, orderItems);
@@ -189,7 +190,7 @@ public class CartService {
         if (orderedProductIds.isEmpty()) return;
 
         // 장바구니 상품 중 주문한 상품만 조회
-        List<CartItem> cartItemsToDelete = cartItemRepository.findByCartMemberIdAndProductIdIn(
+        List<CartItem> cartItemsToDelete = cartItemRepository.findByCart_MemberIdAndProductIdIn(
                 order.getMemberId(),
                 orderedProductIds
         );

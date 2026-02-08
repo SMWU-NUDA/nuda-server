@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class OrderItemRequest {
     @NotNull private Long productId;
-    @NotNull @Min(1) private int quantity;
+    @NotNull @Min(1) private Integer quantity;
 
 }
