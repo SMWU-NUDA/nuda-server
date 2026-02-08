@@ -16,7 +16,10 @@ public class CartPolicy {
         Map<Long, CartItem> cartItemMap = cartItems.stream()
                 .collect(Collectors.toMap(
                         CartItem::getProductId,
-                        Function.identity()
+                        Function.identity(),
+                        (existing, duplicate) -> {
+                            throw new DomainException(CartErrorCode.INVALID_CART_ITEM);
+                        }
                 ));
 
         for (OrderItemRequest orderItem : orderItems) {
