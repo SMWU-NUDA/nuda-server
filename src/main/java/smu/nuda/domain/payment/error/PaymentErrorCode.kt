@@ -6,8 +6,8 @@ enum class PaymentErrorCode (
     override val code: String,
     override val message: String
 ): ErrorCode {
-    INVALID_ORDER_STATUS(
-        "PAYMENT_INVALID_ORDER_STATUS","해당 주문은 결제 가능한 상태가 아닙니다."
+    INVALID_PAYMENT_STATUS(
+        "PAYMENT_INVALID_PAYMENT_STATUS","해당 주문은 결제 가능한 상태가 아닙니다."
     ),
     ORDER_NOT_FOUND(
         "PAYMENT_ORDER_NOT_FOUND", "존재하지 않는 주문입니다."
@@ -29,6 +29,9 @@ enum class PaymentErrorCode (
     ),
     PAYMENT_FAILED(
         "PAYMENT_FAILED", "결제 승인에 실패하였습니다."
+    ),
+    NOT_ORDER_OWNER(
+        "PAYMENT_NOT_ORDER_OWNER", "주문자 본인만 결제를 진행할 수 있습니다."
     ),
 
     ;

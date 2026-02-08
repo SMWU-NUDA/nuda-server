@@ -79,7 +79,7 @@ public class PaymentServiceTest {
         Order order = createPendingOrder(88500);
 
         // [When] 결제 요청
-        PaymentRequestResponse response = paymentService.requestPayment(order.getId());
+        PaymentRequestResponse response = paymentService.requestPayment(member, order.getId());
 
         // [Then] 생성된 결제 데이터의 유효성 검증
         Payment payment = paymentRepository.findById(response.getPaymentId()).orElseThrow();
@@ -95,10 +95,10 @@ public class PaymentServiceTest {
     void requestPayment_duplicate() {
         // [Given] 이미 한 번 결제 요청이 완료된 주문
         Order order = createPendingOrder(50000);
-        paymentService.requestPayment(order.getId());
+        paymentService.requestPayment(member, order.getId());
 
         // [When, Then] 동일한 주문으로 재요청 시 ALREADY_REQUESTED 예외 발생 확인
-        assertThatThrownBy(() -> paymentService.requestPayment(order.getId()))
+        assertThatThrownBy(() -> paymentService.requestPayment(member, order.getId()))
                 .isInstanceOf(DomainException.class)
                 .hasMessageContaining(PaymentErrorCode.ALREADY_REQUESTED.getMessage());
     }
@@ -108,7 +108,7 @@ public class PaymentServiceTest {
     void completePayment_success() {
         // [Given] 결제 요청 상태인 주문과 결제 키
         Order order = createPendingOrder(30000);
-        PaymentRequestResponse response = paymentService.requestPayment(order.getId());
+        PaymentRequestResponse response = paymentService.requestPayment(member, order.getId());
         Payment payment = paymentRepository.findById(response.getPaymentId()).orElseThrow();
 
         PaymentCompleteRequest request = new PaymentCompleteRequest(
@@ -133,7 +133,7 @@ public class PaymentServiceTest {
     void completePayment_duplicateCallback() {
         // [Given] 이미 결제 완료 처리가 끝난 상태
         Order order = createPendingOrder(30000);
-        PaymentRequestResponse response = paymentService.requestPayment(order.getId());
+        PaymentRequestResponse response = paymentService.requestPayment(member, order.getId());
         Payment payment = paymentRepository.findById(response.getPaymentId()).orElseThrow();
 
         PaymentCompleteRequest request = new PaymentCompleteRequest(
@@ -155,7 +155,7 @@ public class PaymentServiceTest {
     void completePayment_invalidAmount() {
         // [Given] 결제 요청된 금액과 다른 위조된 요청 데이터
         Order order = createPendingOrder(30000);
-        PaymentRequestResponse response = paymentService.requestPayment(order.getId());
+        PaymentRequestResponse response = paymentService.requestPayment(member, order.getId());
         Payment payment = paymentRepository.findById(response.getPaymentId()).orElseThrow();
 
         PaymentCompleteRequest request = new PaymentCompleteRequest(
@@ -194,7 +194,7 @@ public class PaymentServiceTest {
         em.clear();
 
         // 결제 완료를 위한 요청 데이터 준비
-        PaymentRequestResponse response = paymentService.requestPayment(orderResponse.getOrderId());
+        PaymentRequestResponse response = paymentService.requestPayment(member, orderResponse.getOrderId());
         Payment payment = paymentRepository.findById(response.getPaymentId()).orElseThrow();
 
         PaymentCompleteRequest request = new PaymentCompleteRequest(

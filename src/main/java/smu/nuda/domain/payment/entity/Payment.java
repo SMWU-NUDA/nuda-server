@@ -9,6 +9,7 @@ import smu.nuda.domain.payment.entity.enums.PaymentStatus;
 import smu.nuda.domain.payment.error.PaymentErrorCode;
 import smu.nuda.global.error.DomainException;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 
 @Entity
@@ -35,7 +36,7 @@ public class Payment {
     )
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
@@ -55,13 +56,13 @@ public class Payment {
     @Column(name = "approved_at")
     private LocalDateTime approvedAt;
 
-    public static Payment request(Order order, String paymentKey, int amount) {
+    public static Payment request(Order order, String paymentKey, int amount, Clock clock) {
         Payment payment = new Payment();
         payment.order = order;
         payment.paymentKey = paymentKey;
         payment.amount = amount;
         payment.status = PaymentStatus.REQUESTED;
-        payment.requestedAt = LocalDateTime.now();
+        payment.requestedAt = LocalDateTime.now(clock);
         return payment;
     }
 
@@ -80,7 +81,7 @@ public class Payment {
 
     private void validateApprovable() {
         if (this.status != PaymentStatus.REQUESTED) {
-            throw new DomainException(PaymentErrorCode.INVALID_ORDER_STATUS);
+            throw new DomainException(PaymentErrorCode.INVALID_PAYMENT_STATUS);
         }
     }
 }

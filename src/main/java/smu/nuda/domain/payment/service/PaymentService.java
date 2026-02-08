@@ -18,6 +18,7 @@ import smu.nuda.domain.payment.error.PaymentErrorCode;
 import smu.nuda.domain.payment.repository.PaymentRepository;
 import smu.nuda.global.error.DomainException;
 
+import java.time.Clock;
 import java.util.UUID;
 
 @Service
@@ -28,23 +29,25 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final CartService cartService;
     private final OrderMapper orderMapper;
+    private final Clock clock;
 
     @Transactional
-    public PaymentRequestResponse requestPayment(Long orderId) {
+    public PaymentRequestResponse requestPayment(Member member, Long orderId) {
 
         // 요청한 주문 조회
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new DomainException(PaymentErrorCode.ORDER_NOT_FOUND));
 
         // 주문 상태 검증 및 중복 결제 방지
-        if (!order.isPending()) throw new DomainException(PaymentErrorCode.INVALID_ORDER_STATUS);
+        if (!order.getMemberId().equals(member.getId())) throw new DomainException(PaymentErrorCode.NOT_ORDER_OWNER);
+        if (!order.isPending()) throw new DomainException(PaymentErrorCode.INVALID_PAYMENT_STATUS);
         if (paymentRepository.existsByOrder(order)) throw new DomainException(PaymentErrorCode.ALREADY_REQUESTED);
 
         int amount = order.getTotalAmount();
-        String paymentKey = generatePaymentKey(order);
+        String paymentKey = generatePaymentKey();
 
         // Payment 생성
-        Payment payment = Payment.request(order, paymentKey, amount);
+        Payment payment = Payment.request(order, paymentKey, amount, clock);
         paymentRepository.save(payment);
 
         return new PaymentRequestResponse(
@@ -58,7 +61,7 @@ public class PaymentService {
         );
     }
 
-    private String generatePaymentKey(Order order) {
+    private String generatePaymentKey() {
         return "pay_" + UUID.randomUUID();
     }
 
@@ -98,7 +101,7 @@ public class PaymentService {
         Order order = payment.getOrder();
 
         if (payment.getStatus() == PaymentStatus.SUCCESS) throw new DomainException(PaymentErrorCode.ALREADY_PAID);
-        if (payment.getStatus() != PaymentStatus.REQUESTED) throw new DomainException(PaymentErrorCode.INVALID_ORDER_STATUS);
+        if (payment.getStatus() != PaymentStatus.REQUESTED) throw new DomainException(PaymentErrorCode.INVALID_PAYMENT_STATUS);
 
         // 서버 기준으로 강제 승인
         payment.approve();

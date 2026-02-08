@@ -35,7 +35,7 @@ public class PaymentController {
     @LoginRequired
     public ApiResponse<PaymentRequestResponse> requestPayment(@PathVariable Long orderId) {
         Member member = authenticationGuard.currentMember();
-        return ApiResponse.success(paymentService.requestPayment(orderId));
+        return ApiResponse.success(paymentService.requestPayment(member, orderId));
     }
 
     @PostMapping("/complete")
