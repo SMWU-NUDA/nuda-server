@@ -84,14 +84,18 @@ public class PaymentService {
         if (!Boolean.TRUE.equals(request.getSuccess())) {
             payment.fail();
             order.failPayment();
-            throw new DomainException(PaymentErrorCode.PAYMENT_FAILED);
+            return PaymentCompleteResponse.fail(order.getOrderNum());
         }
 
         payment.approve();
         order.completePayment();
         cartService.removeOrderedItems(order);
 
-        return buildOrderCompleteResponse(member, order);
+        return new PaymentCompleteResponse(
+                order.getOrderNum(),
+                DeliveryResponse.from(member),
+                orderMapper.toBrandGroups(order)
+        );
     }
 
     @Transactional
@@ -108,10 +112,6 @@ public class PaymentService {
         order.completePayment();
         cartService.removeOrderedItems(order);
 
-        return buildOrderCompleteResponse(member, order);
-    }
-
-    private PaymentCompleteResponse buildOrderCompleteResponse(Member member, Order order) {
         return new PaymentCompleteResponse(
                 order.getOrderNum(),
                 DeliveryResponse.from(member),
