@@ -56,13 +56,7 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public DeliveryResponse getDelivery(Member member) {
-        return DeliveryResponse.builder()
-                .recipient(member.getRecipient())
-                .phoneNum(member.getPhoneNum())
-                .postalCode(member.getPostalCode())
-                .address1(member.getAddress1())
-                .address2(member.getAddress2())
-                .build();
+        return DeliveryResponse.from(member);
     }
 
 
@@ -76,13 +70,7 @@ public class MemberService {
                 request.getAddress2()
         );
 
-        return DeliveryResponse.builder()
-                .recipient(member.getRecipient())
-                .phoneNum(member.getPhoneNum())
-                .postalCode(member.getPostalCode())
-                .address1(member.getAddress1())
-                .address2(member.getAddress2())
-                .build();
+        return DeliveryResponse.from(member);
     }
 
     @Transactional(readOnly = true)

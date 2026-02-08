@@ -9,6 +9,8 @@ CREATE TABLE cart_item (
         FOREIGN KEY (cart_id) REFERENCES cart (id) ON DELETE CASCADE,
     product_id BIGINT NOT NULL,
     quantity INT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP NOT NULL DEFAULT now(),
 
     CONSTRAINT ck_cart_item_quantity CHECK (quantity > 0),
     CONSTRAINT uk_cart_item_cart_product

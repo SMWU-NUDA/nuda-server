@@ -5,6 +5,8 @@ CREATE SEQUENCE cart_seq
 CREATE TABLE cart (
     id BIGINT PRIMARY KEY DEFAULT nextval('cart_seq'),
     member_id BIGINT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP NOT NULL DEFAULT now(),
 
     CONSTRAINT uk_cart_member UNIQUE (member_id),
     CONSTRAINT fk_cart_member
