@@ -1,9 +1,10 @@
 package smu.nuda.domain.order.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import smu.nuda.domain.brand.entity.Brand;
 import smu.nuda.domain.cart.service.CartService;
 import smu.nuda.domain.common.dto.CursorPageResponse;
 import smu.nuda.domain.member.entity.Member;
@@ -14,7 +15,6 @@ import smu.nuda.domain.order.error.OrderErrorCode;
 import smu.nuda.domain.order.mapper.OrderMapper;
 import smu.nuda.domain.order.policy.OrderNumberPolicy;
 import smu.nuda.domain.order.repository.OrderItemRepository;
-import smu.nuda.domain.order.repository.OrderQueryRepository;
 import smu.nuda.domain.order.repository.OrderRepository;
 import smu.nuda.domain.product.entity.Product;
 import smu.nuda.domain.product.repository.ProductRepository;
@@ -33,7 +33,6 @@ public class OrderService {
 
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
-    private final OrderQueryRepository orderQueryRepository;
     private final OrderItemRepository orderItemRepository;
     private final OrderNumberPolicy orderNumberPolicy;
     private final CartService cartService;
@@ -100,7 +99,22 @@ public class OrderService {
     @Transactional(readOnly = true)
     public CursorPageResponse<MyOrderResponse> getMyOrders(Member member, Long cursor, int size) {
         // 주문 조회
-        List<Order> orders = orderQueryRepository.findMyOrders(member.getId(), cursor, size);
+        Pageable pageable = PageRequest.of(0, size);
+        List<Order> orders = orderRepository.findMyOrders(member.getId(), cursor, pageable);
+
+        // 모든 OrderItem 수집
+        List<OrderItem> allItems = orders.stream()
+                .flatMap(o -> o.getOrderItems().stream())
+                .toList();
+
+        // Product, Brand 일괄 조회
+        List<Long> productIds = allItems.stream()
+                .map(OrderItem::getProductId)
+                .distinct()
+                .toList();
+
+        Map<Long, Product> productMap = productRepository.findAllWithBrandByIdIn(productIds).stream()
+                .collect(Collectors.toMap(Product::getId, Function.identity()));
 
         List<MyOrderResponse> responses = orders.stream()
                 .map(order -> new MyOrderResponse(
@@ -108,7 +122,7 @@ public class OrderService {
                         DateFormatUtil.formatDate(order.getCreatedAt()),
                         order.getOrderNum(),
                         order.getTotalAmount(),
-                        orderMapper.toBrandGroups(order)
+                        orderMapper.toBrandGroups(order, productMap)
                 ))
                 .toList();
 

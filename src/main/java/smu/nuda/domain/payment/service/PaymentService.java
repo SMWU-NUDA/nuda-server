@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 import smu.nuda.domain.cart.service.CartService;
 import smu.nuda.domain.member.dto.DeliveryResponse;
 import smu.nuda.domain.member.entity.Member;
-import smu.nuda.domain.order.dto.OrderBrandGroup;
 import smu.nuda.domain.order.entity.Order;
 import smu.nuda.domain.order.mapper.OrderMapper;
 import smu.nuda.domain.order.repository.OrderRepository;
@@ -19,7 +18,6 @@ import smu.nuda.domain.payment.error.PaymentErrorCode;
 import smu.nuda.domain.payment.repository.PaymentRepository;
 import smu.nuda.global.error.DomainException;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -111,15 +109,10 @@ public class PaymentService {
     }
 
     private PaymentCompleteResponse buildOrderCompleteResponse(Member member, Order order) {
-        DeliveryResponse deliveryResponse = DeliveryResponse.from(member);
-
-        // 브랜드별 상품 그룹핑
-        List<OrderBrandGroup> brandGroups = orderMapper.toBrandGroups(order);
-
         return new PaymentCompleteResponse(
                 order.getOrderNum(),
-                deliveryResponse,
-                brandGroups
+                DeliveryResponse.from(member),
+                orderMapper.toBrandGroups(order)
         );
     }
 

@@ -28,11 +28,15 @@ public class OrderMapper {
                 .distinct()
                 .toList();
 
-        Map<Long, Product> productMap = productRepository.findAllById(productIds).stream()
+        Map<Long, Product> productMap = productRepository.findAllWithBrandByIdIn(productIds).stream()
                 .collect(Collectors.toMap(Product::getId, Function.identity()));
 
-        Map<Brand, List<OrderItem>> grouped = order.getOrderItems().stream()
-                .collect(Collectors.groupingBy(
+        return toBrandGroups(order, productMap);
+    }
+
+    public List<OrderBrandGroup> toBrandGroups(Order order, Map<Long, Product> productMap) {
+        Map<Brand, List<OrderItem>> grouped = order.getOrderItems()
+                .stream().collect(Collectors.groupingBy(
                         item -> productMap.get(item.getProductId()).getBrand()
                 ));
 
