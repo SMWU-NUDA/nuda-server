@@ -3,14 +3,12 @@ package smu.nuda.domain.payment.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import smu.nuda.domain.brand.entity.Brand;
 import smu.nuda.domain.cart.service.CartService;
 import smu.nuda.domain.member.dto.DeliveryResponse;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.order.dto.OrderBrandGroup;
-import smu.nuda.domain.order.dto.OrderProductItem;
 import smu.nuda.domain.order.entity.Order;
-import smu.nuda.domain.order.entity.OrderItem;
+import smu.nuda.domain.order.mapper.OrderMapper;
 import smu.nuda.domain.order.repository.OrderRepository;
 import smu.nuda.domain.payment.dto.PaymentCompleteRequest;
 import smu.nuda.domain.payment.dto.PaymentCompleteResponse;
@@ -19,25 +17,19 @@ import smu.nuda.domain.payment.entity.Payment;
 import smu.nuda.domain.payment.entity.enums.PaymentStatus;
 import smu.nuda.domain.payment.error.PaymentErrorCode;
 import smu.nuda.domain.payment.repository.PaymentRepository;
-import smu.nuda.domain.product.entity.Product;
-import smu.nuda.domain.product.repository.ProductRepository;
-import smu.nuda.domain.signupdraft.dto.DeliveryInfo;
 import smu.nuda.global.error.DomainException;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
 
-    private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
     private final CartService cartService;
+    private final OrderMapper orderMapper;
 
     @Transactional
     public PaymentRequestResponse requestPayment(Long orderId) {
@@ -122,7 +114,7 @@ public class PaymentService {
         DeliveryResponse deliveryResponse = DeliveryResponse.from(member);
 
         // 브랜드별 상품 그룹핑
-        List<OrderBrandGroup> brandGroups = groupByBrand(order);
+        List<OrderBrandGroup> brandGroups = orderMapper.toBrandGroups(order);
 
         return new PaymentCompleteResponse(
                 order.getOrderNum(),
@@ -130,51 +122,5 @@ public class PaymentService {
                 brandGroups
         );
     }
-
-    private List<OrderBrandGroup> groupByBrand(Order order) {
-
-        // 주문한 상품 목록 조회
-        List<Long> productIds = order.getOrderItems().stream()
-                .map(OrderItem::getProductId)
-                .distinct()
-                .toList();
-        List<Product> products = productRepository.findAllById(productIds);
-        Map<Long, Product> productMap = products.stream()
-                .collect(Collectors.toMap(Product::getId, Function.identity()));
-
-        // Brand 별 상품 그룹핑
-        Map<Brand, List<OrderItem>> grouped = order.getOrderItems().stream()
-                .collect(Collectors.groupingBy(
-                        item -> productMap.get(item.getProductId()).getBrand()
-                ));
-
-        return grouped.entrySet().stream()
-                .map(entry -> {
-                    Brand brand = entry.getKey();
-                    List<OrderItem> items = entry.getValue();
-
-                    List<OrderProductItem> productItems = items.stream()
-                            .map(item -> {
-                                Product product = productMap.get(item.getProductId());
-                                return new OrderProductItem(
-                                        product.getId(),
-                                        product.getName(),
-                                        item.getQuantity(),
-                                        item.getUnitPrice(),
-                                        item.getQuantity() * item.getUnitPrice()
-                                );
-                            })
-                            .toList();
-
-                    return new OrderBrandGroup(
-                            brand.getId(),
-                            brand.getName(),
-                            productItems
-                    );
-                })
-                .toList();
-    }
-
-
 
 }

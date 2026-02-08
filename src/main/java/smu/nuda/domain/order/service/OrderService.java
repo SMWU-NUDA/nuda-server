@@ -11,6 +11,7 @@ import smu.nuda.domain.order.dto.*;
 import smu.nuda.domain.order.entity.Order;
 import smu.nuda.domain.order.entity.OrderItem;
 import smu.nuda.domain.order.error.OrderErrorCode;
+import smu.nuda.domain.order.mapper.OrderMapper;
 import smu.nuda.domain.order.policy.OrderNumberPolicy;
 import smu.nuda.domain.order.repository.OrderItemRepository;
 import smu.nuda.domain.order.repository.OrderQueryRepository;
@@ -36,6 +37,7 @@ public class OrderService {
     private final OrderItemRepository orderItemRepository;
     private final OrderNumberPolicy orderNumberPolicy;
     private final CartService cartService;
+    private final OrderMapper orderMapper;
 
     @Transactional
     public OrderCreateResponse createOrder(Member member, OrderCreateRequest request) {
@@ -83,37 +85,7 @@ public class OrderService {
         }
         orderItemRepository.saveAll(orderItems);
 
-        // Brand 별 상품 그룹핑
-        Map<Long, List<OrderItem>> brandGrouped = orderItems.stream()
-                .collect(Collectors.groupingBy(
-                item -> productMap.get(item.getProductId()).getBrand().getId()
-        ));
-
-        List<OrderBrandGroup> brandGroups = brandGrouped.entrySet().stream()
-                .map(entry -> {
-                    Long brandId = entry.getKey();
-                    List<OrderItem> items = entry.getValue();
-
-                    Product firstProduct = productMap.get(items.get(0).getProductId());
-
-                    return new OrderBrandGroup(
-                            brandId,
-                            firstProduct.getBrand().getName(),
-                            items.stream()
-                                    .map(item -> {
-                                        Product product = productMap.get(item.getProductId());
-                                        return new OrderProductItem(
-                                                item.getProductId(),
-                                                product.getName(),
-                                                item.getQuantity(),
-                                                item.getUnitPrice(),
-                                                item.getPrice()
-                                        );
-                                    })
-                                    .toList()
-                    );
-                })
-                .toList();
+        List<OrderBrandGroup> brandGroups = orderMapper.toBrandGroups(order);
 
         return new OrderCreateResponse(
                 order.getId(),
@@ -130,71 +102,20 @@ public class OrderService {
         // 주문 조회
         List<Order> orders = orderQueryRepository.findMyOrders(member.getId(), cursor, size);
 
-        // 모든 주문의 OrderItem 수집
-        List<OrderItem> allItems = orders.stream()
-                .flatMap(o -> o.getOrderItems().stream())
+        List<MyOrderResponse> responses = orders.stream()
+                .map(order -> new MyOrderResponse(
+                        order.getId(),
+                        DateFormatUtil.formatDate(order.getCreatedAt()),
+                        order.getOrderNum(),
+                        order.getTotalAmount(),
+                        orderMapper.toBrandGroups(order)
+                ))
                 .toList();
-
-        // 상품 일괄 조회
-        List<Long> productIds = allItems.stream()
-                .map(OrderItem::getProductId)
-                .distinct()
-                .toList();
-
-        Map<Long, Product> productMap = productRepository.findAllById(productIds).stream()
-                .collect(Collectors.toMap(Product::getId, Function.identity()));
-
-        List<MyOrderResponse> myOrderResponses =
-                orders.stream()
-                        .map(order -> mapToOrderHistoryItem(order, productMap))
-                        .toList();
 
         return CursorPageResponse.of(
-                myOrderResponses,
+                responses,
                 size,
                 MyOrderResponse::getOrderId
         );
     }
-
-    private MyOrderResponse mapToOrderHistoryItem(Order order, Map<Long, Product> productMap) {
-        Map<Brand, List<OrderItem>> grouped = order.getOrderItems().stream()
-                .collect(Collectors.groupingBy(
-                        item -> productMap.get(item.getProductId()).getBrand()
-                ));
-
-        List<OrderBrandGroup> brandGroups = grouped.entrySet().stream()
-                .map(entry -> {
-                    Brand brand = entry.getKey();
-                    List<OrderItem> items = entry.getValue();
-
-                    List<OrderProductItem> products = items.stream()
-                            .map(item -> {
-                                Product product = productMap.get(item.getProductId());
-                                return new OrderProductItem(
-                                        product.getId(),
-                                        product.getName(),
-                                        item.getQuantity(),
-                                        item.getUnitPrice(),
-                                        item.getQuantity() * item.getUnitPrice()
-                                );
-                            })
-                            .toList();
-
-                    return new OrderBrandGroup(
-                            brand.getId(),
-                            brand.getName(),
-                            products
-                    );
-                })
-                .toList();
-
-        return new MyOrderResponse(
-                order.getId(),
-                DateFormatUtil.formatDate(order.getCreatedAt()),
-                order.getOrderNum(),
-                order.getTotalAmount(),
-                brandGroups
-        );
-    }
-
 }
