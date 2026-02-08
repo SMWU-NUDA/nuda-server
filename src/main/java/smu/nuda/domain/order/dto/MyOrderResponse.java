@@ -7,7 +7,8 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public class OrderHistoryItem {
+public class MyOrderResponse {
+    private Long orderId;
     private String orderDate;
     private Long orderNum;
     private int totalAmount;

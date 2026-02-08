@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import smu.nuda.domain.brand.entity.Brand;
 import smu.nuda.domain.cart.service.CartService;
+import smu.nuda.domain.common.dto.CursorPageResponse;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.order.dto.*;
 import smu.nuda.domain.order.entity.Order;
@@ -12,6 +13,7 @@ import smu.nuda.domain.order.entity.OrderItem;
 import smu.nuda.domain.order.error.OrderErrorCode;
 import smu.nuda.domain.order.policy.OrderNumberPolicy;
 import smu.nuda.domain.order.repository.OrderItemRepository;
+import smu.nuda.domain.order.repository.OrderQueryRepository;
 import smu.nuda.domain.order.repository.OrderRepository;
 import smu.nuda.domain.product.entity.Product;
 import smu.nuda.domain.product.repository.ProductRepository;
@@ -30,6 +32,7 @@ public class OrderService {
 
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
+    private final OrderQueryRepository orderQueryRepository;
     private final OrderItemRepository orderItemRepository;
     private final OrderNumberPolicy orderNumberPolicy;
     private final CartService cartService;
@@ -123,10 +126,9 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public OrderHistoryResponse getOrderHistory(Member member) {
-
-        List<Order> orders = orderRepository.findAllByMemberIdOrderByCreatedAtDesc(member.getId());
-        if (orders.isEmpty()) return new OrderHistoryResponse(List.of());
+    public CursorPageResponse<MyOrderResponse> getMyOrders(Member member, Long cursor, int size) {
+        // 주문 조회
+        List<Order> orders = orderQueryRepository.findMyOrders(member.getId(), cursor, size);
 
         // 모든 주문의 OrderItem 수집
         List<OrderItem> allItems = orders.stream()
@@ -139,19 +141,22 @@ public class OrderService {
                 .distinct()
                 .toList();
 
-        Map<Long, Product> productMap =
-                productRepository.findAllById(productIds).stream()
-                        .collect(Collectors.toMap(Product::getId, Function.identity()));
+        Map<Long, Product> productMap = productRepository.findAllById(productIds).stream()
+                .collect(Collectors.toMap(Product::getId, Function.identity()));
 
-        List<OrderHistoryItem> orderHistoryItems =
+        List<MyOrderResponse> myOrderResponses =
                 orders.stream()
                         .map(order -> mapToOrderHistoryItem(order, productMap))
                         .toList();
 
-        return new OrderHistoryResponse(orderHistoryItems);
+        return CursorPageResponse.of(
+                myOrderResponses,
+                size,
+                MyOrderResponse::getOrderId
+        );
     }
 
-    private OrderHistoryItem mapToOrderHistoryItem(Order order, Map<Long, Product> productMap) {
+    private MyOrderResponse mapToOrderHistoryItem(Order order, Map<Long, Product> productMap) {
         Map<Brand, List<OrderItem>> grouped = order.getOrderItems().stream()
                 .collect(Collectors.groupingBy(
                         item -> productMap.get(item.getProductId()).getBrand()
@@ -169,7 +174,7 @@ public class OrderService {
                                         product.getId(),
                                         product.getName(),
                                         item.getQuantity(),
-                                        item.getQuantity(),
+                                        item.getUnitPrice(),
                                         item.getQuantity() * item.getUnitPrice()
                                 );
                             })
@@ -183,13 +188,13 @@ public class OrderService {
                 })
                 .toList();
 
-        return new OrderHistoryItem(
+        return new MyOrderResponse(
+                order.getId(),
                 DateFormatUtil.formatDate(order.getCreatedAt()),
                 order.getOrderNum(),
                 order.getTotalAmount(),
                 brandGroups
         );
     }
-
 
 }

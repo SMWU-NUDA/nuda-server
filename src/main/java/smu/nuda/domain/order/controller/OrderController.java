@@ -1,15 +1,17 @@
 package smu.nuda.domain.order.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import smu.nuda.domain.common.dto.CursorPageResponse;
 import smu.nuda.domain.member.entity.Member;
+import smu.nuda.domain.order.dto.MyOrderResponse;
 import smu.nuda.domain.order.dto.OrderCreateRequest;
 import smu.nuda.domain.order.dto.OrderCreateResponse;
-import smu.nuda.domain.order.dto.OrderHistoryResponse;
 import smu.nuda.domain.order.service.OrderService;
 import smu.nuda.global.guard.annotation.LoginRequired;
 import smu.nuda.global.guard.guard.AuthenticationGuard;
@@ -43,9 +45,11 @@ public class OrderController {
     )
     @SecurityRequirement(name = "JWT")
     @LoginRequired
-    public ApiResponse<OrderHistoryResponse> getOrderHistory() {
+    public ApiResponse<CursorPageResponse<MyOrderResponse>> getMyOrders(
+            @Parameter(description = "이전 페이지의 마지막 id (첫 요청 시 null)") @RequestParam(required = false) Long cursor,
+            @Parameter(description = "한 페이지당 조회 개수 (기본값 20)") @RequestParam(defaultValue = "20") int size) {
         Member member = authenticationGuard.currentMember();
-        return ApiResponse.success(orderService.getOrderHistory(member));
+        return ApiResponse.success(orderService.getMyOrders(member, cursor, size));
     }
 
 }
