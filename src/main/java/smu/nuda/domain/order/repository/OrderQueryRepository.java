@@ -24,7 +24,7 @@ public class OrderQueryRepository {
                         cursor != null ? order.id.lt(cursor) : null
                 )
                 .orderBy(order.id.desc())
-                .limit(size)
+                .limit(size + 1)
                 .fetch();
 
         if (ids.isEmpty()) return List.of();
