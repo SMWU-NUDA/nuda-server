@@ -40,7 +40,7 @@ public class OrderController {
 
     @GetMapping
     @Operation(
-            summary = "주문 내역 조회",
+            summary = "나의 주문 목록 조회",
             description = "전체 주문 이력을 조회합니다. 최신 주문순으로 정렬되어 반환됩니다."
     )
     @SecurityRequirement(name = "JWT")
