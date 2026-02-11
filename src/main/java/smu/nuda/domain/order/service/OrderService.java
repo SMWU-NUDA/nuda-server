@@ -11,7 +11,7 @@ import smu.nuda.domain.order.entity.Order;
 import smu.nuda.domain.order.entity.OrderItem;
 import smu.nuda.domain.order.error.OrderErrorCode;
 import smu.nuda.domain.order.mapper.OrderMapper;
-import smu.nuda.domain.order.policy.OrderNumberPolicy;
+import smu.nuda.domain.order.policy.OrderNumPolicy;
 import smu.nuda.domain.order.repository.OrderItemRepository;
 import smu.nuda.domain.order.repository.OrderQueryRepository;
 import smu.nuda.domain.order.repository.OrderRepository;
@@ -34,7 +34,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderQueryRepository orderQueryRepository;
     private final OrderItemRepository orderItemRepository;
-    private final OrderNumberPolicy orderNumberPolicy;
+    private final OrderNumPolicy orderNumPolicy;
     private final CartService cartService;
     private final OrderMapper orderMapper;
 
@@ -65,7 +65,7 @@ public class OrderService {
         }
 
         // Order 생성
-        Long orderNum = orderNumberPolicy.generate();
+        Long orderNum = orderNumPolicy.generate();
         Order order = Order.create(member.getId(), orderNum, totalAmount);
         orderRepository.save(order);
 

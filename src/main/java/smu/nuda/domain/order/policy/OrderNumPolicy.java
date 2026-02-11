@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 
 @Component
 @RequiredArgsConstructor
-public class OrderNumberPolicy {
+public class OrderNumPolicy {
 
     private final JdbcTemplate jdbcTemplate;
 
