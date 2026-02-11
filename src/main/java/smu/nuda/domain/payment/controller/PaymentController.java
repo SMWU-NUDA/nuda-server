@@ -10,7 +10,6 @@ import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.payment.dto.PaymentCompleteRequest;
 import smu.nuda.domain.payment.dto.PaymentCompleteResponse;
 import smu.nuda.domain.payment.dto.PaymentRequestResponse;
-import smu.nuda.domain.payment.error.PaymentErrorCode;
 import smu.nuda.domain.payment.service.PaymentService;
 import smu.nuda.global.guard.annotation.LoginRequired;
 import smu.nuda.global.guard.guard.AuthenticationGuard;

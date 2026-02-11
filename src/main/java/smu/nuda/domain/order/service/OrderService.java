@@ -1,8 +1,6 @@
 package smu.nuda.domain.order.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import smu.nuda.domain.cart.service.CartService;
@@ -13,8 +11,9 @@ import smu.nuda.domain.order.entity.Order;
 import smu.nuda.domain.order.entity.OrderItem;
 import smu.nuda.domain.order.error.OrderErrorCode;
 import smu.nuda.domain.order.mapper.OrderMapper;
-import smu.nuda.domain.order.policy.OrderNumberPolicy;
+import smu.nuda.domain.order.policy.OrderNumPolicy;
 import smu.nuda.domain.order.repository.OrderItemRepository;
+import smu.nuda.domain.order.repository.OrderQueryRepository;
 import smu.nuda.domain.order.repository.OrderRepository;
 import smu.nuda.domain.product.entity.Product;
 import smu.nuda.domain.product.repository.ProductRepository;
@@ -33,8 +32,9 @@ public class OrderService {
 
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
+    private final OrderQueryRepository orderQueryRepository;
     private final OrderItemRepository orderItemRepository;
-    private final OrderNumberPolicy orderNumberPolicy;
+    private final OrderNumPolicy orderNumPolicy;
     private final CartService cartService;
     private final OrderMapper orderMapper;
 
@@ -65,7 +65,7 @@ public class OrderService {
         }
 
         // Order 생성
-        Long orderNum = orderNumberPolicy.generate();
+        Long orderNum = orderNumPolicy.generate();
         Order order = Order.create(member.getId(), orderNum, totalAmount);
         orderRepository.save(order);
 
@@ -98,9 +98,9 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public CursorPageResponse<MyOrderResponse> getMyOrders(Member member, Long cursor, int size) {
-        // 주문 조회
-        Pageable pageable = PageRequest.of(0, size);
-        List<Order> orders = orderRepository.findMyOrders(member.getId(), cursor, pageable);
+
+        // member의 Order 조회
+        List<Order> orders = orderQueryRepository.findMyOrders(member.getId(), cursor, size);
 
         // 모든 OrderItem 수집
         List<OrderItem> allItems = orders.stream()
