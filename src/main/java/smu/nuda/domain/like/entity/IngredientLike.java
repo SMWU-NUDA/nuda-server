@@ -19,8 +19,8 @@ import smu.nuda.domain.member.entity.Member;
         },
         indexes = {
                 @Index(
-                        name = "idx_ingredient_like_member_preference",
-                        columnList = "member_id, preference"
+                        name = "idx_ingredient_like_member_ingredient",
+                        columnList = "member_id, ingredient_id"
                 )
         }
 )
