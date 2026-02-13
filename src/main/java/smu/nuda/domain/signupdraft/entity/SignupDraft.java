@@ -8,7 +8,7 @@ import lombok.*;
 import smu.nuda.domain.common.entity.BaseEntity;
 import smu.nuda.domain.signupdraft.entity.enums.SignupStep;
 import smu.nuda.domain.signupdraft.error.SignupDraftErrorCode;
-import smu.nuda.domain.survey.entity.enums.*;
+import smu.nuda.domain.keyword.entity.enums.*;
 import smu.nuda.global.error.DomainException;
 
 import java.time.Clock;

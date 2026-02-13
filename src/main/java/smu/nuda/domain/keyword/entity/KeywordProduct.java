@@ -1,4 +1,4 @@
-package smu.nuda.domain.survey.entity;
+package smu.nuda.domain.keyword.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -21,7 +21,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SurveyProduct extends BaseEntity {
+public class KeywordProduct extends BaseEntity {
 
     @Id
     @GeneratedValue(
@@ -37,16 +37,16 @@ public class SurveyProduct extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "survey_id", nullable = false)
-    private Survey survey;
+    private Keyword keyword;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    public static List<SurveyProduct> of(Survey survey, List<Product> products) {
+    public static List<KeywordProduct> of(Keyword keyword, List<Product> products) {
         return products.stream()
-                .map(product -> SurveyProduct.builder()
-                        .survey(survey)
+                .map(product -> KeywordProduct.builder()
+                        .keyword(keyword)
                         .product(product)
                         .build())
                 .toList();

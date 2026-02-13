@@ -1,10 +1,10 @@
-package smu.nuda.domain.survey.service;
+package smu.nuda.domain.keyword.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class SurveyService {
+public class KeywordService {
 
 }

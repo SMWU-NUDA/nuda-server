@@ -23,7 +23,7 @@ VALUES (
         now()
 );
 
-INSERT INTO survey (
+INSERT INTO keyword (
     member_id,
     irritation_level,
     scent,

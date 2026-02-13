@@ -1,28 +1,28 @@
-package smu.nuda.domain.survey.entity;
+package smu.nuda.domain.keyword.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 import smu.nuda.domain.common.entity.BaseEntity;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.signupdraft.entity.SignupDraft;
-import smu.nuda.domain.survey.entity.enums.*;
+import smu.nuda.domain.keyword.entity.enums.*;
 
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "survey")
-public class Survey extends BaseEntity {
+@Table(name = "keyword")
+public class Keyword extends BaseEntity {
 
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "survey_seq_generator"
+            generator = "keyword_seq_generator"
     )
     @SequenceGenerator(
-            name = "survey_seq_generator",
-            sequenceName = "survey_seq",
+            name = "keyword_seq_generator",
+            sequenceName = "keyword_seq",
             allocationSize = 1
     )
     private Long id;
@@ -46,8 +46,8 @@ public class Survey extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PriorityType priority;
 
-    public static Survey of(SignupDraft draft, Member member) {
-        return Survey.builder()
+    public static Keyword of(SignupDraft draft, Member member) {
+        return Keyword.builder()
                 .member(member)
                 .irritationLevel(draft.getIrritationLevel())
                 .scent(draft.getScent())
