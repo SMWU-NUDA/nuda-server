@@ -10,10 +10,7 @@ import smu.nuda.domain.common.dto.CursorPageResponse;
 import smu.nuda.domain.ingredient.entity.Ingredient;
 import smu.nuda.domain.ingredient.error.IngredientErrorCode;
 import smu.nuda.domain.ingredient.repository.IngredientRepository;
-import smu.nuda.domain.like.dto.LikeToggleResponse;
-import smu.nuda.domain.like.dto.LikedBrandResponse;
-import smu.nuda.domain.like.dto.PreferToggleResponse;
-import smu.nuda.domain.like.dto.LikedProductResponse;
+import smu.nuda.domain.like.dto.*;
 import smu.nuda.domain.like.entity.BrandLike;
 import smu.nuda.domain.like.entity.IngredientLike;
 import smu.nuda.domain.like.entity.ProductLike;
@@ -45,6 +42,7 @@ public class LikeService {
     private final ReviewLikeRepository reviewLikeRepository;
     private final IngredientRepository ingredientRepository;
     private final IngredientLikeRepository ingredientLikeRepository;
+    private final IngredientLikeQueryRepository ingredientLikeQueryRepository;
 
     public LikeToggleResponse productLikeToggle(Long productId, Member member) {
 
@@ -164,6 +162,16 @@ public class LikeService {
         );
     }
 
+    @Transactional(readOnly = true)
+    public CursorPageResponse<LikedIngredientResponse> likedIngredients(Member member, Boolean preference, Long cursor, int size) {
+        List<LikedIngredientResponse> result = ingredientLikeQueryRepository
+                .findLikedIngredients(member.getId(), preference, cursor, size);
 
+        return CursorPageResponse.of(
+                result,
+                size,
+                LikedIngredientResponse::getLikeId
+        );
+    }
 
 }

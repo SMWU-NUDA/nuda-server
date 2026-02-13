@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import smu.nuda.domain.common.dto.CursorPageResponse;
+import smu.nuda.domain.like.dto.LikedIngredientResponse;
 import smu.nuda.domain.like.dto.PreferToggleResponse;
 import smu.nuda.domain.like.service.LikeService;
 import smu.nuda.domain.member.entity.Member;
@@ -36,5 +38,21 @@ public class IngredientLikeController {
     ) {
         Member member = authenticationGuard.currentMember();
         return ApiResponse.success(likeService.ingredientPreferToggle(ingredientId, preference, member));
+    }
+
+    @GetMapping("/likes")
+    @Operation(
+            summary = "사용자의 성분 즐겨찾기 조회",
+            description = "로그인한 사용자의 성분 즐겨찾기 목록을 조회합니다."
+    )
+    @SecurityRequirement(name = "JWT")
+    @LoginRequired
+    public ApiResponse<CursorPageResponse<LikedIngredientResponse>> products(
+            @Parameter(description = "이전 페이지의 마지막 id (첫 요청 시 null)") @RequestParam(required = false) Long cursor,
+            @Parameter(description = "한 페이지당 조회 개수 (기본값 20)") @RequestParam(defaultValue = "20") int size,
+            @Parameter(description = "관심 성분 등록 여부 (true: 관심, false: 피하기)") @RequestParam(defaultValue = "true") boolean preference
+    ) {
+        Member member = authenticationGuard.currentMember();
+        return ApiResponse.success(likeService.likedIngredients(member, preference, cursor, size));
     }
 }
