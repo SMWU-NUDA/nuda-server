@@ -15,6 +15,12 @@ import smu.nuda.domain.member.entity.Member;
                         name = "uq_member_ingredient_like",
                         columnNames = {"member_id", "ingredient_id"}
                 )
+        },
+        indexes = {
+                @Index(
+                        name = "idx_ingredient_like_member_preference",
+                        columnList = "member_id, preference"
+                )
         }
 )
 @Getter
@@ -34,11 +40,19 @@ public class IngredientLike extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
+    @JoinColumn(
+            name = "member_id",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_ingredient_like_member")
+    )
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ingredient_id", nullable = false)
+    @JoinColumn(
+            name = "ingredient_id",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_ingredient_like_ingredient")
+    )
     private Ingredient ingredient;
 
     @Column(nullable = false)
@@ -60,7 +74,4 @@ public class IngredientLike extends BaseEntity {
         return il;
     }
 
-    public void updatePreference(boolean preference) {
-        this.preference = preference;
-    }
 }
