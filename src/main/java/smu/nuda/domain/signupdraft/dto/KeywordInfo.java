@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 @Builder
-public class SurveyInfo {
+public class KeywordInfo {
     private IrritationLevel irritationLevel;
     private ScentLevel scent;
     private ChangeFrequency changeFrequency;

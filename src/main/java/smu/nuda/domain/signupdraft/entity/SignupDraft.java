@@ -114,7 +114,7 @@ public class SignupDraft extends BaseEntity {
         extendExpiration(clock);
     }
 
-    public void updateSurvey(IrritationLevel irritationLevel, ScentLevel scent, ChangeFrequency changeFrequency, ThicknessLevel thickness, PriorityType priority, String productIds, Clock clock) {
+    public void updateKeyword(IrritationLevel irritationLevel, ScentLevel scent, ChangeFrequency changeFrequency, ThicknessLevel thickness, PriorityType priority, String productIds, Clock clock) {
         this.irritationLevel = irritationLevel;
         this.scent = scent;
         this.changeFrequency = changeFrequency;

@@ -70,8 +70,8 @@ public class SignupDraftController {
             description = "회원가입 과정에서 사용할 설문 정보(상품 선택 필수)를 저장합니다."
     )
     @SignupDraftStep(SignupStep.SURVEY)
-    public ApiResponse<String> enterSurvey(@RequestHeader("Signup-Token") String signupToken, @RequestBody @Valid KeywordRequest request) {
-        signupDraftUseCase.updateSurvey(signupToken, request);
+    public ApiResponse<String> enterKeyword(@RequestHeader("Signup-Token") String signupToken, @RequestBody @Valid KeywordRequest request) {
+        signupDraftUseCase.updateKeyword(signupToken, request);
         return ApiResponse.success("설문 조사 입력이 완료되었습니다. 최종 완료를 진행해주세요.");
     }
 

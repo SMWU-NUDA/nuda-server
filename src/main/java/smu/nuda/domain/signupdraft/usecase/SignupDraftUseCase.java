@@ -17,7 +17,7 @@ import smu.nuda.domain.signupdraft.dto.*;
 import smu.nuda.domain.signupdraft.entity.SignupDraft;
 import smu.nuda.domain.signupdraft.entity.enums.SignupStep;
 import smu.nuda.domain.signupdraft.error.SignupDraftErrorCode;
-import smu.nuda.domain.signupdraft.policy.SurveyProductPolicy;
+import smu.nuda.domain.signupdraft.policy.KeywordProductPolicy;
 import smu.nuda.domain.signupdraft.repository.SignupDraftRepository;
 import smu.nuda.domain.keyword.dto.KeywordRequest;
 import smu.nuda.domain.keyword.entity.Keyword;
@@ -77,7 +77,7 @@ public class SignupDraftUseCase {
                 .address2(draft.getAddress2())
                 .build();
 
-        SurveyInfo survey = SurveyInfo.builder()
+        KeywordInfo keyword = KeywordInfo.builder()
                 .irritationLevel(draft.getIrritationLevel())
                 .scent(draft.getScent())
                 .changeFrequency(draft.getChangeFrequency())
@@ -90,7 +90,7 @@ public class SignupDraftUseCase {
                 .currentStep(draft.getCurrentStep())
                 .accountInfo(account)
                 .deliveryInfo(delivery)
-                .surveyInfo(survey)
+                .keywordInfo(keyword)
                 .expiresAt(DateFormatUtil.formatDate(draft.getExpiresAt()))
                 .build();
     }
@@ -123,13 +123,13 @@ public class SignupDraftUseCase {
         );
     }
 
-    public void updateSurvey(String signupToken, KeywordRequest request) {
+    public void updateKeyword(String signupToken, KeywordRequest request) {
 
         SignupDraft draft = signupDraftRepository.findBySignupToken(signupToken)
                 .orElseThrow(() -> new DomainException(SignupDraftErrorCode.DRAFT_NOT_FOUND));
         String productIdsJson = convertToJson(request.getProductIds());
 
-        draft.updateSurvey(
+        draft.updateKeyword(
                 request.getIrritationLevel(),
                 request.getScent(),
                 request.getChangeFrequency(),
@@ -166,7 +166,7 @@ public class SignupDraftUseCase {
         List<Long> productIds = draft.parseToProductIdList(objectMapper);
         List<Product> products = productRepository.findAllById(productIds);
 
-        SurveyProductPolicy.validate(productIds, products);
+        KeywordProductPolicy.validate(productIds, products);
 
         List<KeywordProduct> keywordProductList = KeywordProduct.of(keyword, products);
         keywordProductRepository.saveAll(keywordProductList);
