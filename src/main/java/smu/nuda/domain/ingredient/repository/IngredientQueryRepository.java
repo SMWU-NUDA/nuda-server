@@ -5,15 +5,16 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import smu.nuda.domain.ingredient.dto.IngredientSummaryResponse;
-import smu.nuda.domain.ingredient.entity.QIngredient;
 import smu.nuda.domain.ingredient.entity.enums.LayerType;
 import smu.nuda.domain.ingredient.entity.enums.RiskLevel;
-import smu.nuda.domain.like.entity.QIngredientLike;
-import smu.nuda.domain.product.entity.QProductIngredient;
 
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+
+import static smu.nuda.domain.product.entity.QProductIngredient.productIngredient;
+import static smu.nuda.domain.ingredient.entity.QIngredient.ingredient;
+import static smu.nuda.domain.like.entity.QIngredientLike.ingredientLike;
 
 @Repository
 @RequiredArgsConstructor
@@ -22,33 +23,29 @@ public class IngredientQueryRepository {
 
     public IngredientSummaryResponse getProductIngredientSummary(Long productId, Long memberId) {
 
-        QProductIngredient pi = QProductIngredient.productIngredient;
-        QIngredient i = QIngredient.ingredient;
-        QIngredientLike il = QIngredientLike.ingredientLike;
-
         // totalCount
         Long totalCount = queryFactory
-                .select(pi.count())
-                .from(pi)
-                .where(pi.product.id.eq(productId))
+                .select(productIngredient.count())
+                .from(productIngredient)
+                .where(productIngredient.product.id.eq(productId))
                 .fetchOne();
 
         // riskCounts
         List<Tuple> riskTuples = queryFactory
-                .select(i.riskLevel, i.count())
-                .from(pi)
-                .join(pi.ingredient, i)
-                .where(pi.product.id.eq(productId))
-                .groupBy(i.riskLevel)
+                .select(ingredient.riskLevel, ingredient.count())
+                .from(productIngredient)
+                .join(productIngredient.ingredient, ingredient)
+                .where(productIngredient.product.id.eq(productId))
+                .groupBy(ingredient.riskLevel)
                 .fetch();
 
         // layerCounts
         List<Tuple> layerTuples = queryFactory
-                .select(i.layerType, i.count())
-                .from(pi)
-                .join(pi.ingredient, i)
-                .where(pi.product.id.eq(productId))
-                .groupBy(i.layerType)
+                .select(ingredient.layerType, ingredient.count())
+                .from(productIngredient)
+                .join(productIngredient.ingredient, ingredient)
+                .where(productIngredient.product.id.eq(productId))
+                .groupBy(ingredient.layerType)
                 .fetch();
 
         // myIngredientCounts
@@ -57,20 +54,20 @@ public class IngredientQueryRepository {
         if (memberId != null) {
 
             List<Tuple> myTuples = queryFactory
-                    .select(il.preference, il.count())
-                    .from(il)
-                    .join(il.ingredient, i)
-                    .join(pi).on(pi.ingredient.eq(i))
+                    .select(ingredientLike.preference, ingredientLike.count())
+                    .from(ingredientLike)
+                    .join(ingredientLike.ingredient, ingredient)
+                    .join(productIngredient).on(productIngredient.ingredient.eq(ingredient))
                     .where(
-                            il.member.id.eq(memberId),
-                            pi.product.id.eq(productId)
+                            ingredientLike.member.id.eq(memberId),
+                            productIngredient.product.id.eq(productId)
                     )
-                    .groupBy(il.preference)
+                    .groupBy(ingredientLike.preference)
                     .fetch();
 
             for (Tuple t : myTuples) {
-                Boolean preference = t.get(il.preference);
-                Long count = t.get(il.count());
+                Boolean preference = t.get(ingredientLike.preference);
+                Long count = t.get(ingredientLike.count());
 
                 if (Boolean.TRUE.equals(preference)) {
                     prefer = count;
@@ -83,16 +80,16 @@ public class IngredientQueryRepository {
         Map<RiskLevel, Long> riskMap = initRiskMap();
         for (Tuple t : riskTuples) {
             riskMap.put(
-                    t.get(i.riskLevel),
-                    t.get(i.count())
+                    t.get(ingredient.riskLevel),
+                    t.get(ingredient.count())
             );
         }
 
         Map<LayerType, Long> layerMap = initLayerMap();
         for (Tuple t : layerTuples) {
             layerMap.put(
-                    t.get(i.layerType),
-                    t.get(i.count())
+                    t.get(ingredient.layerType),
+                    t.get(ingredient.count())
             );
         }
 

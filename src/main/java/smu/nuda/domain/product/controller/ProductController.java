@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import smu.nuda.domain.ingredient.dto.IngredientItem;
+import smu.nuda.domain.ingredient.dto.IngredientResponse;
 import smu.nuda.domain.ingredient.dto.IngredientSummaryResponse;
 import smu.nuda.domain.ingredient.service.IngredientService;
 import smu.nuda.domain.member.entity.Member;
@@ -16,6 +18,8 @@ import smu.nuda.domain.product.service.ProductService;
 import smu.nuda.global.guard.annotation.LoginRequired;
 import smu.nuda.global.guard.guard.AuthenticationGuard;
 import smu.nuda.global.response.ApiResponse;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -49,5 +53,16 @@ public class ProductController {
     public ApiResponse<IngredientSummaryResponse> getSummary(@PathVariable Long productId) {
         Member member = authenticationGuard.currentMember();
         return ApiResponse.success(ingredientService.getIngredientSummary(productId, member.getId()));
+    }
+
+    @GetMapping("/{productId}/ingredients")
+    @Operation(
+            summary = "상품 전성분 조회",
+            description = "해당 상품의 전체 성분을 조회합니다."
+    )
+    @SecurityRequirement(name = "JWT")
+    @LoginRequired
+    public ApiResponse<IngredientResponse> getProductIngredients(@PathVariable Long productId) {
+        return ApiResponse.success(ingredientService.getIngredients(productId));
     }
 }
