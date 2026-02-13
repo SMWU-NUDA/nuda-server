@@ -77,7 +77,7 @@ public class SignupDraftUseCase {
                 .address2(draft.getAddress2())
                 .build();
 
-        KeywordInfo keyword = KeywordInfo.builder()
+        SurveyInfo survey = SurveyInfo.builder()
                 .irritationLevel(draft.getIrritationLevel())
                 .scent(draft.getScent())
                 .changeFrequency(draft.getChangeFrequency())
@@ -90,7 +90,7 @@ public class SignupDraftUseCase {
                 .currentStep(draft.getCurrentStep())
                 .accountInfo(account)
                 .deliveryInfo(delivery)
-                .keywordInfo(keyword)
+                .surveyInfo(survey)
                 .expiresAt(DateFormatUtil.formatDate(draft.getExpiresAt()))
                 .build();
     }

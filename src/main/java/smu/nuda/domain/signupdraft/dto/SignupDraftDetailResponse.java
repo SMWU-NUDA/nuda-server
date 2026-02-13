@@ -12,6 +12,6 @@ public class SignupDraftDetailResponse {
     private SignupStep currentStep;
     private AccountInfo accountInfo;
     private DeliveryInfo deliveryInfo;
-    private KeywordInfo keywordInfo;
+    private SurveyInfo surveyInfo;
     private String expiresAt;
 }
