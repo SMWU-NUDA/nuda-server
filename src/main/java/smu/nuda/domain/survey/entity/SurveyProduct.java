@@ -24,9 +24,12 @@ import java.util.List;
 public class SurveyProduct extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "survey_product_seq")
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "survey_product_seq_generator"
+    )
     @SequenceGenerator(
-            name = "survey_product_seq",
+            name = "survey_product_seq_generator",
             sequenceName = "survey_product_seq",
             allocationSize = 1
     )

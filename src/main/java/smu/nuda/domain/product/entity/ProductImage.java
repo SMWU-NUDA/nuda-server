@@ -14,9 +14,12 @@ import smu.nuda.domain.product.entity.enums.ImageType;
 public class ProductImage extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_image_seq")
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "product_image_seq_generator"
+    )
     @SequenceGenerator(
-            name = "product_image_seq",
+            name = "product_image_seq_generator",
             sequenceName = "product_image_seq",
             allocationSize = 1
     )

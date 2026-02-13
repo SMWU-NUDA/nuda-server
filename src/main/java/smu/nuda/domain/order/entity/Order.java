@@ -21,10 +21,10 @@ public class Order extends BaseEntity {
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "order_seq"
+            generator = "order_seq_generator"
     )
     @SequenceGenerator(
-            name = "order_seq",
+            name = "order_seq_generator",
             sequenceName = "seq_order_id",
             allocationSize = 1
     )

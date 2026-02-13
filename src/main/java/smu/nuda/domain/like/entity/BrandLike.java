@@ -25,10 +25,10 @@ public class BrandLike extends BaseEntity {
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "brand_like_seq"
+            generator = "brand_like_seq_generator"
     )
     @SequenceGenerator(
-            name = "brand_like_seq",
+            name = "brand_like_seq_generator",
             sequenceName = "brand_like_seq",
             allocationSize = 1
     )

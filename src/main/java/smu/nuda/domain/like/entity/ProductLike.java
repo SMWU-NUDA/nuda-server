@@ -22,10 +22,10 @@ public class ProductLike extends BaseEntity {
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "product_like_seq"
+            generator = "product_like_seq_generator"
     )
     @SequenceGenerator(
-            name = "product_like_seq",
+            name = "product_like_seq_generator",
             sequenceName = "product_like_seq",
             allocationSize = 1
     )

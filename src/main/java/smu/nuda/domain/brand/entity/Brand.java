@@ -13,9 +13,12 @@ import smu.nuda.domain.common.entity.BaseEntity;
 public class Brand extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "brand_seq")
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "brand_seq_generator"
+    )
     @SequenceGenerator(
-            name = "brand_seq",
+            name = "brand_seq_generator",
             sequenceName = "brand_seq",
             allocationSize = 1
     )

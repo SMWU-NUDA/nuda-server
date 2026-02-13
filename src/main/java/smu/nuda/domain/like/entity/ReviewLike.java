@@ -25,10 +25,10 @@ public class ReviewLike extends BaseEntity {
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "review_like_seq"
+            generator = "review_like_seq_generator"
     )
     @SequenceGenerator(
-            name = "review_like_seq",
+            name = "review_like_seq_generator",
             sequenceName = "review_like_seq",
             allocationSize = 1
     )

@@ -26,10 +26,10 @@ public class Product extends BaseEntity {
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "product_seq"
+            generator = "product_seq_generator"
     )
     @SequenceGenerator(
-            name = "product_seq",
+            name = "product_seq_generator",
             sequenceName = "product_seq",
             allocationSize = 50
     )

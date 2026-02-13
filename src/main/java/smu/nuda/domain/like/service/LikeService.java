@@ -7,10 +7,12 @@ import smu.nuda.domain.brand.entity.Brand;
 import smu.nuda.domain.brand.error.BrandErrorCode;
 import smu.nuda.domain.brand.repository.BrandRepository;
 import smu.nuda.domain.common.dto.CursorPageResponse;
-import smu.nuda.domain.like.dto.LikeToggleResponse;
-import smu.nuda.domain.like.dto.LikedBrandResponse;
-import smu.nuda.domain.like.dto.LikedProductResponse;
+import smu.nuda.domain.ingredient.entity.Ingredient;
+import smu.nuda.domain.ingredient.error.IngredientErrorCode;
+import smu.nuda.domain.ingredient.repository.IngredientRepository;
+import smu.nuda.domain.like.dto.*;
 import smu.nuda.domain.like.entity.BrandLike;
+import smu.nuda.domain.like.entity.IngredientLike;
 import smu.nuda.domain.like.entity.ProductLike;
 import smu.nuda.domain.like.entity.ReviewLike;
 import smu.nuda.domain.like.repository.*;
@@ -38,6 +40,9 @@ public class LikeService {
     private final BrandLikeQueryRepository brandLikeQueryRepository;
     private final ReviewRepository reviewRepository;
     private final ReviewLikeRepository reviewLikeRepository;
+    private final IngredientRepository ingredientRepository;
+    private final IngredientLikeRepository ingredientLikeRepository;
+    private final IngredientLikeQueryRepository ingredientLikeQueryRepository;
 
     public LikeToggleResponse productLikeToggle(Long productId, Member member) {
 
@@ -103,14 +108,41 @@ public class LikeService {
                 });
     }
 
+    @Transactional
+    public PreferToggleResponse ingredientPreferToggle(Long ingredientId, boolean preference, Member member) {
+
+        Ingredient ingredient = ingredientRepository.findById(ingredientId)
+                .orElseThrow(() -> new DomainException(IngredientErrorCode.INVALID_INGREDIENT));
+
+        return ingredientLikeRepository
+                .findByMemberAndIngredient(member, ingredient)
+                .map(existing -> {
+                    // 같은 버튼 다시 누르면 → 삭제
+                    if (existing.isPreference() == preference) {
+                        ingredientLikeRepository.delete(existing);
+                        return PreferToggleResponse.none();
+                    }
+                    // 반대 버튼 누르면 → 변경
+                    existing.updatePreference(preference);
+
+                    return preference
+                            ? PreferToggleResponse.interested()
+                            : PreferToggleResponse.avoided();
+                })
+                .orElseGet(() -> {
+                    // 기존 데이터 없으면 새로 생성
+                    IngredientLike newLike = preference ? IngredientLike.prefer(member, ingredient) : IngredientLike.avoid(member, ingredient);
+                    ingredientLikeRepository.save(newLike);
+
+                    return preference
+                            ? PreferToggleResponse.interested()
+                            : PreferToggleResponse.avoided();
+                });
+    }
+
     @Transactional(readOnly = true)
     public CursorPageResponse<LikedProductResponse> likedProducts(Member member, Long cursor, int size) {
-        List<LikedProductResponse> result =
-                productLikeQueryRepository.findLikedProducts(
-                        member.getId(),
-                        cursor,
-                        size
-                );
+        List<LikedProductResponse> result = productLikeQueryRepository.findLikedProducts(member.getId(), cursor, size);
 
         return CursorPageResponse.of(
                 result,
@@ -121,17 +153,24 @@ public class LikeService {
 
     @Transactional(readOnly = true)
     public CursorPageResponse<LikedBrandResponse> likedBrands(Member member, Long cursor, int size) {
-        List<LikedBrandResponse> result =
-                brandLikeQueryRepository.findLikedBrands(
-                        member.getId(),
-                        cursor,
-                        size
-                );
+        List<LikedBrandResponse> result = brandLikeQueryRepository.findLikedBrands(member.getId(), cursor, size);
 
         return CursorPageResponse.of(
                 result,
                 size,
                 LikedBrandResponse::getLikeId
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public CursorPageResponse<LikedIngredientResponse> likedIngredients(Member member, Boolean preference, Long cursor, int size) {
+        List<LikedIngredientResponse> result = ingredientLikeQueryRepository
+                .findLikedIngredients(member.getId(), preference, cursor, size);
+
+        return CursorPageResponse.of(
+                result,
+                size,
+                LikedIngredientResponse::getLikeId
         );
     }
 

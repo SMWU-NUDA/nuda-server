@@ -23,10 +23,10 @@ public class ReviewImage extends BaseEntity {
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "review_image_seq"
+            generator = "review_image_seq_generator"
     )
     @SequenceGenerator(
-            name = "review_image_seq",
+            name = "review_image_seq_generator",
             sequenceName = "review_image_seq",
             allocationSize = 1
     )

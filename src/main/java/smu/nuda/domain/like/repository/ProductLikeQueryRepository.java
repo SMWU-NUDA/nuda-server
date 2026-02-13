@@ -1,7 +1,6 @@
 package smu.nuda.domain.like.repository;
 
 import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -35,14 +34,11 @@ public class ProductLikeQueryRepository {
                 .join(product.brand, brand)
                 .where(
                         productLike.member.id.eq(memberId),
-                        ltCursor(cursor)
+                        cursor == null ? null : productLike.id.lt(cursor)
                 )
                 .orderBy(productLike.id.desc())
                 .limit(size + 1)
                 .fetch();
     }
 
-    private BooleanExpression ltCursor(Long cursor) {
-        return cursor == null ? null : productLike.id.lt(cursor);
-    }
 }

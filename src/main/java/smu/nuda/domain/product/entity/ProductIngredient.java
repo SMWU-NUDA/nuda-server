@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import smu.nuda.domain.common.entity.BaseEntity;
-import smu.nuda.domain.component.entity.Component;
 import smu.nuda.domain.ingredient.entity.Ingredient;
 
 @Entity
@@ -13,49 +12,57 @@ import smu.nuda.domain.ingredient.entity.Ingredient;
         name = "product_ingredient",
         uniqueConstraints = {
                 @UniqueConstraint(
-                        name = "uq_product_component_ingredient",
-                        columnNames = {
-                                "product_id",
-                                "component_id",
-                                "ingredient_id"
-                        }
+                        name = "uq_product_ingredient",
+                        columnNames = {"product_id", "ingredient_id"}
                 )
+        },
+        indexes = {
+                @Index(name = "idx_product_ingredient_product", columnList = "product_id"),
+                @Index(name = "idx_product_ingredient_ingredient", columnList = "ingredient_id"),
+                @Index(name = "ix_product_ingredient_external_product_id", columnList = "external_product_id")
         }
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SequenceGenerator(
-        name = "product_ingredient_seq",
+        name = "product_ingredient_seq_generator",
         sequenceName = "product_ingredient_seq",
-        allocationSize = 1
+        allocationSize = 500
 )
 public class ProductIngredient extends BaseEntity {
 
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "product_ingredient_seq"
+            generator = "product_ingredient_seq_generator"
     )
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
+    @JoinColumn(
+            name = "product_id",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_product_ingredient_product")
+    )
     private Product product;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "component_id", nullable = false)
-    private Component component;
+    @Column(name = "external_product_id", length = 30)
+    private String externalProductId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ingredient_id", nullable = false)
+    @JoinColumn(
+            name = "ingredient_id",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_product_ingredient_ingredient")
+    )
     private Ingredient ingredient;
 
-    public static ProductIngredient of(Product product, Component component, Ingredient ingredient) {
-        ProductIngredient pi = new ProductIngredient();
-        pi.product = product;
-        pi.component = component;
-        pi.ingredient = ingredient;
-        return pi;
+    public static ProductIngredient create(Product product, Ingredient ingredient, String externalProductId) {
+        ProductIngredient mapping = new ProductIngredient();
+        mapping.product = product;
+        mapping.ingredient = ingredient;
+        mapping.externalProductId = externalProductId;
+        return mapping;
     }
-}
 
+}

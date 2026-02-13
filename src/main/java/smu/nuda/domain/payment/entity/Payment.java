@@ -27,10 +27,10 @@ public class Payment {
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "payment_seq"
+            generator = "payment_seq_generator"
     )
     @SequenceGenerator(
-            name = "payment_seq",
+            name = "payment_seq_generator",
             sequenceName = "seq_payment_id",
             allocationSize = 1
     )

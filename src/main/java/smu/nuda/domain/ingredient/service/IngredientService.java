@@ -2,52 +2,40 @@ package smu.nuda.domain.ingredient.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import smu.nuda.domain.ingredient.dto.*;
-import smu.nuda.domain.ingredient.entity.enums.RiskLevel;
+import org.springframework.transaction.annotation.Transactional;
+import smu.nuda.domain.ingredient.dto.IngredientItem;
+import smu.nuda.domain.ingredient.dto.IngredientResponse;
+import smu.nuda.domain.ingredient.dto.IngredientSummaryResponse;
 import smu.nuda.domain.ingredient.repository.IngredientQueryRepository;
-import smu.nuda.domain.member.entity.Member;
+import smu.nuda.domain.product.error.ProductErrorCode;
+import smu.nuda.domain.product.repository.ProductIngredientQueryRepository;
+import smu.nuda.domain.product.repository.ProductRepository;
+import smu.nuda.global.error.DomainException;
 
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class IngredientService {
+
+    private final ProductRepository productRepository;
     private final IngredientQueryRepository ingredientQueryRepository;
+    private final ProductIngredientQueryRepository productIngredientQueryRepository;
 
-    public IngredientSummaryResponse getIngredientSummary(Long productId, Member member) {
+    @Transactional(readOnly = true)
+    public IngredientSummaryResponse getIngredientSummary(Long productId, Long memberId) {
+        if (!productRepository.existsById(productId)) throw new DomainException(ProductErrorCode.INVALID_PRODUCT);
+        return ingredientQueryRepository.getProductIngredientSummary(productId, memberId);
+    }
 
-        long totalCount = ingredientQueryRepository.countTotal(productId);
-        Map<RiskLevel, Integer> riskCounts = ingredientQueryRepository.countByRiskLevel(productId).stream()
-                .collect(Collectors.toMap(
-                        RiskCountRow::getRiskLevel,
-                        row -> (int) row.getCount()
-                ));
-        Map<String, Integer> componentCounts = ingredientQueryRepository.countByComponent(productId).stream()
-                .collect(Collectors.toMap(
-                        ComponentCountRow::getLayerType,
-                        row -> (int) row.getCount()
-                ));
+    @Transactional(readOnly = true)
+    public IngredientResponse getIngredients(Long productId) {
+        if (!productRepository.existsById(productId)) throw new DomainException(ProductErrorCode.INVALID_PRODUCT);
 
-        MyIngredientSummary myIngredient = null;
-        if (member != null) {
-            int prefer = 0;
-            int avoided = 0;
-
-            for (MyIngredientCountRow row : ingredientQueryRepository.countMyIngredient(productId, member.getId())) {
-                if (row.isPreference()) prefer = (int) row.getCount();
-                else avoided = (int) row.getCount();
-            }
-
-            myIngredient = new MyIngredientSummary(prefer, avoided);
-        }
-
-        return new IngredientSummaryResponse(
-                productId,
-                (int) totalCount,
-                riskCounts,
-                componentCounts,
-                myIngredient
+        List<IngredientItem> ingredients = productIngredientQueryRepository.findIngredientsByProductId(productId);
+        return new IngredientResponse(
+                (long) ingredients.size(),
+                ingredients
         );
     }
 }

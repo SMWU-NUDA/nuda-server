@@ -17,10 +17,10 @@ public class Review extends BaseEntity {
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "review_seq"
+            generator = "review_seq_generator"
     )
     @SequenceGenerator(
-            name = "review_seq",
+            name = "review_seq_generator",
             sequenceName = "review_seq",
             allocationSize = 100
     )
