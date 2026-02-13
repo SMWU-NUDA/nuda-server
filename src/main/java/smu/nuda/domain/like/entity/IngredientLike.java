@@ -1,10 +1,11 @@
-package smu.nuda.domain.ingredient.entity;
+package smu.nuda.domain.like.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import smu.nuda.domain.common.entity.BaseEntity;
+import smu.nuda.domain.ingredient.entity.Ingredient;
 import smu.nuda.domain.member.entity.Member;
 
 @Entity
@@ -73,5 +74,10 @@ public class IngredientLike extends BaseEntity {
         il.preference = false;
         return il;
     }
+
+    public void updatePreference(boolean preference) {
+        this.preference = preference;
+    }
+
 
 }

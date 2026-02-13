@@ -7,10 +7,15 @@ import smu.nuda.domain.brand.entity.Brand;
 import smu.nuda.domain.brand.error.BrandErrorCode;
 import smu.nuda.domain.brand.repository.BrandRepository;
 import smu.nuda.domain.common.dto.CursorPageResponse;
+import smu.nuda.domain.ingredient.entity.Ingredient;
+import smu.nuda.domain.ingredient.error.IngredientErrorCode;
+import smu.nuda.domain.ingredient.repository.IngredientRepository;
 import smu.nuda.domain.like.dto.LikeToggleResponse;
 import smu.nuda.domain.like.dto.LikedBrandResponse;
+import smu.nuda.domain.like.dto.LikedIngredientResponse;
 import smu.nuda.domain.like.dto.LikedProductResponse;
 import smu.nuda.domain.like.entity.BrandLike;
+import smu.nuda.domain.like.entity.IngredientLike;
 import smu.nuda.domain.like.entity.ProductLike;
 import smu.nuda.domain.like.entity.ReviewLike;
 import smu.nuda.domain.like.repository.*;
@@ -24,6 +29,7 @@ import smu.nuda.domain.review.repository.ReviewRepository;
 import smu.nuda.global.error.DomainException;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +44,8 @@ public class LikeService {
     private final BrandLikeQueryRepository brandLikeQueryRepository;
     private final ReviewRepository reviewRepository;
     private final ReviewLikeRepository reviewLikeRepository;
+    private final IngredientRepository ingredientRepository;
+    private final IngredientLikeRepository ingredientLikeRepository;
 
     public LikeToggleResponse productLikeToggle(Long productId, Member member) {
 
@@ -100,6 +108,38 @@ public class LikeService {
                     reviewLikeRepository.save(new ReviewLike(review, member));
                     review.increaseLike();
                     return LikeToggleResponse.liked(review.getLikeCount());
+                });
+    }
+
+    @Transactional
+    public LikedIngredientResponse ingredientPreferToggle(Long ingredientId, boolean preference, Member member) {
+
+        Ingredient ingredient = ingredientRepository.findById(ingredientId)
+                .orElseThrow(() -> new DomainException(IngredientErrorCode.INVALID_INGREDIENT));
+
+        return ingredientLikeRepository
+                .findByMemberAndIngredient(member, ingredient)
+                .map(existing -> {
+                    // 같은 버튼 다시 누르면 → 삭제
+                    if (existing.isPreference() == preference) {
+                        ingredientLikeRepository.delete(existing);
+                        return LikedIngredientResponse.none();
+                    }
+                    // 반대 버튼 누르면 → 변경
+                    existing.updatePreference(preference);
+
+                    return preference
+                            ? LikedIngredientResponse.interested()
+                            : LikedIngredientResponse.avoided();
+                })
+                .orElseGet(() -> {
+                    // 기존 데이터 없으면 새로 생성
+                    IngredientLike newLike = preference ? IngredientLike.prefer(member, ingredient) : IngredientLike.avoid(member, ingredient);
+                    ingredientLikeRepository.save(newLike);
+
+                    return preference
+                            ? LikedIngredientResponse.interested()
+                            : LikedIngredientResponse.avoided();
                 });
     }
 
