@@ -94,12 +94,6 @@ public class ReviewAdminService {
                 ));
     }
 
-    private Member findCsvAdmin() {
-        return memberRepository.findByUsername(CSV_ADMIN_USERNAME)
-                .orElseThrow(() ->
-                        new IllegalStateException("csvAdmin 계정이 존재하지 않습니다."));
-    }
-
     private CategoryCode findCategoryCode(ReviewCsvRow row) {
         try {
             return CategoryCode.valueOf(row.categoryCode());
@@ -128,25 +122,18 @@ public class ReviewAdminService {
     }
 
     private double parseRating(ReviewCsvRow row) {
-        try {
-            double rating = Double.parseDouble(row.rating());
 
-            if (rating < 0 || rating > 5) {
-                throw new CsvValidationException(
-                        CsvErrorCode.CSV_INVALID_VALUE,
-                        row.rowNumber(),
-                        "rating은 0~5 사이여야 합니다."
-                );
-            }
+        double rating = Double.parseDouble(row.rating().trim());
 
-            return rating;
-
-        } catch (NumberFormatException e) {
+        if (rating < 0 || rating > 5) {
             throw new CsvValidationException(
                     CsvErrorCode.CSV_INVALID_VALUE,
                     row.rowNumber(),
-                    "rating은 숫자여야 합니다."
+                    "rating은 0~5 사이여야 합니다."
             );
         }
+
+        return rating;
     }
+
 }
