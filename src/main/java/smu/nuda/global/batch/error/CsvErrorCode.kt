@@ -6,10 +6,6 @@ enum class CsvErrorCode(
     override val code: String,
     override val message: String
 ) : ErrorCode {
-
-    CSV_INVALID_FORMAT(
-        "CSV_INVALID_FORMAT", "CSV 형식이 올바르지 않습니다."
-    ),
     CSV_MISSING_REQUIRED_FIELD(
         "CSV_MISSING_REQUIRED_FIELD", "필수 컬럼이 누락되었습니다."
     ),
