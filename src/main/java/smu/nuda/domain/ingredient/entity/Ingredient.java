@@ -44,4 +44,13 @@ public class Ingredient extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String content;
 
+    public static Ingredient create(String name, RiskLevel riskLevel, LayerType layerType, String content) {
+        Ingredient ingredient = new Ingredient();
+        ingredient.name = name;
+        ingredient.riskLevel = riskLevel;
+        ingredient.layerType = layerType;
+        ingredient.content = content;
+        return ingredient;
+    }
+
 }

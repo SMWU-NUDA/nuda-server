@@ -12,7 +12,9 @@ CREATE TABLE ingredient (
     content TEXT,
 
     created_at TIMESTAMP NOT NULL DEFAULT now(),
-    updated_at TIMESTAMP NOT NULL DEFAULT now()
+    updated_at TIMESTAMP NOT NULL DEFAULT now(),
+
+    CONSTRAINT uq_ingredient_name_layer UNIQUE (name, layer_type)
 );
 
 CREATE INDEX idx_ingredient_name ON ingredient(name);

@@ -1,6 +1,9 @@
 CREATE SEQUENCE product_ingredient_seq
     START WITH 1
-    INCREMENT BY 1;
+    INCREMENT BY 500
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 500;
 
 CREATE TABLE product_ingredient (
     id BIGINT PRIMARY KEY DEFAULT nextval('product_ingredient_seq'),

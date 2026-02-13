@@ -27,7 +27,7 @@ import smu.nuda.domain.ingredient.entity.Ingredient;
 @SequenceGenerator(
         name = "product_ingredient_seq",
         sequenceName = "product_ingredient_seq",
-        allocationSize = 1
+        allocationSize = 500
 )
 public class ProductIngredient extends BaseEntity {
 
@@ -56,5 +56,13 @@ public class ProductIngredient extends BaseEntity {
             foreignKey = @ForeignKey(name = "fk_product_ingredient_ingredient")
     )
     private Ingredient ingredient;
+
+    public static ProductIngredient create(Product product, Ingredient ingredient, String externalProductId) {
+        ProductIngredient mapping = new ProductIngredient();
+        mapping.product = product;
+        mapping.ingredient = ingredient;
+        mapping.externalProductId = externalProductId;
+        return mapping;
+    }
 
 }
