@@ -45,7 +45,7 @@ public class IngredientAdminService {
         List<IngredientCsvRow> rows = csvReader.read(file);
         validator.validate(rows);
 
-        persistInBatch(rows, dryRun);
+        persistIngredientsInBatch(rows, dryRun);
 
         int total = rows.size();
         int success = dryRun ? 0 : total;
@@ -53,7 +53,7 @@ public class IngredientAdminService {
         return new CsvUploadResponse(total, success, 0);
     }
 
-    private void persistInBatch(List<IngredientCsvRow> rows, boolean dryRun) {
+    private void persistIngredientsInBatch(List<IngredientCsvRow> rows, boolean dryRun) {
         Map<String, Product> productMap = preloadProducts();
         Map<String, Category> categoryMap = preloadCategories();
         Map<String, Ingredient> ingredientCache = preloadIngredients();

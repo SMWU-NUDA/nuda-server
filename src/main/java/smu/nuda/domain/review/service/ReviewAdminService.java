@@ -20,6 +20,9 @@ import smu.nuda.global.batch.error.CsvErrorCode;
 import smu.nuda.global.batch.exception.CsvValidationException;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -55,31 +58,15 @@ public class ReviewAdminService {
     }
 
     private void persistReviewsInBatch(List<ReviewCsvRow> rows, Member member, boolean dryRun) {
+        Map<String, Product> productMap = preloadProducts();
+
         int count = 0;
-
         for (ReviewCsvRow row : rows) {
-            CategoryCode categoryCode;
-            try {
-                categoryCode = CategoryCode.valueOf(row.categoryCode());
-            } catch (IllegalArgumentException e) {
-                throw new CsvValidationException(CsvErrorCode.CSV_INVALID_VALUE, row.rowNumber(), "존재하지 않는 category_code 입니다.");
-            }
-
-            Product product = productRepository.findByExternalProductIdAndCategory_Code(
-                            row.externalProductId(),
-                            categoryCode
-                    ).orElseThrow(() -> new CsvValidationException(CsvErrorCode.CSV_INVALID_REFERENCE, row.rowNumber(), "매핑되는 상품이 존재하지 않습니다.")
-            );
+            CategoryCode categoryCode = findCategoryCode(row);
+            Product product = resolveProduct(productMap, row, categoryCode);
 
             double rating = parseRating(row);
-
-            Review review = new Review(
-                    member,
-                    product,
-                    rating,
-                    row.reviewContent(),
-                    null
-            );
+            Review review =  new Review(member, product, rating, row.reviewContent(), null);
 
             if (!dryRun) {
                 em.persist(review);
@@ -98,14 +85,68 @@ public class ReviewAdminService {
         }
     }
 
+    private Map<String, Product> preloadProducts() {
+        return productRepository.findAllWithCategory()
+                .stream()
+                .collect(Collectors.toMap(
+                        p -> p.getExternalProductId() + "_" + p.getCategory().getCode(),
+                        Function.identity()
+                ));
+    }
+
+    private Member findCsvAdmin() {
+        return memberRepository.findByUsername(CSV_ADMIN_USERNAME)
+                .orElseThrow(() ->
+                        new IllegalStateException("csvAdmin 계정이 존재하지 않습니다."));
+    }
+
+    private CategoryCode findCategoryCode(ReviewCsvRow row) {
+        try {
+            return CategoryCode.valueOf(row.categoryCode());
+        } catch (IllegalArgumentException e) {
+            throw new CsvValidationException(
+                    CsvErrorCode.CSV_INVALID_VALUE,
+                    row.rowNumber(),
+                    "존재하지 않는 category_code 입니다."
+            );
+        }
+    }
+
+    private Product resolveProduct(Map<String, Product> productMap, ReviewCsvRow row, CategoryCode categoryCode) {
+        String key = row.externalProductId() + "_" + categoryCode.name();
+        Product product = productMap.get(key);
+
+        if (product == null) {
+            throw new CsvValidationException(
+                    CsvErrorCode.CSV_INVALID_REFERENCE,
+                    row.rowNumber(),
+                    "매핑되는 상품이 존재하지 않습니다."
+            );
+        }
+
+        return product;
+    }
+
     private double parseRating(ReviewCsvRow row) {
         try {
             double rating = Double.parseDouble(row.rating());
-            if (rating < 0 || rating > 5)
-                throw new CsvValidationException(CsvErrorCode.CSV_INVALID_VALUE, row.rowNumber(), "rating은 0~5 사이여야 합니다.");
+
+            if (rating < 0 || rating > 5) {
+                throw new CsvValidationException(
+                        CsvErrorCode.CSV_INVALID_VALUE,
+                        row.rowNumber(),
+                        "rating은 0~5 사이여야 합니다."
+                );
+            }
+
             return rating;
+
         } catch (NumberFormatException e) {
-            throw new CsvValidationException(CsvErrorCode.CSV_INVALID_VALUE, row.rowNumber(), "rating은 숫자여야 합니다.");
+            throw new CsvValidationException(
+                    CsvErrorCode.CSV_INVALID_VALUE,
+                    row.rowNumber(),
+                    "rating은 숫자여야 합니다."
+            );
         }
     }
 }
