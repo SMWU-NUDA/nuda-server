@@ -7,6 +7,8 @@ import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.signupdraft.entity.SignupDraft;
 import smu.nuda.domain.keyword.entity.enums.*;
 
+import java.util.List;
+
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -55,5 +57,15 @@ public class Keyword extends BaseEntity {
                 .thickness(draft.getThickness())
                 .priority(draft.getPriority())
                 .build();
+    }
+
+    public List<String> getLabels() {
+        return List.of(
+                irritationLevel.getLabel(),
+                scent.getLabel(),
+                changeFrequency.getLabel(),
+                thickness.getLabel(),
+                priority.getLabel()
+        );
     }
 }

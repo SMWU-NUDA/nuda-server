@@ -2,11 +2,13 @@ package smu.nuda.domain.member.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import smu.nuda.domain.keyword.dto.KeywordResponse;
+
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
 public class MyPageResponse {
     private MeResponse me;
-    private KeywordResponse keyword;
+    private List<String> keywords;
+
 }

@@ -5,10 +5,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import smu.nuda.domain.auth.repository.EmailAuthRepository;
+import smu.nuda.domain.keyword.entity.Keyword;
+import smu.nuda.domain.keyword.error.KeywordErrorCode;
 import smu.nuda.domain.member.dto.*;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.member.error.MemberErrorCode;
-import smu.nuda.domain.keyword.dto.KeywordResponse;
 import smu.nuda.domain.keyword.repository.KeywordRepository;
 import smu.nuda.global.error.DomainException;
 
@@ -76,11 +77,10 @@ public class MemberService {
     @Transactional(readOnly = true)
     public MyPageResponse getMyPage(Member member) {
         MeResponse me = MeResponse.from(member);
-        KeywordResponse keyword = keywordRepository.findByMember(member)
-                .map(KeywordResponse::from)
-                .orElse(null);
+        Keyword keyword = keywordRepository.findByMember(member)
+                .orElseThrow(() -> new DomainException(KeywordErrorCode.KEYWORD_NOT_FOUND));
 
-        return new MyPageResponse(me, keyword);
+        return new MyPageResponse(me, keyword.getLabels());
     }
 
 }
