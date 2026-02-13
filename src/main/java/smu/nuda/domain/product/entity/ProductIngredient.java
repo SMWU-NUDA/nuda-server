@@ -25,7 +25,7 @@ import smu.nuda.domain.ingredient.entity.Ingredient;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SequenceGenerator(
-        name = "product_ingredient_seq",
+        name = "product_ingredient_seq_generator",
         sequenceName = "product_ingredient_seq",
         allocationSize = 500
 )
@@ -34,7 +34,7 @@ public class ProductIngredient extends BaseEntity {
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "product_ingredient_seq"
+            generator = "product_ingredient_seq_generator"
     )
     private Long id;
 

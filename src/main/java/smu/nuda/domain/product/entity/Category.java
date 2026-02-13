@@ -14,9 +14,12 @@ import smu.nuda.domain.product.entity.enums.CategoryCode;
 public class Category extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "category_seq")
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "category_seq_generator"
+    )
     @SequenceGenerator(
-            name = "category_seq",
+            name = "category_seq_generator",
             sequenceName = "category_seq",
             allocationSize = 1
     )

@@ -15,7 +15,7 @@ import smu.nuda.domain.ingredient.entity.enums.RiskLevel;
         }
 )
 @SequenceGenerator(
-        name = "ingredient_seq",
+        name = "ingredient_seq_generator",
         sequenceName = "ingredient_seq",
         allocationSize = 1
 )
@@ -26,7 +26,7 @@ public class Ingredient extends BaseEntity {
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "ingredient_seq"
+            generator = "ingredient_seq_generator"
     )
     private Long id;
 

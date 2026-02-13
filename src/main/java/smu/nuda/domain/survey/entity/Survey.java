@@ -16,9 +16,12 @@ import smu.nuda.domain.survey.entity.enums.*;
 public class Survey extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "survey_seq")
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "survey_seq_generator"
+    )
     @SequenceGenerator(
-            name = "survey_seq",
+            name = "survey_seq_generator",
             sequenceName = "survey_seq",
             allocationSize = 1
     )

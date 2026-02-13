@@ -27,10 +27,10 @@ public class Cart extends BaseEntity {
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "cart_seq"
+            generator = "cart_seq_generator"
     )
     @SequenceGenerator(
-            name = "cart_seq",
+            name = "cart_seq_generator",
             sequenceName = "cart_seq",
             allocationSize = 1
     )

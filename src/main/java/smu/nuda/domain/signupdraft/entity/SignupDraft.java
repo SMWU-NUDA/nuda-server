@@ -26,10 +26,10 @@ public class SignupDraft extends BaseEntity {
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "signup_draft_seq"
+            generator = "signup_draft_seq_generator"
     )
     @SequenceGenerator(
-            name = "signup_draft_seq",
+            name = "signup_draft_seq_generator",
             sequenceName = "signup_draft_seq",
             allocationSize = 1
     )
