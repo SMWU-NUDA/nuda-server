@@ -5,5 +5,5 @@ public enum LayerType {
     ABSORBER,
     BACK_SHEET,
     ADHESIVE,
-    ADDITIVE,
+    ADDITIVE
 }
