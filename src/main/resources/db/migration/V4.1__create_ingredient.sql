@@ -5,8 +5,12 @@ CREATE SEQUENCE ingredient_seq
 CREATE TABLE ingredient (
     id BIGINT PRIMARY KEY DEFAULT nextval('ingredient_seq'),
     name VARCHAR(150) NOT NULL,
-    risk_level VARCHAR(20) NOT NULL,
+    risk_level VARCHAR(20) NOT NULL
+        CHECK (risk_level IN ('SAFE','WARN','DANGER','UNKNOWN')),
+    layer_type VARCHAR(20)
+        CHECK (layer_type IN ('TOP_SHEET','ABSORBER','BACK_SHEET','ADDITIVE','ADHESIVE')),
     content TEXT,
+
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now()
 );

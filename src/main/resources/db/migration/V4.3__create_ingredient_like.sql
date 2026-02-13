@@ -6,10 +6,10 @@ CREATE TABLE ingredient_like (
     id BIGINT PRIMARY KEY DEFAULT nextval('ingredient_like_seq'),
     member_id BIGINT NOT NULL,
     CONSTRAINT fk_ingredient_like_member
-        FOREIGN KEY (member_id) REFERENCES member (id),
+        FOREIGN KEY (member_id) REFERENCES member (id) ON DELETE CASCADE,
     ingredient_id BIGINT NOT NULL,
     CONSTRAINT fk_ingredient_like_ingredient
-        FOREIGN KEY (ingredient_id) REFERENCES ingredient (id),
+        FOREIGN KEY (ingredient_id) REFERENCES ingredient (id) ON DELETE CASCADE,
     preference BOOLEAN NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now(),
