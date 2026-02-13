@@ -8,7 +8,7 @@ import lombok.*;
 import smu.nuda.domain.common.entity.BaseEntity;
 import smu.nuda.domain.signupdraft.entity.enums.SignupStep;
 import smu.nuda.domain.signupdraft.error.SignupDraftErrorCode;
-import smu.nuda.domain.survey.entity.enums.*;
+import smu.nuda.domain.keyword.entity.enums.*;
 import smu.nuda.global.error.DomainException;
 
 import java.time.Clock;
@@ -114,7 +114,7 @@ public class SignupDraft extends BaseEntity {
         extendExpiration(clock);
     }
 
-    public void updateSurvey(IrritationLevel irritationLevel, ScentLevel scent, ChangeFrequency changeFrequency, ThicknessLevel thickness, PriorityType priority, String productIds, Clock clock) {
+    public void updateKeyword(IrritationLevel irritationLevel, ScentLevel scent, ChangeFrequency changeFrequency, ThicknessLevel thickness, PriorityType priority, String productIds, Clock clock) {
         this.irritationLevel = irritationLevel;
         this.scent = scent;
         this.changeFrequency = changeFrequency;

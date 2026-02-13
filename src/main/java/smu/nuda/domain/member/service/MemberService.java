@@ -8,8 +8,8 @@ import smu.nuda.domain.auth.repository.EmailAuthRepository;
 import smu.nuda.domain.member.dto.*;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.member.error.MemberErrorCode;
-import smu.nuda.domain.survey.dto.SurveyKeywordResponse;
-import smu.nuda.domain.survey.repository.SurveyRepository;
+import smu.nuda.domain.keyword.dto.KeywordResponse;
+import smu.nuda.domain.keyword.repository.KeywordRepository;
 import smu.nuda.global.error.DomainException;
 
 @Service
@@ -18,7 +18,7 @@ public class MemberService {
 
     private final EmailAuthRepository emailAuthRepository;
     private final PasswordEncoder passwordEncoder;
-    private final SurveyRepository surveyRepository;
+    private final KeywordRepository keywordRepository;
 
     @Transactional
     public MeResponse updateMe(Member member, UpdateMemberRequest request) {
@@ -76,11 +76,11 @@ public class MemberService {
     @Transactional(readOnly = true)
     public MyPageResponse getMyPage(Member member) {
         MeResponse me = MeResponse.from(member);
-        SurveyKeywordResponse survey = surveyRepository.findByMember(member)
-                .map(SurveyKeywordResponse::from)
+        KeywordResponse keyword = keywordRepository.findByMember(member)
+                .map(KeywordResponse::from)
                 .orElse(null);
 
-        return new MyPageResponse(me, survey);
+        return new MyPageResponse(me, keyword);
     }
 
 }

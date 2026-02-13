@@ -12,7 +12,7 @@ import smu.nuda.domain.signupdraft.dto.SignupDraftResponse;
 import smu.nuda.domain.signupdraft.entity.enums.SignupStep;
 import smu.nuda.domain.signupdraft.guard.annotation.SignupDraftStep;
 import smu.nuda.domain.signupdraft.usecase.SignupDraftUseCase;
-import smu.nuda.domain.survey.dto.SurveyRequest;
+import smu.nuda.domain.keyword.dto.KeywordRequest;
 import smu.nuda.global.response.ApiResponse;
 
 @RestController
@@ -70,8 +70,8 @@ public class SignupDraftController {
             description = "회원가입 과정에서 사용할 설문 정보(상품 선택 필수)를 저장합니다."
     )
     @SignupDraftStep(SignupStep.SURVEY)
-    public ApiResponse<String> enterSurvey(@RequestHeader("Signup-Token") String signupToken, @RequestBody @Valid SurveyRequest request) {
-        signupDraftUseCase.updateSurvey(signupToken, request);
+    public ApiResponse<String> enterKeyword(@RequestHeader("Signup-Token") String signupToken, @RequestBody @Valid KeywordRequest request) {
+        signupDraftUseCase.updateKeyword(signupToken, request);
         return ApiResponse.success("설문 조사 입력이 완료되었습니다. 최종 완료를 진행해주세요.");
     }
 

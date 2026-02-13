@@ -1,4 +1,4 @@
-package smu.nuda.domain.survey.entity;
+package smu.nuda.domain.keyword.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -13,40 +13,40 @@ import java.util.List;
 @Entity
 @Builder
 @Table(
-        name = "survey_product",
+        name = "keyword_product",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"survey_id", "product_id"})
+                @UniqueConstraint(columnNames = {"keyword_id", "product_id"})
         }
 )
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SurveyProduct extends BaseEntity {
+public class KeywordProduct extends BaseEntity {
 
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "survey_product_seq_generator"
+            generator = "keyword_product_seq_generator"
     )
     @SequenceGenerator(
-            name = "survey_product_seq_generator",
-            sequenceName = "survey_product_seq",
+            name = "keyword_product_seq_generator",
+            sequenceName = "keyword_product_seq",
             allocationSize = 1
     )
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "survey_id", nullable = false)
-    private Survey survey;
+    @JoinColumn(name = "keyword_id", nullable = false)
+    private Keyword keyword;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    public static List<SurveyProduct> of(Survey survey, List<Product> products) {
+    public static List<KeywordProduct> of(Keyword keyword, List<Product> products) {
         return products.stream()
-                .map(product -> SurveyProduct.builder()
-                        .survey(survey)
+                .map(product -> KeywordProduct.builder()
+                        .keyword(keyword)
                         .product(product)
                         .build())
                 .toList();

@@ -1,4 +1,4 @@
-package smu.nuda.domain.survey.entity.enums;
+package smu.nuda.domain.keyword.entity.enums;
 
 import lombok.Getter;
 
