@@ -134,7 +134,7 @@ VALUES
     now(), now()
 ),
 (
-    'INTERNAL-pad-test12',
+    'INTERNAL-test12',
     (SELECT id FROM brand WHERE name = '누다 브랜드A'),
     (SELECT id FROM category WHERE code = 'OVERNIGHT'),
     '누다 오버나이트 생리대',
