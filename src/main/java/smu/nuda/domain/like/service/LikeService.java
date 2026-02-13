@@ -12,7 +12,7 @@ import smu.nuda.domain.ingredient.error.IngredientErrorCode;
 import smu.nuda.domain.ingredient.repository.IngredientRepository;
 import smu.nuda.domain.like.dto.LikeToggleResponse;
 import smu.nuda.domain.like.dto.LikedBrandResponse;
-import smu.nuda.domain.like.dto.LikedIngredientResponse;
+import smu.nuda.domain.like.dto.PreferToggleResponse;
 import smu.nuda.domain.like.dto.LikedProductResponse;
 import smu.nuda.domain.like.entity.BrandLike;
 import smu.nuda.domain.like.entity.IngredientLike;
@@ -29,7 +29,6 @@ import smu.nuda.domain.review.repository.ReviewRepository;
 import smu.nuda.global.error.DomainException;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -112,7 +111,7 @@ public class LikeService {
     }
 
     @Transactional
-    public LikedIngredientResponse ingredientPreferToggle(Long ingredientId, boolean preference, Member member) {
+    public PreferToggleResponse ingredientPreferToggle(Long ingredientId, boolean preference, Member member) {
 
         Ingredient ingredient = ingredientRepository.findById(ingredientId)
                 .orElseThrow(() -> new DomainException(IngredientErrorCode.INVALID_INGREDIENT));
@@ -123,14 +122,14 @@ public class LikeService {
                     // 같은 버튼 다시 누르면 → 삭제
                     if (existing.isPreference() == preference) {
                         ingredientLikeRepository.delete(existing);
-                        return LikedIngredientResponse.none();
+                        return PreferToggleResponse.none();
                     }
                     // 반대 버튼 누르면 → 변경
                     existing.updatePreference(preference);
 
                     return preference
-                            ? LikedIngredientResponse.interested()
-                            : LikedIngredientResponse.avoided();
+                            ? PreferToggleResponse.interested()
+                            : PreferToggleResponse.avoided();
                 })
                 .orElseGet(() -> {
                     // 기존 데이터 없으면 새로 생성
@@ -138,19 +137,14 @@ public class LikeService {
                     ingredientLikeRepository.save(newLike);
 
                     return preference
-                            ? LikedIngredientResponse.interested()
-                            : LikedIngredientResponse.avoided();
+                            ? PreferToggleResponse.interested()
+                            : PreferToggleResponse.avoided();
                 });
     }
 
     @Transactional(readOnly = true)
     public CursorPageResponse<LikedProductResponse> likedProducts(Member member, Long cursor, int size) {
-        List<LikedProductResponse> result =
-                productLikeQueryRepository.findLikedProducts(
-                        member.getId(),
-                        cursor,
-                        size
-                );
+        List<LikedProductResponse> result = productLikeQueryRepository.findLikedProducts(member.getId(), cursor, size);
 
         return CursorPageResponse.of(
                 result,
@@ -161,12 +155,7 @@ public class LikeService {
 
     @Transactional(readOnly = true)
     public CursorPageResponse<LikedBrandResponse> likedBrands(Member member, Long cursor, int size) {
-        List<LikedBrandResponse> result =
-                brandLikeQueryRepository.findLikedBrands(
-                        member.getId(),
-                        cursor,
-                        size
-                );
+        List<LikedBrandResponse> result = brandLikeQueryRepository.findLikedBrands(member.getId(), cursor, size);
 
         return CursorPageResponse.of(
                 result,
@@ -174,5 +163,7 @@ public class LikeService {
                 LikedBrandResponse::getLikeId
         );
     }
+
+
 
 }

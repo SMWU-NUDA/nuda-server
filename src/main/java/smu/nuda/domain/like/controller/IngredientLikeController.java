@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import smu.nuda.domain.like.dto.LikedIngredientResponse;
+import smu.nuda.domain.like.dto.PreferToggleResponse;
 import smu.nuda.domain.like.service.LikeService;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.global.guard.annotation.LoginRequired;
@@ -30,7 +30,7 @@ public class IngredientLikeController {
     )
     @SecurityRequirement(name = "JWT")
     @LoginRequired
-    public ApiResponse<LikedIngredientResponse> toggle(
+    public ApiResponse<PreferToggleResponse> toggle(
             @PathVariable Long ingredientId,
             @Parameter(description = "관심 성분 등록 여부 (true: 관심, false: 피하기)") @RequestParam(defaultValue = "true") boolean preference
     ) {
