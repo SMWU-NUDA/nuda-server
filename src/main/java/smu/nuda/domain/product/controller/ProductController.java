@@ -40,7 +40,7 @@ public class ProductController {
     @LoginRequired
     public ApiResponse<ProductDetailResponse> getProductDetail(@PathVariable Long productId) {
         Member member = authenticationGuard.currentMember();
-        return ApiResponse.success(productService.getProductDetail(productId, member));
+        return ApiResponse.success(productService.getProductDetail(productId, member.getId()));
     }
 
     @GetMapping("/{productId}/ingredient-summary")

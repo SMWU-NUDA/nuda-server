@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import smu.nuda.domain.member.entity.Member;
+import smu.nuda.domain.like.repository.BrandLikeRepository;
 import smu.nuda.domain.product.dto.ProductDetailCache;
 import smu.nuda.domain.product.dto.ProductDetailResponse;
 import smu.nuda.domain.product.repository.ProductImageQueryRepository;
@@ -20,6 +20,7 @@ public class ProductService {
     private final ProductQueryRepository productQueryRepository;
     private final ProductImageQueryRepository productImageQueryRepository;
     private final ProductLikeRepository productLikeRepository;
+    private final BrandLikeRepository brandLikeRepository;
 
     @Cacheable(value = "productDetail", key = "#productId")
     @Transactional(readOnly = true)
@@ -30,6 +31,7 @@ public class ProductService {
 
         return ProductDetailCache.builder()
                 .productId(base.getProductId())
+                .brandId(base.getBrandId())
                 .brandName(base.getBrandName())
                 .name(base.getName())
                 .averageRating(base.getAverageRating())
@@ -41,11 +43,12 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public ProductDetailResponse getProductDetail(Long productId, Member member) {
+    public ProductDetailResponse getProductDetail(Long productId, Long memberId) {
         ProductDetailCache cache = getProductDetailCache(productId);
-        boolean likedByMe = productLikeRepository.existsByMember_IdAndProduct_Id(member.getId(), productId);
+        boolean productLikedByMe = productLikeRepository.existsByMember_IdAndProduct_Id(memberId, productId);
+        boolean brandLikedByMe = brandLikeRepository.existsByMember_IdAndBrand_Id(memberId, cache.getBrandId());
 
-        return ProductDetailResponse.of(cache, likedByMe);
+        return ProductDetailResponse.of(cache, productLikedByMe, brandLikedByMe);
     }
 
 }

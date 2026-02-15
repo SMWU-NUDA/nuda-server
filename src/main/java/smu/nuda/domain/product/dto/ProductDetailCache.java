@@ -13,6 +13,7 @@ public class ProductDetailCache {
     private Long productId;
 
     private List<String> imageUrls;
+    private Long brandId;
     private String brandName;
     private String name;
     private Double averageRating;

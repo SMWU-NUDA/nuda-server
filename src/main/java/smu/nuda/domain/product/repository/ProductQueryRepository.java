@@ -24,6 +24,7 @@ public class ProductQueryRepository {
                         ProductDetailCache.class,
                         product.id,
                         Expressions.constant(List.of()), // imageUrls는 나중에
+                        brand.id,
                         brand.name,
                         product.name,
                         product.averageRating,
@@ -32,7 +33,7 @@ public class ProductQueryRepository {
                         product.content
                 ))
                 .from(product)
-                .join(brand).on(product.brand.id.eq(brand.id))
+                .join(product.brand, brand)
                 .where(product.id.eq(productId))
                 .fetchOne();
     }
