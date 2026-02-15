@@ -10,13 +10,28 @@ import java.util.Map;
 @Getter
 @Builder
 public class IngredientSummaryResponse {
+
     private Long productId;
     private int totalCount;
 
-    private Map<RiskLevel, Long> riskCounts;
-    private Map<LayerType, Long> ingredientCounts;
+    private Map<RiskLevel, Long> globalRiskCounts;
+    private Map<LayerType, LayerSummary> ingredientCounts;
 
     private MyIngredientLikeSummary myIngredientCounts;
+
+    @Getter
+    public static class LayerSummary {
+        private long count;
+        private Map<RiskLevel, Long> riskCounts;
+
+        public LayerSummary(Map<RiskLevel, Long> riskCounts) {
+            this.riskCounts = riskCounts;
+        }
+
+        public void increaseCount(long value) {
+            this.count += value;
+        }
+    }
 
     @Getter
     @Builder
