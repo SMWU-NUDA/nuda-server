@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cache.CacheManager;
 import org.springframework.util.StopWatch;
+import smu.nuda.domain.like.repository.BrandLikeRepository;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.product.dto.ProductDetailCache;
 import smu.nuda.domain.product.dto.ProductDetailResponse;
@@ -28,6 +29,7 @@ public class ProductServiceTest {
     @Autowired ProductQueryRepository productQueryRepository;
     @Autowired ProductImageQueryRepository productImageQueryRepository;
     @Autowired ProductLikeRepository productLikeRepository;
+    @Autowired BrandLikeRepository brandLikeRepository;
 
     private Member member;
     private Long productId;
@@ -54,6 +56,7 @@ public class ProductServiceTest {
 
         ProductDetailCache cache = ProductDetailCache.builder()
                 .productId(base.getProductId())
+                .brandId(base.getBrandId())
                 .brandName(base.getBrandName())
                 .name(base.getName())
                 .averageRating(base.getAverageRating())
@@ -62,9 +65,10 @@ public class ProductServiceTest {
                 .content(base.getContent())
                 .imageUrls(imageUrls)
                 .build();
-        boolean likedByMe = productLikeRepository.existsByMember_IdAndProduct_Id(member.getId(), productId);
+        boolean productLikedByMe = productLikeRepository.existsByMember_IdAndProduct_Id(member.getId(), productId);
+        boolean brandLikedByMe = brandLikeRepository.existsByMember_IdAndBrand_Id(member.getId(), cache.getBrandId());
 
-        return ProductDetailResponse.of(cache, likedByMe);
+        return ProductDetailResponse.of(cache, productLikedByMe, brandLikedByMe);
     }
 
     @Test
@@ -80,8 +84,8 @@ public class ProductServiceTest {
 
         // 캐시 워밍업
         System.out.println("========== 캐시 적용 ==========");
-        productService.getProductDetail(productId, member);
-        long withCache = measure(() -> productService.getProductDetail(productId, member), repeat);
+        productService.getProductDetail(productId, member.getId());
+        long withCache = measure(() -> productService.getProductDetail(productId, member.getId()), repeat);
 
         System.out.println("❌ 캐시 미적용 총 시간 = " + withoutCache + " ms");
         System.out.println("⭕ 캐시 적용 총 시간 = " + withCache + " ms");
