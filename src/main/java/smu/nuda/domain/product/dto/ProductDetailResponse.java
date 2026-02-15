@@ -11,16 +11,18 @@ public class ProductDetailResponse {
     private Long productId;
 
     private List<String> imageUrls;
+    private Long brandId;
     private String brandName;
-    private boolean likedByMe;
+    private boolean brandLikedByMe;
     private String name;
     private double averageRating;
     private long reviewCount;
+    private boolean productLikedByMe;
     private int price;
 
     private String content;
 
-    public static ProductDetailResponse of(ProductDetailCache cache, boolean likedByMe) {
+    public static ProductDetailResponse of(ProductDetailCache cache, boolean productLikedByMe, boolean brandLikedByMe) {
         return ProductDetailResponse.builder()
                 .productId(cache.getProductId())
                 .imageUrls(cache.getImageUrls())
@@ -30,7 +32,9 @@ public class ProductDetailResponse {
                 .reviewCount(cache.getReviewCount())
                 .price(cache.getPrice())
                 .content(cache.getContent())
-                .likedByMe(likedByMe)
+                .productLikedByMe(productLikedByMe)
+                .brandLikedByMe(brandLikedByMe)
+                .brandId(cache.getBrandId())
                 .build();
     }
 
