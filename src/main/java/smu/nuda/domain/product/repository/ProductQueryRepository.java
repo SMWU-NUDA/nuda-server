@@ -33,7 +33,7 @@ public class ProductQueryRepository {
                         product.content
                 ))
                 .from(product)
-                .join(brand).on(product.brand.id.eq(brand.id)) //.join(product.brand, brand)
+                .join(product.brand, brand)
                 .where(product.id.eq(productId))
                 .fetchOne();
     }
