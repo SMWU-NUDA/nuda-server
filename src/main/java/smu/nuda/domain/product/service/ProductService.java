@@ -7,9 +7,11 @@ import org.springframework.transaction.annotation.Transactional;
 import smu.nuda.domain.like.repository.BrandLikeRepository;
 import smu.nuda.domain.product.dto.ProductDetailCache;
 import smu.nuda.domain.product.dto.ProductDetailResponse;
+import smu.nuda.domain.product.error.ProductErrorCode;
 import smu.nuda.domain.product.repository.ProductImageQueryRepository;
 import smu.nuda.domain.product.repository.ProductQueryRepository;
 import smu.nuda.domain.like.repository.ProductLikeRepository;
+import smu.nuda.global.error.DomainException;
 
 import java.util.List;
 
@@ -27,6 +29,7 @@ public class ProductService {
     public ProductDetailCache getProductDetailCache(Long productId) {
 
         ProductDetailCache base = productQueryRepository.findProductBase(productId);
+        if (base == null) throw new DomainException(ProductErrorCode.INVALID_PRODUCT);
         List<String> imageUrls = productImageQueryRepository.findImageUrlsByProductId(productId);
 
         return ProductDetailCache.builder()
