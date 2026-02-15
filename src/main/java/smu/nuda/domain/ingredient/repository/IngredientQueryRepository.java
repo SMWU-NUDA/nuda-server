@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import smu.nuda.domain.ingredient.dto.IngredientSummaryResponse;
 import smu.nuda.domain.ingredient.entity.enums.LayerType;
 import smu.nuda.domain.ingredient.entity.enums.RiskLevel;
-import smu.nuda.domain.product.error.ProductErrorCode;
+import smu.nuda.domain.ingredient.error.IngredientErrorCode;
 import smu.nuda.global.error.DomainException;
 
 import java.util.EnumMap;
@@ -45,7 +45,7 @@ public class IngredientQueryRepository {
                 .groupBy(ingredient.layerType, ingredient.riskLevel)
                 .fetch();
 
-        if ((totalCount == null || totalCount == 0) && tuples.isEmpty()) throw new DomainException(ProductErrorCode.INVALID_PRODUCT);
+        if ((totalCount == null || totalCount == 0) && tuples.isEmpty()) throw new DomainException(IngredientErrorCode.EMPTY_PRODUCT_CONTENT);
 
         Map<LayerType, IngredientSummaryResponse.LayerSummary> layerSummary = buildLayerSummary(tuples);
         Map<RiskLevel, Long> globalRiskSummary = buildGlobalRiskSummary(tuples);

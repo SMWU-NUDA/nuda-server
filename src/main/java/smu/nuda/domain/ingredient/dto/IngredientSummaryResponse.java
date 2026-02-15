@@ -14,8 +14,8 @@ public class IngredientSummaryResponse {
     private Long productId;
     private int totalCount;
 
-    Map<RiskLevel, Long> globalRiskCounts;
-    Map<LayerType, LayerSummary> ingredientCounts;
+    private Map<RiskLevel, Long> globalRiskCounts;
+    private Map<LayerType, LayerSummary> ingredientCounts;
 
     private MyIngredientLikeSummary myIngredientCounts;
 
