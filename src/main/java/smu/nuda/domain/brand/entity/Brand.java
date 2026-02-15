@@ -33,6 +33,13 @@ public class Brand extends BaseEntity {
     @Column(name = "like_count")
     private int likeCount = 0;
 
+    public static Brand create(String name, String logoImg) {
+        Brand brand = new Brand();
+        brand.name = name;
+        brand.logoImg = logoImg;
+        return brand;
+    }
+
     public void increaseLikeCount() {
         this.likeCount++;
     }
