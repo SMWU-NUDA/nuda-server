@@ -24,7 +24,6 @@ public class IngredientService {
 
     @Transactional(readOnly = true)
     public IngredientSummaryResponse getIngredientSummary(Long productId, Long memberId) {
-        if (!productRepository.existsById(productId)) throw new DomainException(ProductErrorCode.INVALID_PRODUCT);
         return ingredientQueryRepository.getProductIngredientSummary(productId, memberId);
     }
 
