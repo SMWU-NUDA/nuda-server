@@ -143,8 +143,8 @@ public class AuthService {
         return new ReissueResponse(newAccessToken, newRefreshToken);
     }
 
-    public void logout(Member member) {
-        refreshTokenRepository.delete(member.getId());
+    public void logout(Long memberId) {
+        refreshTokenRepository.delete(memberId);
     }
 
     public void checkNickname(String nickname) {

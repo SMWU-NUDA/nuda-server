@@ -80,8 +80,8 @@ public class AuthController {
     @SecurityRequirement(name = "JWT")
     @LoginRequired
     public ApiResponse<String> logout() {
-        Member member = authenticationGuard.currentMember();
-        authService.logout(member);
+        Long memberId = authenticationGuard.currentMemberId();
+        authService.logout(memberId);
         return ApiResponse.success("로그아웃 되었습니다.");
     }
 
