@@ -77,7 +77,7 @@ public class MemberService {
     @Transactional(readOnly = true)
     public MyPageResponse getMyPage(Member member) {
         MeResponse me = MeResponse.from(member);
-        Keyword keyword = keywordRepository.findByMember(member)
+        Keyword keyword = keywordRepository.findByMemberId(member.getId())
                 .orElseThrow(() -> new DomainException(KeywordErrorCode.KEYWORD_NOT_FOUND));
 
         return new MyPageResponse(me, keyword.getLabels());
