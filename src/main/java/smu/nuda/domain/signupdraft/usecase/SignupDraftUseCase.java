@@ -19,7 +19,7 @@ import smu.nuda.domain.signupdraft.entity.enums.SignupStep;
 import smu.nuda.domain.signupdraft.error.SignupDraftErrorCode;
 import smu.nuda.domain.signupdraft.policy.KeywordProductPolicy;
 import smu.nuda.domain.signupdraft.repository.SignupDraftRepository;
-import smu.nuda.domain.keyword.dto.KeywordRequest;
+import smu.nuda.domain.keyword.dto.SurveyRequest;
 import smu.nuda.domain.keyword.entity.Keyword;
 import smu.nuda.domain.keyword.entity.KeywordProduct;
 import smu.nuda.domain.keyword.repository.KeywordProductRepository;
@@ -123,7 +123,7 @@ public class SignupDraftUseCase {
         );
     }
 
-    public void updateKeyword(String signupToken, KeywordRequest request) {
+    public void updateKeyword(String signupToken, SurveyRequest request) {
 
         SignupDraft draft = signupDraftRepository.findBySignupToken(signupToken)
                 .orElseThrow(() -> new DomainException(SignupDraftErrorCode.DRAFT_NOT_FOUND));

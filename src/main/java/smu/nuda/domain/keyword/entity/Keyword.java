@@ -68,4 +68,13 @@ public class Keyword extends BaseEntity {
                 priority.getLabel()
         );
     }
+
+    public void update(IrritationLevel irritationLevel, ScentLevel scent, ChangeFrequency changeFrequency, ThicknessLevel thickness, PriorityType priority) {
+        if (irritationLevel != null) this.irritationLevel = irritationLevel;
+        if (scent != null) this.scent = scent;
+        if (changeFrequency != null) this.changeFrequency = changeFrequency;
+        if (thickness != null) this.thickness = thickness;
+        if (priority != null) this.priority = priority;
+    }
+
 }
