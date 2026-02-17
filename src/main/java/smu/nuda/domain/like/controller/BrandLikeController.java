@@ -43,7 +43,7 @@ public class BrandLikeController {
     )
     @SecurityRequirement(name = "JWT")
     @LoginRequired
-    public ApiResponse<CursorPageResponse<LikedBrandResponse>> products(
+    public ApiResponse<CursorPageResponse<LikedBrandResponse>> getLikedBrands(
             @Parameter(description = "이전 페이지의 마지막 id (첫 요청 시 null)") @RequestParam(required = false) Long cursor,
             @Parameter(description = "한 페이지당 조회 개수 (기본값 20)") @RequestParam(defaultValue = "20") int size) {
         Long memberId = authenticationGuard.currentMemberId();
