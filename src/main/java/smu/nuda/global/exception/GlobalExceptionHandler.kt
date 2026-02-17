@@ -1,12 +1,16 @@
 package smu.nuda.global.exception
 
 import jakarta.servlet.http.HttpServletRequest
+import org.apache.catalina.connector.ClientAbortException
+import org.apache.tomcat.util.http.fileupload.impl.IOFileUploadException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.multipart.MultipartException
+import smu.nuda.domain.file.error.FileErrorCode
 import smu.nuda.global.error.DomainException
 import smu.nuda.global.error.CommonErrorCode
 import smu.nuda.global.error.ValidationErrorCode
@@ -31,6 +35,25 @@ class GlobalExceptionHandler {
                     e.data
                 )
             )
+    }
+
+    @ExceptionHandler(MultipartException::class)
+    fun handleMultipartException(e: MultipartException): ResponseEntity<ApiResponse<Nothing>> {
+        val cause = e.cause
+        if (cause is IOFileUploadException) {
+            val rootCause = cause.cause
+            if (rootCause is ClientAbortException) {
+                log.warn("Client aborted file upload: {}", e.message)
+                return ResponseEntity
+                    .status(HttpStatus.REQUEST_TIMEOUT)
+                    .body(ApiResponse.fail(FileErrorCode.UPLOAD_TIMEOUT))
+            }
+        }
+
+        log.error("Multipart upload error", e)
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(ApiResponse.fail(FileErrorCode.UPLOAD_FAILED))
     }
 
     @ExceptionHandler(Exception::class)
