@@ -97,10 +97,10 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public CursorPageResponse<MyOrderResponse> getMyOrders(Member member, Long cursor, int size) {
+    public CursorPageResponse<MyOrderResponse> getMyOrders(Long memberId, Long cursor, int size) {
 
         // member의 Order 조회
-        List<Order> orders = orderQueryRepository.findMyOrders(member.getId(), cursor, size);
+        List<Order> orders = orderQueryRepository.findMyOrders(memberId, cursor, size);
 
         // 모든 OrderItem 수집
         List<OrderItem> allItems = orders.stream()
