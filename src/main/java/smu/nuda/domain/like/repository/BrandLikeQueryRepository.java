@@ -11,7 +11,6 @@ import java.util.List;
 
 import static smu.nuda.domain.brand.entity.QBrand.brand;
 import static smu.nuda.domain.like.entity.QBrandLike.brandLike;
-import static smu.nuda.domain.like.entity.QProductLike.productLike;
 
 @Repository
 @RequiredArgsConstructor
@@ -31,14 +30,10 @@ public class BrandLikeQueryRepository {
                 .join(brandLike.brand, brand)
                 .where(
                         brandLike.member.id.eq(memberId),
-                        ltCursor(cursor)
+                        cursor == null ? null : brandLike.id.lt(cursor)
                 )
                 .orderBy(brandLike.id.desc())
                 .limit(size + 1)
                 .fetch();
-    }
-
-    private BooleanExpression ltCursor(Long cursor) {
-        return cursor == null ? null : productLike.id.lt(cursor);
     }
 }

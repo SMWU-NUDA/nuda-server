@@ -32,8 +32,8 @@ public class CartController {
     @SecurityRequirement(name = "JWT")
     @LoginRequired
     public ApiResponse<CartProductResponse> addProduct(@PathVariable Long productId) {
-        Member member = authenticationGuard.currentMember();
-        return ApiResponse.success(cartService.addProduct(member.getId(), productId));
+        Long memberId = authenticationGuard.currentMemberId();
+        return ApiResponse.success(cartService.addProduct(memberId, productId));
     }
 
     @GetMapping
@@ -44,8 +44,8 @@ public class CartController {
     @SecurityRequirement(name = "JWT")
     @LoginRequired
     public ApiResponse<CartResponse> getCart() {
-        Member member = authenticationGuard.currentMember();
-        return ApiResponse.success(cartService.getCart(member));
+        Long memberId = authenticationGuard.currentMemberId();
+        return ApiResponse.success(cartService.getCart(memberId));
     }
 
     @PatchMapping("/items/{cartItemId}")

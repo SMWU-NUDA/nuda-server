@@ -21,7 +21,6 @@ import smu.nuda.domain.cart.repository.CartRepository;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.order.dto.OrderItemRequest;
 import smu.nuda.domain.order.entity.Order;
-import smu.nuda.domain.product.entity.Product;
 import smu.nuda.domain.product.error.ProductErrorCode;
 import smu.nuda.domain.product.repository.ProductRepository;
 import smu.nuda.global.error.DomainException;
@@ -62,8 +61,8 @@ public class CartService {
     }
 
     @Transactional(readOnly = true)
-    public CartResponse getCart(Member member) {
-        List<Tuple> rows = cartQueryRepository.findCartProducts(member.getId());
+    public CartResponse getCart(Long memberId) {
+        List<Tuple> rows = cartQueryRepository.findCartProducts(memberId);
 
         Map<Long, List<Tuple>> grouped = rows.stream()
                 .collect(Collectors.groupingBy(
@@ -176,8 +175,8 @@ public class CartService {
     }
 
     @Transactional(readOnly = true)
-    public void validateOrderableItems(Member member, List<OrderItemRequest> orderItems) {
-        List<CartItem> cartItems = cartItemRepository.findByCart_MemberId(member.getId());
+    public void validateOrderableItems(Long memberId, List<OrderItemRequest> orderItems) {
+        List<CartItem> cartItems = cartItemRepository.findByCart_MemberId(memberId);
         CartPolicy.validateOrderableItems(cartItems, orderItems);
     }
 

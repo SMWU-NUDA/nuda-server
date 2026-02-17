@@ -47,12 +47,12 @@ public class IngredientLikeController {
     )
     @SecurityRequirement(name = "JWT")
     @LoginRequired
-    public ApiResponse<CursorPageResponse<LikedIngredientResponse>> products(
+    public ApiResponse<CursorPageResponse<LikedIngredientResponse>> getLikedIngredients(
             @Parameter(description = "이전 페이지의 마지막 id (첫 요청 시 null)") @RequestParam(required = false) Long cursor,
             @Parameter(description = "한 페이지당 조회 개수 (기본값 20)") @RequestParam(defaultValue = "20") int size,
             @Parameter(description = "관심 성분 등록 여부 (true: 관심, false: 피하기)") @RequestParam(defaultValue = "true") boolean preference
     ) {
-        Member member = authenticationGuard.currentMember();
-        return ApiResponse.success(likeService.likedIngredients(member, preference, cursor, size));
+        Long memberId = authenticationGuard.currentMemberId();
+        return ApiResponse.success(likeService.likedIngredients(memberId, preference, cursor, size));
     }
 }

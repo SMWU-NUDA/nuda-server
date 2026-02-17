@@ -141,8 +141,8 @@ public class LikeService {
     }
 
     @Transactional(readOnly = true)
-    public CursorPageResponse<LikedProductResponse> likedProducts(Member member, Long cursor, int size) {
-        List<LikedProductResponse> result = productLikeQueryRepository.findLikedProducts(member.getId(), cursor, size);
+    public CursorPageResponse<LikedProductResponse> likedProducts(Long memberId, Long cursor, int size) {
+        List<LikedProductResponse> result = productLikeQueryRepository.findLikedProducts(memberId, cursor, size);
 
         return CursorPageResponse.of(
                 result,
@@ -152,8 +152,8 @@ public class LikeService {
     }
 
     @Transactional(readOnly = true)
-    public CursorPageResponse<LikedBrandResponse> likedBrands(Member member, Long cursor, int size) {
-        List<LikedBrandResponse> result = brandLikeQueryRepository.findLikedBrands(member.getId(), cursor, size);
+    public CursorPageResponse<LikedBrandResponse> likedBrands(Long memberId, Long cursor, int size) {
+        List<LikedBrandResponse> result = brandLikeQueryRepository.findLikedBrands(memberId, cursor, size);
 
         return CursorPageResponse.of(
                 result,
@@ -163,9 +163,8 @@ public class LikeService {
     }
 
     @Transactional(readOnly = true)
-    public CursorPageResponse<LikedIngredientResponse> likedIngredients(Member member, Boolean preference, Long cursor, int size) {
-        List<LikedIngredientResponse> result = ingredientLikeQueryRepository
-                .findLikedIngredients(member.getId(), preference, cursor, size);
+    public CursorPageResponse<LikedIngredientResponse> likedIngredients(Long memberId, Boolean preference, Long cursor, int size) {
+        List<LikedIngredientResponse> result = ingredientLikeQueryRepository.findLikedIngredients(memberId, preference, cursor, size);
 
         return CursorPageResponse.of(
                 result,

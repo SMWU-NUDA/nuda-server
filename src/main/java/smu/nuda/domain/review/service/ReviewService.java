@@ -72,13 +72,8 @@ public class ReviewService {
     }
 
     @Transactional(readOnly = true)
-    public CursorPageResponse<MyReviewResponse> getMyReviews(Member member, Long cursor, int size) {
-        List<MyReviewResponse> result =
-                reviewQueryRepository.findMyReviews(
-                        member.getId(),
-                        cursor,
-                        size
-                );
+    public CursorPageResponse<MyReviewResponse> getMyReviews(Long memberId, Long cursor, int size) {
+        List<MyReviewResponse> result = reviewQueryRepository.findMyReviews(memberId, cursor, size);
 
         return CursorPageResponse.of(
                 result,

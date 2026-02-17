@@ -43,11 +43,11 @@ public class ProductLikeController {
     )
     @SecurityRequirement(name = "JWT")
     @LoginRequired
-    public ApiResponse<CursorPageResponse<LikedProductResponse>> products(
+    public ApiResponse<CursorPageResponse<LikedProductResponse>> getLikedProducts(
             @Parameter(description = "이전 페이지의 마지막 id (첫 요청 시 null)") @RequestParam(required = false) Long cursor,
             @Parameter(description = "한 페이지당 조회 개수 (기본값 20)") @RequestParam(defaultValue = "20") int size) {
-        Member member = authenticationGuard.currentMember();
-        return ApiResponse.success(likeService.likedProducts(member, cursor, size));
+        Long memberId = authenticationGuard.currentMemberId();
+        return ApiResponse.success(likeService.likedProducts(memberId, cursor, size));
     }
 
 }

@@ -28,7 +28,17 @@ public class AuthenticationGuard {
                 .orElseThrow(() -> new DomainException(MemberErrorCode.MEMBER_NOT_FOUND));
     }
 
+    public Long currentMemberId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !(authentication.getPrincipal() instanceof CustomUserDetails userDetails)) {
+            throw new DomainException(AuthErrorCode.AUTH_REQUIRED);
+        }
+
+        return userDetails.getMemberId();
+    }
+
     public void ensureLogin() {
-        currentMember();
+        currentMemberId();
     }
 }

@@ -8,7 +8,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import smu.nuda.domain.common.dto.CursorPageResponse;
-import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.order.dto.MyOrderResponse;
 import smu.nuda.domain.order.dto.OrderCreateRequest;
 import smu.nuda.domain.order.dto.OrderCreateResponse;
@@ -34,8 +33,8 @@ public class OrderController {
     @SecurityRequirement(name = "JWT")
     @LoginRequired
     public ApiResponse<OrderCreateResponse> createOrder(@Valid @RequestBody OrderCreateRequest orderCreateRequest) {
-        Member member = authenticationGuard.currentMember();
-        return ApiResponse.success(orderService.createOrder(member, orderCreateRequest));
+        Long memberId = authenticationGuard.currentMemberId();
+        return ApiResponse.success(orderService.createOrder(memberId, orderCreateRequest));
     }
 
     @GetMapping
@@ -48,8 +47,8 @@ public class OrderController {
     public ApiResponse<CursorPageResponse<MyOrderResponse>> getMyOrders(
             @Parameter(description = "이전 페이지의 마지막 id (첫 요청 시 null)") @RequestParam(required = false) Long cursor,
             @Parameter(description = "한 페이지당 조회 개수 (기본값 20)") @RequestParam(defaultValue = "20") int size) {
-        Member member = authenticationGuard.currentMember();
-        return ApiResponse.success(orderService.getMyOrders(member, cursor, size));
+        Long memberId = authenticationGuard.currentMemberId();
+        return ApiResponse.success(orderService.getMyOrders(memberId, cursor, size));
     }
 
 }

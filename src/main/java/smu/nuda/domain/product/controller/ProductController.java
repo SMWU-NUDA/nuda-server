@@ -8,18 +8,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import smu.nuda.domain.ingredient.dto.IngredientItem;
 import smu.nuda.domain.ingredient.dto.IngredientResponse;
 import smu.nuda.domain.ingredient.dto.IngredientSummaryResponse;
 import smu.nuda.domain.ingredient.service.IngredientService;
-import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.product.dto.ProductDetailResponse;
 import smu.nuda.domain.product.service.ProductService;
 import smu.nuda.global.guard.annotation.LoginRequired;
 import smu.nuda.global.guard.guard.AuthenticationGuard;
 import smu.nuda.global.response.ApiResponse;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -39,8 +35,8 @@ public class ProductController {
     @SecurityRequirement(name = "JWT")
     @LoginRequired
     public ApiResponse<ProductDetailResponse> getProductDetail(@PathVariable Long productId) {
-        Member member = authenticationGuard.currentMember();
-        return ApiResponse.success(productService.getProductDetail(productId, member.getId()));
+        Long memberId = authenticationGuard.currentMemberId();
+        return ApiResponse.success(productService.getProductDetail(productId, memberId));
     }
 
     @GetMapping("/{productId}/ingredient-summary")
@@ -51,8 +47,8 @@ public class ProductController {
     @SecurityRequirement(name = "JWT")
     @LoginRequired
     public ApiResponse<IngredientSummaryResponse> getSummary(@PathVariable Long productId) {
-        Member member = authenticationGuard.currentMember();
-        return ApiResponse.success(ingredientService.getIngredientSummary(productId, member.getId()));
+        Long memberId = authenticationGuard.currentMemberId();
+        return ApiResponse.success(ingredientService.getIngredientSummary(productId, memberId));
     }
 
     @GetMapping("/{productId}/ingredients")
