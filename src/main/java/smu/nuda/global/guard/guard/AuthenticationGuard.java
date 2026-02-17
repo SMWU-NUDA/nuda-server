@@ -39,6 +39,6 @@ public class AuthenticationGuard {
     }
 
     public void ensureLogin() {
-        currentMember();
+        currentMemberId();
     }
 }
