@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import smu.nuda.domain.cart.service.CartService;
 import smu.nuda.domain.common.dto.CursorPageResponse;
-import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.order.dto.*;
 import smu.nuda.domain.order.entity.Order;
 import smu.nuda.domain.order.entity.OrderItem;
@@ -39,10 +38,10 @@ public class OrderService {
     private final OrderMapper orderMapper;
 
     @Transactional
-    public OrderCreateResponse createOrder(Member member, OrderCreateRequest request) {
+    public OrderCreateResponse createOrder(Long memberId, OrderCreateRequest request) {
 
         // Cart 기준 주문 가능 여부 검증
-        cartService.validateOrderableItems(member, request.getItems());
+        cartService.validateOrderableItems(memberId, request.getItems());
 
         // 주문할 상품 ID 추출
         List<Long> productIds = request.getItems().stream()
@@ -66,7 +65,7 @@ public class OrderService {
 
         // Order 생성
         Long orderNum = orderNumPolicy.generate();
-        Order order = Order.create(member.getId(), orderNum, totalAmount);
+        Order order = Order.create(memberId, orderNum, totalAmount);
         orderRepository.save(order);
 
         // OrderItem 생성

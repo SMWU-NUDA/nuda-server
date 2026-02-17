@@ -8,7 +8,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import smu.nuda.domain.common.dto.CursorPageResponse;
-import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.order.dto.MyOrderResponse;
 import smu.nuda.domain.order.dto.OrderCreateRequest;
 import smu.nuda.domain.order.dto.OrderCreateResponse;
@@ -34,8 +33,8 @@ public class OrderController {
     @SecurityRequirement(name = "JWT")
     @LoginRequired
     public ApiResponse<OrderCreateResponse> createOrder(@Valid @RequestBody OrderCreateRequest orderCreateRequest) {
-        Member member = authenticationGuard.currentMember();
-        return ApiResponse.success(orderService.createOrder(member, orderCreateRequest));
+        Long memberId = authenticationGuard.currentMemberId();
+        return ApiResponse.success(orderService.createOrder(memberId, orderCreateRequest));
     }
 
     @GetMapping

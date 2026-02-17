@@ -187,7 +187,7 @@ public class PaymentServiceTest {
 
         // [Given] 상품 A만 포함된 주문을 생성함
         OrderCreateRequest orderRequest = new OrderCreateRequest(List.of(new OrderItemRequest(productA, 2)));
-        OrderCreateResponse orderResponse = orderService.createOrder(member, orderRequest);
+        OrderCreateResponse orderResponse = orderService.createOrder(member.getId(), orderRequest);
 
         // 1차 캐시에 남은 엔티티 상태를 DB와 동기화하고 캐시를 비워 테스트 정밀도 확보
         em.flush();
