@@ -33,8 +33,8 @@ public class PaymentController {
     @SecurityRequirement(name = "JWT")
     @LoginRequired
     public ApiResponse<PaymentRequestResponse> requestPayment(@PathVariable Long orderId) {
-        Member member = authenticationGuard.currentMember();
-        return ApiResponse.success(paymentService.requestPayment(member, orderId));
+        Long memberId = authenticationGuard.currentMemberId();
+        return ApiResponse.success(paymentService.requestPayment(memberId, orderId));
     }
 
     @PostMapping("/complete")

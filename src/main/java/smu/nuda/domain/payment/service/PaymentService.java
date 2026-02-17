@@ -32,14 +32,14 @@ public class PaymentService {
     private final Clock clock;
 
     @Transactional
-    public PaymentRequestResponse requestPayment(Member member, Long orderId) {
+    public PaymentRequestResponse requestPayment(Long memberId, Long orderId) {
 
         // 요청한 주문 조회
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new DomainException(PaymentErrorCode.ORDER_NOT_FOUND));
 
         // 주문 상태 검증 및 중복 결제 방지
-        if (!order.getMemberId().equals(member.getId())) throw new DomainException(PaymentErrorCode.NOT_ORDER_OWNER);
+        if (!order.getMemberId().equals(memberId)) throw new DomainException(PaymentErrorCode.NOT_ORDER_OWNER);
         if (!order.isPending()) throw new DomainException(PaymentErrorCode.INVALID_PAYMENT_STATUS);
         if (paymentRepository.existsByOrder(order)) throw new DomainException(PaymentErrorCode.ALREADY_REQUESTED);
 
