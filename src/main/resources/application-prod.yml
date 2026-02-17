@@ -74,3 +74,8 @@ cloud:
       bucket: ${S3_BUCKET}
     cloudfront:
       domain: ${CDN_DOMAIN}
+
+server:
+  tomcat:
+    connection-timeout: 120000
+    max-swallow-size: 100MB

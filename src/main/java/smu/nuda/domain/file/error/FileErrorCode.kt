@@ -15,7 +15,13 @@ enum class FileErrorCode(
     ),
     EMPTY_FILE_LIST(
         "FILE_EMPTY_FILE_LIST","업로드할 파일이 선택되지 않았습니다."
-    )
+    ),
+    UPLOAD_TIMEOUT(
+        "FILE_UPLOAD_TIMEOUT", "파일 업로드가 취소되었습니다."
+    ),
+    UPLOAD_FAILED(
+        "FILE_UPLOAD_FAILED", "파일 업로드 중 오류가 발생했습니다."
+    ),
 
     ;
 }
