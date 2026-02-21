@@ -71,13 +71,13 @@ public class SignupDraft extends BaseEntity {
     private ScentLevel scent;
 
     @Enumerated(EnumType.STRING)
-    private ChangeFrequency changeFrequency;
+    private AdhesionLevel adhesion;
 
     @Enumerated(EnumType.STRING)
     private ThicknessLevel thickness;
 
     @Enumerated(EnumType.STRING)
-    private PriorityType priority;
+    private ChangeFrequency changeFrequency;
 
     @Column(name = "product_ids", columnDefinition = "TEXT")
     private String productIds;
@@ -114,12 +114,12 @@ public class SignupDraft extends BaseEntity {
         extendExpiration(clock);
     }
 
-    public void updateKeyword(IrritationLevel irritationLevel, ScentLevel scent, ChangeFrequency changeFrequency, ThicknessLevel thickness, PriorityType priority, String productIds, Clock clock) {
+    public void updateKeyword(IrritationLevel irritationLevel, ScentLevel scent, AdhesionLevel adhesion, ThicknessLevel thickness, ChangeFrequency changeFrequency, String productIds, Clock clock) {
         this.irritationLevel = irritationLevel;
         this.scent = scent;
-        this.changeFrequency = changeFrequency;
+        this.adhesion = adhesion;
         this.thickness = thickness;
-        this.priority = priority;
+        this.changeFrequency = changeFrequency;
         this.productIds = productIds;
 
         this.currentStep = SignupStep.COMPLETED;

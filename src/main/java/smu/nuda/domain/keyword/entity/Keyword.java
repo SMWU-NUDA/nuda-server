@@ -40,22 +40,22 @@ public class Keyword extends BaseEntity {
     private ScentLevel scent;
 
     @Enumerated(EnumType.STRING)
-    private ChangeFrequency changeFrequency;
+    private AdhesionLevel adhesion;
 
     @Enumerated(EnumType.STRING)
     private ThicknessLevel thickness;
 
     @Enumerated(EnumType.STRING)
-    private PriorityType priority;
+    private ChangeFrequency changeFrequency;
 
     public static Keyword of(SignupDraft draft, Member member) {
         return Keyword.builder()
                 .member(member)
                 .irritationLevel(draft.getIrritationLevel())
                 .scent(draft.getScent())
-                .changeFrequency(draft.getChangeFrequency())
+                .adhesion(draft.getAdhesion())
                 .thickness(draft.getThickness())
-                .priority(draft.getPriority())
+                .changeFrequency(draft.getChangeFrequency())
                 .build();
     }
 
@@ -63,18 +63,16 @@ public class Keyword extends BaseEntity {
         return List.of(
                 irritationLevel.getLabel(),
                 scent.getLabel(),
-                changeFrequency.getLabel(),
-                thickness.getLabel(),
-                priority.getLabel()
+                adhesion.getLabel(),
+                thickness.getLabel()
         );
     }
 
-    public void update(IrritationLevel irritationLevel, ScentLevel scent, ChangeFrequency changeFrequency, ThicknessLevel thickness, PriorityType priority) {
+    public void update(IrritationLevel irritationLevel, ScentLevel scent, AdhesionLevel adhesion, ThicknessLevel thickness) {
         if (irritationLevel != null) this.irritationLevel = irritationLevel;
         if (scent != null) this.scent = scent;
-        if (changeFrequency != null) this.changeFrequency = changeFrequency;
+        if (adhesion != null) this.adhesion = adhesion;
         if (thickness != null) this.thickness = thickness;
-        if (priority != null) this.priority = priority;
     }
 
 }
