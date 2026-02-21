@@ -8,7 +8,6 @@ import smu.nuda.domain.keyword.dto.KeywordResponse;
 import smu.nuda.domain.keyword.entity.Keyword;
 import smu.nuda.domain.keyword.error.KeywordErrorCode;
 import smu.nuda.domain.keyword.repository.KeywordRepository;
-import smu.nuda.domain.member.entity.Member;
 import smu.nuda.global.error.DomainException;
 
 @Service
@@ -32,9 +31,8 @@ public class KeywordService {
         keyword.update(
                 request.getIrritationLevel(),
                 request.getScent(),
-                request.getChangeFrequency(),
-                request.getThickness(),
-                request.getPriority()
+                request.getAdhesion(),
+                request.getThickness()
         );
 
         return KeywordResponse.from(keyword);

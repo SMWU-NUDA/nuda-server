@@ -11,17 +11,15 @@ public class KeywordResponse {
 
     private IrritationLevel irritationLevel;
     private ScentLevel scent;
-    private ChangeFrequency changeFrequency;
+    private AdhesionLevel adhesion;
     private ThicknessLevel thickness;
-    private PriorityType priority;
 
     public static KeywordResponse from(Keyword keyword) {
         return new KeywordResponse(
                 keyword.getIrritationLevel(),
                 keyword.getScent(),
-                keyword.getChangeFrequency(),
-                keyword.getThickness(),
-                keyword.getPriority()
+                keyword.getAdhesion(),
+                keyword.getThickness()
         );
     }
 }

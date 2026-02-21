@@ -11,8 +11,8 @@ import java.util.List;
 public class SurveyInfo {
     private IrritationLevel irritationLevel;
     private ScentLevel scent;
-    private ChangeFrequency changeFrequency;
+    private AdhesionLevel adhesion;
     private ThicknessLevel thickness;
-    private PriorityType priority;
+    private ChangeFrequency changeFrequency;
     private List<Long> productIds;
 }

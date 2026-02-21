@@ -80,9 +80,9 @@ public class SignupDraftUseCase {
         SurveyInfo survey = SurveyInfo.builder()
                 .irritationLevel(draft.getIrritationLevel())
                 .scent(draft.getScent())
-                .changeFrequency(draft.getChangeFrequency())
+                .adhesion(draft.getAdhesion())
                 .thickness(draft.getThickness())
-                .priority(draft.getPriority())
+                .changeFrequency(draft.getChangeFrequency())
                 .productIds(draft.parseToProductIdList(objectMapper))
                 .build();
 
@@ -132,9 +132,9 @@ public class SignupDraftUseCase {
         draft.updateKeyword(
                 request.getIrritationLevel(),
                 request.getScent(),
-                request.getChangeFrequency(),
+                request.getAdhesion(),
                 request.getThickness(),
-                request.getPriority(),
+                request.getChangeFrequency(),
                 productIdsJson,
                 clock
         );

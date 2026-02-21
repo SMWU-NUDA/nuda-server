@@ -14,8 +14,8 @@ import java.util.List;
 public class SurveyRequest {
     @NotNull private IrritationLevel irritationLevel;
     @NotNull private ScentLevel scent;
-    @NotNull private ChangeFrequency changeFrequency;
+    @NotNull private AdhesionLevel adhesion;
     @NotNull private ThicknessLevel thickness;
-    @NotNull private PriorityType priority;
+    @NotNull private ChangeFrequency changeFrequency;
     @NotNull private List<Long> productIds;
 }

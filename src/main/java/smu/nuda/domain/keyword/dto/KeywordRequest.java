@@ -9,7 +9,6 @@ import smu.nuda.domain.keyword.entity.enums.*;
 public class KeywordRequest {
     private IrritationLevel irritationLevel;
     private ScentLevel scent;
-    private ChangeFrequency changeFrequency;
+    private AdhesionLevel adhesion;
     private ThicknessLevel thickness;
-    private PriorityType priority;
 }
