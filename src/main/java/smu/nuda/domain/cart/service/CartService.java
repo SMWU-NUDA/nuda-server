@@ -4,6 +4,7 @@ import com.querydsl.core.Tuple;
 import jakarta.persistence.LockTimeoutException;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.PessimisticLockException;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,9 +19,12 @@ import smu.nuda.domain.cart.policy.CartPolicy;
 import smu.nuda.domain.cart.repository.CartItemRepository;
 import smu.nuda.domain.cart.repository.CartQueryRepository;
 import smu.nuda.domain.cart.repository.CartRepository;
+import smu.nuda.domain.log.entity.enums.CommerceType;
+import smu.nuda.domain.log.event.CommerceEvent;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.order.dto.OrderItemRequest;
 import smu.nuda.domain.order.entity.Order;
+import smu.nuda.domain.product.entity.Product;
 import smu.nuda.domain.product.error.ProductErrorCode;
 import smu.nuda.domain.product.repository.ProductRepository;
 import smu.nuda.global.error.DomainException;
@@ -43,17 +47,31 @@ public class CartService {
     private final CartQueryRepository cartQueryRepository;
     private final CartItemRepository cartItemRepository;
     private final ProductRepository productRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public CartProductResponse addProduct(Long memberId, Long productId) {
         try {
-            productRepository.findById(productId).orElseThrow(() -> new DomainException(ProductErrorCode.INVALID_PRODUCT));
+            Product product = productRepository.findById(productId)
+                    .orElseThrow(() -> new DomainException(ProductErrorCode.INVALID_PRODUCT));
             Cart cart = cartRepository.findByMemberIdForUpdate(memberId)
                     .orElseThrow(() -> new DomainException(CartErrorCode.CART_NOT_FOUND));
 
+            int quantity = cart.addProduct(productId);
+
+            eventPublisher.publishEvent(
+                    new CommerceEvent(
+                            memberId,
+                            productId,
+                            product.getExternalProductId(),
+                            CommerceType.CART,
+                            1
+                    )
+            );
+
             return CartProductResponse.builder()
                     .productId(productId)
-                    .quantity(cart.addProduct(productId))
+                    .quantity(quantity)
                     .build();
         } catch (PessimisticLockException | LockTimeoutException | CannotAcquireLockException e) {
             throw new DomainException(CartErrorCode.LOCK_TIMEOUT);
@@ -150,7 +168,29 @@ public class CartService {
             cartItem.getCart().validateOwner(member);
         }
 
+        Set<Long> productIds = cartItems.stream()
+                .map(CartItem::getProductId)
+                .collect(Collectors.toSet());
+        Map<Long, Product> productMap = productRepository.findAllById(productIds)
+                .stream()
+                .collect(Collectors.toMap(Product::getId, p -> p));
+
         cartItemRepository.deleteAll(cartItems);
+
+        for (CartItem cartItem : cartItems) {
+            Product product = productMap.get(cartItem.getProductId());
+            if (product == null) continue;
+
+            eventPublisher.publishEvent(
+                    new CommerceEvent(
+                            member.getId(),
+                            cartItem.getProductId(),
+                            product.getExternalProductId(),
+                            CommerceType.CART_REMOVE,
+                            cartItem.getQuantity()
+                    )
+            );
+        }
     }
 
     @Transactional
@@ -159,7 +199,21 @@ public class CartService {
                 .orElseThrow(() -> new DomainException(CartErrorCode.INVALID_CART_ITEM));
         cartItem.getCart().validateOwner(member);
 
+        Long productId = cartItem.getProductId();
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new DomainException(ProductErrorCode.INVALID_PRODUCT));
+
         cartItemRepository.delete(cartItem);
+
+        eventPublisher.publishEvent(
+                new CommerceEvent(
+                        member.getId(),
+                        productId,
+                        product.getExternalProductId(),
+                        CommerceType.CART_REMOVE,
+                        cartItem.getQuantity()
+                )
+        );
     }
 
     @Transactional
@@ -171,7 +225,30 @@ public class CartService {
         List<CartItem> cartItems = cartItemRepository.findAllByCart(cart);
         if (cartItems.isEmpty()) return;
 
+        Set<Long> productIds = cartItems.stream()
+                .map(CartItem::getProductId)
+                .collect(Collectors.toSet());
+        Map<Long, Product> productMap = productRepository.findAllById(productIds)
+                .stream()
+                .collect(Collectors.toMap(Product::getId, p -> p));
+
         cartItemRepository.deleteAll(cartItems);
+
+        for (CartItem cartItem : cartItems) {
+
+            Product product = productMap.get(cartItem.getProductId());
+            if (product == null) continue;
+
+            eventPublisher.publishEvent(
+                    new CommerceEvent(
+                            member.getId(),
+                            cartItem.getProductId(),
+                            product.getExternalProductId(),
+                            CommerceType.CART_REMOVE,
+                            cartItem.getQuantity()
+                    )
+            );
+        }
     }
 
     @Transactional(readOnly = true)
