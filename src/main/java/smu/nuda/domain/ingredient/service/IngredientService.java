@@ -3,9 +3,11 @@ package smu.nuda.domain.ingredient.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import smu.nuda.domain.auth.error.AuthErrorCode;
 import smu.nuda.domain.ingredient.dto.IngredientItem;
 import smu.nuda.domain.ingredient.dto.IngredientResponse;
 import smu.nuda.domain.ingredient.dto.IngredientSummaryResponse;
+import smu.nuda.domain.ingredient.dto.enums.IngredientFilterType;
 import smu.nuda.domain.ingredient.repository.IngredientQueryRepository;
 import smu.nuda.domain.product.error.ProductErrorCode;
 import smu.nuda.domain.product.repository.ProductIngredientQueryRepository;
@@ -28,13 +30,15 @@ public class IngredientService {
     }
 
     @Transactional(readOnly = true)
-    public IngredientResponse getIngredients(Long productId) {
+    public IngredientResponse getIngredients(Long productId, IngredientFilterType filterType, Long memberId) {
         if (!productRepository.existsById(productId)) throw new DomainException(ProductErrorCode.INVALID_PRODUCT);
+        if ((filterType == IngredientFilterType.INTEREST
+                || filterType == IngredientFilterType.AVOID)
+                && memberId == null) {
+            throw new DomainException(AuthErrorCode.AUTH_REQUIRED);
+        }
 
-        List<IngredientItem> ingredients = productIngredientQueryRepository.findIngredientsByProductId(productId);
-        return new IngredientResponse(
-                (long) ingredients.size(),
-                ingredients
-        );
+        List<IngredientItem> ingredients = productIngredientQueryRepository.findIngredients(productId, filterType, memberId);
+        return new IngredientResponse((long) ingredients.size(), ingredients);
     }
 }

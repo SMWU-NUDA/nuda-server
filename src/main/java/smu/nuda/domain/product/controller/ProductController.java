@@ -4,12 +4,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import smu.nuda.domain.ingredient.dto.IngredientResponse;
 import smu.nuda.domain.ingredient.dto.IngredientSummaryResponse;
+import smu.nuda.domain.ingredient.dto.enums.IngredientFilterType;
 import smu.nuda.domain.ingredient.service.IngredientService;
 import smu.nuda.domain.product.dto.ProductDetailResponse;
 import smu.nuda.domain.product.service.ProductService;
@@ -58,7 +56,11 @@ public class ProductController {
     )
     @SecurityRequirement(name = "JWT")
     @LoginRequired
-    public ApiResponse<IngredientResponse> getProductIngredients(@PathVariable Long productId) {
-        return ApiResponse.success(ingredientService.getIngredients(productId));
+    public ApiResponse<IngredientResponse> getProductIngredients(
+            @PathVariable Long productId,
+            @RequestParam(defaultValue = "ALL") IngredientFilterType filter
+    ) {
+        Long memberId = authenticationGuard.currentMemberId();
+        return ApiResponse.success(ingredientService.getIngredients(productId, filter, memberId));
     }
 }
