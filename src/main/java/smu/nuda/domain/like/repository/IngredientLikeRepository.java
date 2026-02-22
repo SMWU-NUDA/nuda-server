@@ -9,4 +9,5 @@ import java.util.Optional;
 
 public interface IngredientLikeRepository extends JpaRepository<IngredientLike, Long> {
     Optional<IngredientLike> findByMemberAndIngredient(Member member, Ingredient ingredient);
+    Optional<IngredientLike> findByIngredientIdAndMemberId(Long ingredientId, Long memberId);
 }
