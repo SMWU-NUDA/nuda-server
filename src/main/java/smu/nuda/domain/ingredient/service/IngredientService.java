@@ -108,7 +108,7 @@ public class IngredientService {
         static ParsedHazard safe() {
             return new ParsedHazard(
                     null,
-                    List.of(new HazardItem("h코드없음(안전)", "유해 위험 코드가 없는 안전 성분입니다."))
+                    List.of(new HazardItem("h코드없음(안전)", ""))
             );
         }
     }

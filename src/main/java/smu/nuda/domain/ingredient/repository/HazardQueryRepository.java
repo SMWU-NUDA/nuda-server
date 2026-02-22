@@ -29,7 +29,7 @@ public class HazardQueryRepository {
                 .setParameter("ingredientId", ingredientId)
                 .getResultList();
 
-        if (result.isEmpty()) {
+        if (result.isEmpty() || result.get(0) == null) {
             return null;
         }
 
