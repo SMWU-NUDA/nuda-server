@@ -79,3 +79,8 @@ server:
   tomcat:
     connection-timeout: 120000
     max-swallow-size: 100MB
+
+ml:
+  base-url: ${ML_BASE_URL}
+  connect-timeout: 2000
+  read-timeout: 5000
