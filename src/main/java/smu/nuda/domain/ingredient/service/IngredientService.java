@@ -3,6 +3,7 @@ package smu.nuda.domain.ingredient.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import smu.nuda.domain.auth.error.AuthErrorCode;
@@ -24,6 +25,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class IngredientService {
 
     private final ProductRepository productRepository;
@@ -53,6 +55,7 @@ public class IngredientService {
         return new IngredientResponse((long) ingredients.size(), ingredients);
     }
 
+    @Transactional(readOnly = true)
     public IngredientDetailResponse getIngredientDetail(Long ingredientId, Long memberId) {
         Ingredient ingredient = ingredientRepository.findById(ingredientId)
                 .orElseThrow(() -> new DomainException(IngredientErrorCode.INVALID_INGREDIENT));
@@ -84,22 +87,24 @@ public class IngredientService {
         if (extractedRaw == null) return ParsedHazard.safe();
         try {
             JsonNode root = objectMapper.readTree(extractedRaw);
-
             String uiNotice = root.has("ui_notice") ? root.get("ui_notice").asText() : null;
 
             List<HazardItem> hazardItems = new ArrayList<>();
-            if (root.has("hazard_statements")) {
+            if (root.has("hazard_statements") && root.get("hazard_statements").isArray()) {
                 for (JsonNode node : root.get("hazard_statements")) {
-                    hazardItems.add(new HazardItem(
-                            node.get("code").asText(),
-                            node.get("description").asText())
-                    );
+                    String code = node.has("code") ? node.get("code").asText() : null;
+                    String desc = node.has("description") ? node.get("description").asText() : null;
+
+                    if (code != null) hazardItems.add(new HazardItem(code, desc));
                 }
             }
-            if (hazardItems.isEmpty()) return ParsedHazard.safe();
+
+            if (uiNotice == null && hazardItems.isEmpty()) return ParsedHazard.safe();
+            if (hazardItems.isEmpty()) hazardItems = ParsedHazard.safe().hazards();
 
             return new ParsedHazard(uiNotice, hazardItems);
         } catch (Exception e) {
+            log.warn("Failed to parse extracted hazard JSON: {}", extractedRaw, e);
             return ParsedHazard.safe();
         }
     }
