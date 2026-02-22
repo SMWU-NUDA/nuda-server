@@ -25,7 +25,7 @@ public class CommerceLog {
     @SequenceGenerator(
             name = "rec_event_log_seq_generator",
             sequenceName = "rec_event_log_seq",
-            allocationSize = 1
+            allocationSize = 10
     )
     private Long id;
 
