@@ -33,7 +33,7 @@ public class IngredientService {
     private final IngredientRepository ingredientRepository;
     private final IngredientLikeRepository ingredientLikeRepository;
     private final HazardQueryRepository hazardQueryRepository;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     @Transactional(readOnly = true)
     public IngredientSummaryResponse getIngredientSummary(Long productId, Long memberId) {
