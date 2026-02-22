@@ -60,11 +60,7 @@ public class ProductController {
             @PathVariable Long productId,
             @RequestParam(defaultValue = "ALL") IngredientFilterType filter
     ) {
-        Long memberId = null;
-        if (filter == IngredientFilterType.INTEREST || filter == IngredientFilterType.AVOID) {
-            memberId = authenticationGuard.currentMemberId();
-        }
-
+        Long memberId = authenticationGuard.currentMemberId();
         return ApiResponse.success(ingredientService.getIngredients(productId, filter, memberId));
     }
 }
