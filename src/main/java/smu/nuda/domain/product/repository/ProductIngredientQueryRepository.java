@@ -33,19 +33,17 @@ public class ProductIngredientQueryRepository {
                 .join(productIngredient.ingredient, ingredient)
                 .where(productIngredient.product.id.eq(productId));
 
-        if (filterType == null || filterType == IngredientFilterType.ALL){
-            // 전성분
+        if (filterType == null || filterType == IngredientFilterType.ALL) {
+            return query.fetch();
         }
-        else if (filterType == IngredientFilterType.WARN) {
-            // 주의 성분
-            query.where(ingredient.riskLevel.eq(RiskLevel.WARN));
+
+        // Risk 필터
+        else if (filterType.isRiskFilter()) {
+            query.where(ingredient.riskLevel.eq(filterType.getRiskLevel()));
         }
-        else if (filterType == IngredientFilterType.DANGER) {
-            // 위험 성분
-            query.where(ingredient.riskLevel.eq(RiskLevel.DANGER));
-        }
-        else if (filterType == IngredientFilterType.INTEREST) {
-            // 관심 성분
+
+        // 관심 성분
+        else if (filterType.isInterest()) {
             query.join(ingredientLike)
                     .on(
                             ingredientLike.ingredient.id.eq(ingredient.id)
@@ -53,8 +51,9 @@ public class ProductIngredientQueryRepository {
                                     .and(ingredientLike.preference.isTrue())
                     );
         }
-        else if (filterType == IngredientFilterType.AVOID) {
-            // 위험 성분
+
+        // 피할 성분
+        else if (filterType.isAvoid()) {
             query.join(ingredientLike)
                     .on(
                             ingredientLike.ingredient.id.eq(ingredient.id)
@@ -62,7 +61,6 @@ public class ProductIngredientQueryRepository {
                                     .and(ingredientLike.preference.isFalse())
                     );
         }
-
         return query.fetch();
     }
 }
