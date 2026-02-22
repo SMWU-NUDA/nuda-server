@@ -1,5 +1,3 @@
-CREATE EXTENSION IF NOT EXISTS vector;
-
 CREATE TABLE IF NOT EXISTS ml_product_embedding (
     product_id BIGINT PRIMARY KEY REFERENCES product(id) ON DELETE CASCADE,
     embedding  vector(768) NOT NULL,
