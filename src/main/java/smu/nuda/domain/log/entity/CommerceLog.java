@@ -5,6 +5,8 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import smu.nuda.domain.log.entity.enums.CommerceType;
 
 import java.time.LocalDateTime;
@@ -37,7 +39,8 @@ public class CommerceLog {
     private String externalProductId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "event_type", nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "event_type", nullable = false, columnDefinition = "rec_event_type")
     private CommerceType commerceType;
 
     @Column(nullable = false)
