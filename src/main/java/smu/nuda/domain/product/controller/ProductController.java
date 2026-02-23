@@ -85,13 +85,13 @@ public class ProductController {
     )
     @SecurityRequirement(name = "JWT")
     @LoginRequired
-    public CursorResponse<ProductItem, Number> getProducts(
+    public ApiResponse<CursorResponse<ProductItem, Number>> getProducts(
             @RequestParam(defaultValue = "DEFAULT") ProductSortType sort,
             @RequestParam(required = false) String cursor,
             @RequestParam(defaultValue = "20") int size
     ) {
         Cursor<Number> parsedCursor = parseCursor(cursor, sort);
-        return productService.getSortedProducts(sort, parsedCursor, size);
+        return ApiResponse.success(productService.getSortedProducts(sort, parsedCursor, size));
     }
 
     private Cursor<Number> parseCursor(String cursorStr, ProductSortType sortType) {
