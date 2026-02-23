@@ -4,9 +4,9 @@ import lombok.Getter;
 
 @Getter
 public enum ThicknessLevel {
-    THIN("얇음"),
-    NORMAL("일반"),
-    THICK("도톰함");
+    THIN("약한 흡수력"),
+    NORMAL("보통 흡수력"),
+    THICK("높은 흡수력");
 
     private final String label;
 
