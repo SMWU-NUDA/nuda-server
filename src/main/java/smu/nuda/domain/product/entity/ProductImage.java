@@ -36,4 +36,13 @@ public class ProductImage extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private ImageType type;
+
+    public static ProductImage create(Product product, String imageUrl, int sequence, ImageType type) {
+        ProductImage image = new ProductImage();
+        image.product = product;
+        image.imageUrl = imageUrl;
+        image.sequence = sequence;
+        image.type = type;
+        return image;
+    }
 }
