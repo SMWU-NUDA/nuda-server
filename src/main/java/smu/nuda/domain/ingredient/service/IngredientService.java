@@ -67,6 +67,7 @@ public class IngredientService {
         return new IngredientDetailResponse(
                 ingredient.getId(),
                 ingredient.getName(),
+                ingredient.getRiskLevel(),
                 ingredient.getLayerType(),
                 ingredient.getContent(),
                 preference,
