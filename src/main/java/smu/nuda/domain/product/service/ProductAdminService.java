@@ -13,6 +13,8 @@ import smu.nuda.domain.brand.entity.Brand;
 import smu.nuda.domain.product.entity.Category;
 import smu.nuda.domain.product.entity.Product;
 import smu.nuda.domain.brand.repository.BrandRepository;
+import smu.nuda.domain.product.entity.ProductImage;
+import smu.nuda.domain.product.entity.enums.ImageType;
 import smu.nuda.domain.product.repository.CategoryRepository;
 import smu.nuda.domain.product.repository.ProductRepository;
 import smu.nuda.domain.product.validator.ProductCsvValidator;
@@ -80,6 +82,17 @@ public class ProductAdminService {
 
             if (!dryRun) {
                 em.persist(product);
+
+                if (row.thumbnailImg() != null && !row.thumbnailImg().isBlank()) {
+                    ProductImage thumbnail = ProductImage.create(
+                            product,
+                            row.thumbnailImg(),
+                            0,
+                            ImageType.MAIN
+                    );
+                    em.persist(thumbnail);
+                }
+
                 count++;
 
                 if (count % BATCH_SIZE == 0) {
