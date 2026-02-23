@@ -3,6 +3,7 @@ package smu.nuda.domain.ingredient.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import smu.nuda.domain.ingredient.entity.enums.LayerType;
+import smu.nuda.domain.ingredient.entity.enums.RiskLevel;
 
 import java.util.List;
 
@@ -11,6 +12,7 @@ import java.util.List;
 public class IngredientDetailResponse {
     private Long ingredientId;
     private String name;
+    private RiskLevel riskLevel;
     private LayerType layerType;
     private String description;
     private Boolean preference; // true: 관심 | false: 피하기 | null: 즐겨찾기 안함
