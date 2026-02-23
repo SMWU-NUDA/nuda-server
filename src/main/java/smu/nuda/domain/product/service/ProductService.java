@@ -4,9 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import smu.nuda.domain.common.dto.Cursor;
+import smu.nuda.domain.common.dto.CursorResponse;
 import smu.nuda.domain.like.repository.BrandLikeRepository;
 import smu.nuda.domain.product.dto.ProductDetailCache;
 import smu.nuda.domain.product.dto.ProductDetailResponse;
+import smu.nuda.domain.product.dto.ProductItem;
+import smu.nuda.domain.product.dto.enums.ProductSortType;
 import smu.nuda.domain.product.error.ProductErrorCode;
 import smu.nuda.domain.product.repository.ProductImageQueryRepository;
 import smu.nuda.domain.product.repository.ProductQueryRepository;
@@ -52,6 +56,11 @@ public class ProductService {
         boolean brandLikedByMe = brandLikeRepository.existsByMember_IdAndBrand_Id(memberId, cache.getBrandId());
 
         return ProductDetailResponse.of(cache, productLikedByMe, brandLikedByMe);
+    }
+
+    @Transactional(readOnly = true)
+    public CursorResponse<ProductItem, Number> getSortedProducts(ProductSortType sortType, Cursor<Number> cursor, int size) {
+        return productQueryRepository.findProductCursorPage(sortType, cursor, size);
     }
 
 }
