@@ -8,8 +8,9 @@ import lombok.Getter;
 public class CartProductItem {
     private Long cartItemId;
     private Long productId;
+    private String thumbnailImg;
     private String productName;
     private int quantity;
     private int price;
-    private int totalPrice; // quantity * price
+    private int totalPrice; // 수량 * 단가
 }

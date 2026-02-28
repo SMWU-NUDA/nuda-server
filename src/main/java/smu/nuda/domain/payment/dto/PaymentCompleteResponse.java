@@ -13,12 +13,14 @@ import java.util.List;
 @Builder
 public class PaymentCompleteResponse {
     private Long orderNum;
+    private int totalAmount;
     private DeliveryResponse deliveryResponse;
     private List<OrderBrandGroup> brands;
 
     public static PaymentCompleteResponse fail(Long orderNum) {
         return PaymentCompleteResponse.builder()
                 .orderNum(orderNum)
+                .totalAmount(0)
                 .deliveryResponse(null)
                 .brands(null)
                 .build();

@@ -129,6 +129,7 @@ public class PaymentService {
 
         return new PaymentCompleteResponse(
                 order.getOrderNum(),
+                order.getTotalAmount(),
                 DeliveryResponse.from(member),
                 orderMapper.toBrandGroups(order)
         );
@@ -175,6 +176,7 @@ public class PaymentService {
 
         return new PaymentCompleteResponse(
                 order.getOrderNum(),
+                order.getTotalAmount(),
                 DeliveryResponse.from(member),
                 orderMapper.toBrandGroups(order)
         );
