@@ -74,7 +74,11 @@ public class ReviewService {
 
     @Transactional
     public void delete(Review review) {
+        Long productId = review.getProduct().getId();
         reviewRepository.delete(review);
+
+        // 상품 상세조회 캐시 삭제 이벤트 발행
+        eventPublisher.publishEvent(new ReviewUpdateEvent(productId));
     }
 
     @Transactional(readOnly = true)

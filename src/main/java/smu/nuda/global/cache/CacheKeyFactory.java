@@ -9,10 +9,9 @@ public class CacheKeyFactory {
         return "product:detail:" + productId;
     }
 
-    public String productSort(Long memberId, ProductSortType sortType, Number cursor, int size) {
+    public String productSort( ProductSortType sortType, Number cursor, int size) {
         return String.format(
-                "product:sort:%d:%s:%s:%d",
-                memberId,
+                "product:sort:%s:%s:%d",
                 sortType.name(),
                 cursor == null ? "first" : cursor.toString(),
                 size
