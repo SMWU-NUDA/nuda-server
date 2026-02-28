@@ -159,7 +159,7 @@ public class CartService {
 
         return CartProductResponse.builder()
                 .productId(cartItem.getProductId())
-                .quantity(cartItem.getQuantity())
+                .quantity(newQuantity)
                 .costPrice(price)
                 .totalPrice(price * newQuantity)
                 .build();
