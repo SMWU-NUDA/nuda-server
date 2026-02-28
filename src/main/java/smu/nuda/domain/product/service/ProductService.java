@@ -15,6 +15,9 @@ import smu.nuda.domain.product.dto.enums.ProductSortType;
 import smu.nuda.domain.product.repository.ProductQueryRepository;
 import smu.nuda.domain.like.repository.ProductLikeRepository;
 
+import java.util.List;
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 public class ProductService {
@@ -36,7 +39,20 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public CursorResponse<ProductItem, Number> getSortedProducts(ProductSortType sortType, Cursor<Number> cursor, int size) {
-        return productQueryRepository.findProductCursorPage(sortType, cursor, size);
+        CursorResponse<ProductItem, Number> response = productQueryRepository.findProductCursorPage(sortType, cursor, size);
+
+        // 성분 미리보기 내용
+        List<ProductItem> items = response.getContent();
+        List<Long> productIds = items.stream()
+                .map(ProductItem::getProductId)
+                .toList();
+        Map<Long, List<String>> ingredientMap = productQueryRepository.findIngredientLabelsByProductIds(productIds);
+
+        for (ProductItem item : items) {
+            item.setIngredientLabels(ingredientMap.getOrDefault(item.getProductId(), List.of()));
+        }
+
+        return response;
     }
 
 }

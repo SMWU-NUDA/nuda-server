@@ -1,6 +1,7 @@
 package smu.nuda.domain.product.repository;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
@@ -9,14 +10,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import smu.nuda.domain.common.dto.Cursor;
 import smu.nuda.domain.common.dto.CursorResponse;
+import smu.nuda.domain.ingredient.entity.enums.LayerType;
 import smu.nuda.domain.product.dto.ProductDetailCache;
 import smu.nuda.domain.product.dto.ProductItem;
 import smu.nuda.domain.product.dto.enums.ProductSortType;
 
+import static smu.nuda.domain.ingredient.entity.QIngredient.ingredient;
 import static smu.nuda.domain.product.entity.QProduct.product;
 import static smu.nuda.domain.brand.entity.QBrand.brand;
+import static smu.nuda.domain.product.entity.QProductIngredient.productIngredient;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -139,5 +145,31 @@ public class ProductQueryRepository {
         };
 
         return new Cursor<>(sortValue, item.getProductId());
+    }
+
+    public Map<Long, List<String>> findIngredientLabelsByProductIds(List<Long> productIds) {
+        List<Tuple> rows = queryFactory
+                .select(
+                        productIngredient.product.id,
+                        ingredient.name,
+                        ingredient.layerType
+                )
+                .from(productIngredient)
+                .join(productIngredient.ingredient, ingredient)
+                .where(productIngredient.product.id.in(productIds))
+                .fetch();
+
+        return rows.stream()
+                .collect(Collectors.groupingBy(
+                        tuple -> tuple.get(productIngredient.product.id),
+                        Collectors.mapping(
+                                tuple -> {
+                                    String name = tuple.get(ingredient.name);
+                                    LayerType layerType = tuple.get(ingredient.layerType);
+                                    return layerType == null ? name : name + "(" + layerType.getDescription() + ")";
+                                },
+                                Collectors.toList()
+                        )
+                ));
     }
 }
