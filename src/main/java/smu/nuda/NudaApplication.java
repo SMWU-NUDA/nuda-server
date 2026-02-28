@@ -11,7 +11,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableJpaAuditing
 @EnableScheduling
 @ConfigurationPropertiesScan
-@EnableAsync
 public class NudaApplication {
 
 	public static void main(String[] args) {
