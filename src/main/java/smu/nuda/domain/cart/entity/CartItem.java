@@ -69,12 +69,14 @@ public class CartItem extends BaseEntity {
         this.quantity += amount;
     }
 
-    public void changeQuantity(int delta) {
+    public int changeQuantity(int delta) {
         int newQuantity = this.quantity + delta;
         if (newQuantity < 1) {
             throw new DomainException(CartErrorCode.INVALID_QUANTITY);
         }
         this.quantity = newQuantity;
+
+        return newQuantity;
     }
 
 }

@@ -140,20 +140,28 @@ public class CartService {
 
         cartItem.getCart().validateOwner(member);
 
+        Product product = productRepository.findById(cartItem.getProductId())
+                .orElseThrow(() -> new DomainException(ProductErrorCode.INVALID_PRODUCT));
+        int price = product.getCostPrice();
+
         if (delta < 0 && cartItem.getQuantity() == 1) {
             cartItemRepository.delete(cartItem);
 
             return CartProductResponse.builder()
                     .productId(cartItem.getProductId())
                     .quantity(0)
+                    .costPrice(price)
+                    .totalPrice(0)
                     .build();
         }
 
-        cartItem.changeQuantity(delta);
+        int newQuantity = cartItem.changeQuantity(delta);
 
         return CartProductResponse.builder()
                 .productId(cartItem.getProductId())
                 .quantity(cartItem.getQuantity())
+                .costPrice(price)
+                .totalPrice(price * newQuantity)
                 .build();
     }
 
