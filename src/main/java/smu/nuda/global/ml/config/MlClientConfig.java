@@ -44,6 +44,8 @@ public class MlClientConfig {
             return next.exchange(request)
                     .doOnNext(response ->
                             log.debug("[ML] Response Status: {}", response.statusCode())
+                    )
+                    .doOnError(e -> log.warn("[ML] Connection error: {} {}, cause={}", request.method(), request.url(), e.getMessage())
                     );
         };
     }
