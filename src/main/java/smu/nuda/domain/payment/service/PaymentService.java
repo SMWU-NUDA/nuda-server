@@ -127,13 +127,9 @@ public class PaymentService {
         // 결제 완료한 장바구니 상품 삭제
         cartService.removeOrderedItems(order);
 
-        int totalAmount = order.getOrderItems().stream()
-                .mapToInt(item -> item.getQuantity() * item.getUnitPrice())
-                .sum();
-
         return new PaymentCompleteResponse(
                 order.getOrderNum(),
-                totalAmount,
+                order.getTotalAmount(),
                 DeliveryResponse.from(member),
                 orderMapper.toBrandGroups(order)
         );
@@ -178,13 +174,9 @@ public class PaymentService {
         // 결제 완료한 장바구니 상품 삭제
         cartService.removeOrderedItems(order);
 
-        int totalAmount = order.getOrderItems().stream()
-                .mapToInt(item -> item.getQuantity() * item.getUnitPrice())
-                .sum();
-
         return new PaymentCompleteResponse(
                 order.getOrderNum(),
-                totalAmount,
+                order.getTotalAmount(),
                 DeliveryResponse.from(member),
                 orderMapper.toBrandGroups(order)
         );
