@@ -1,6 +1,7 @@
 package smu.nuda.domain.review.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import smu.nuda.domain.common.dto.CursorPageResponse;
@@ -13,6 +14,7 @@ import smu.nuda.domain.review.dto.ReviewCreateRequest;
 import smu.nuda.domain.review.dto.ReviewDetailResponse;
 import smu.nuda.domain.review.entity.Review;
 import smu.nuda.domain.review.entity.ReviewImage;
+import smu.nuda.domain.review.event.ReviewUpdateEvent;
 import smu.nuda.domain.review.repository.ReviewImageRepository;
 import smu.nuda.domain.review.repository.ReviewQueryRepository;
 import smu.nuda.domain.review.repository.ReviewRepository;
@@ -29,6 +31,7 @@ public class ReviewService {
     private final ReviewQueryRepository reviewQueryRepository;
     private final ReviewImageRepository reviewImageRepository;
     private final ProductRepository productRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public ReviewDetailResponse create(ReviewCreateRequest request, Member member) {
@@ -44,6 +47,9 @@ public class ReviewService {
                 null
         );
         reviewRepository.save(review);
+
+        // 상품 상세조회 캐시 삭제 이벤트 발행
+        eventPublisher.publishEvent(new ReviewUpdateEvent(product.getId()));
 
         List<String> imageUrls = request.getImageUrls();
         if (imageUrls != null && !imageUrls.isEmpty()) {
@@ -68,7 +74,11 @@ public class ReviewService {
 
     @Transactional
     public void delete(Review review) {
+        Long productId = review.getProduct().getId();
         reviewRepository.delete(review);
+
+        // 상품 상세조회 캐시 삭제 이벤트 발행
+        eventPublisher.publishEvent(new ReviewUpdateEvent(productId));
     }
 
     @Transactional(readOnly = true)
