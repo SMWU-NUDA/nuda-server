@@ -29,10 +29,7 @@ import smu.nuda.domain.product.error.ProductErrorCode;
 import smu.nuda.domain.product.repository.ProductRepository;
 import smu.nuda.global.error.DomainException;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static smu.nuda.domain.brand.entity.QBrand.brand;
@@ -101,6 +98,7 @@ public class CartService {
                             .map(row -> {
                                 Long cartItemId = row.get(cartItem.id);
                                 Long productId = row.get(product.id);
+                                String thumbnailImg = row.get(product.thumbnailImg);
                                 String productName = row.get(product.name);
                                 int quantity = row.get(cartItem.quantity);
                                 int price = row.get(product.costPrice);
@@ -108,6 +106,7 @@ public class CartService {
                                 return new CartProductItem(
                                         cartItemId,
                                         productId,
+                                        thumbnailImg,
                                         productName,
                                         quantity,
                                         price,
