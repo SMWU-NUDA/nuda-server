@@ -8,7 +8,7 @@ import smu.nuda.domain.keyword.dto.KeywordRequest;
 import smu.nuda.domain.keyword.dto.KeywordResponse;
 import smu.nuda.domain.keyword.entity.Keyword;
 import smu.nuda.domain.keyword.error.KeywordErrorCode;
-import smu.nuda.domain.keyword.event.KeywordUpdatedEvent;
+import smu.nuda.domain.keyword.event.KeywordUpdateEvent;
 import smu.nuda.domain.keyword.repository.KeywordRepository;
 import smu.nuda.global.error.DomainException;
 import smu.nuda.global.ml.dto.KeywordSyncRequest;
@@ -46,7 +46,7 @@ public class KeywordService {
                 keyword.getThickness(),
                 keyword.getAdhesion()
         );
-        eventPublisher.publishEvent(new KeywordUpdatedEvent(payload));
+        eventPublisher.publishEvent(new KeywordUpdateEvent(payload));
 
         return KeywordResponse.from(keyword);
     }

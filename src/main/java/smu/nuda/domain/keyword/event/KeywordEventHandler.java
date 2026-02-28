@@ -17,9 +17,9 @@ public class KeywordEventHandler {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleKeywordUpdated(KeywordUpdatedEvent event) {
+    public void handleKeywordUpdated(KeywordUpdateEvent event) {
 
-        log.info("[EventHandler] KeywordUpdatedEvent received");
+        log.info("[EventHandler] KeywordUpdatedEvent received - memberId={}", event.payload().memberId());
 
         mlOrchestrator.handleKeywordChanged(event.payload());
     }
