@@ -72,6 +72,8 @@ public class CartService {
             return CartProductResponse.builder()
                     .productId(productId)
                     .quantity(quantity)
+                    .costPrice(product.getCostPrice())
+                    .totalPrice(product.getCostPrice() * quantity)
                     .build();
         } catch (PessimisticLockException | LockTimeoutException | CannotAcquireLockException e) {
             throw new DomainException(CartErrorCode.LOCK_TIMEOUT);
