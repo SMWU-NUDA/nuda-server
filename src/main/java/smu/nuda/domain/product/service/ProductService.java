@@ -1,7 +1,6 @@
 package smu.nuda.domain.product.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import smu.nuda.domain.common.dto.Cursor;
@@ -14,6 +13,7 @@ import smu.nuda.domain.product.dto.ProductItem;
 import smu.nuda.domain.product.dto.enums.ProductSortType;
 import smu.nuda.domain.product.repository.ProductQueryRepository;
 import smu.nuda.domain.like.repository.ProductLikeRepository;
+import smu.nuda.global.cache.facade.MlRankingCacheFacade;
 
 import java.util.List;
 import java.util.Map;
@@ -23,6 +23,7 @@ import java.util.Map;
 public class ProductService {
 
     private final ProductCacheFacade productCacheFacade;
+    private final MlRankingCacheFacade rankingCacheFacade;
     private final ProductQueryRepository productQueryRepository;
     private final ProductLikeRepository productLikeRepository;
     private final BrandLikeRepository brandLikeRepository;
@@ -53,6 +54,10 @@ public class ProductService {
         }
 
         return response;
+    }
+
+    public List<Integer> getRankedProductIds(String keyword) {
+        return rankingCacheFacade.getRanking(keyword, 30);
     }
 
 }

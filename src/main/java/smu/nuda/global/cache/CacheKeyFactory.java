@@ -9,13 +9,8 @@ public class CacheKeyFactory {
         return "product:detail:" + productId;
     }
 
-    public String productSort( ProductSortType sortType, Number cursor, int size) {
-        return String.format(
-                "product:sort:%s:%s:%d",
-                sortType.name(),
-                cursor == null ? "first" : cursor.toString(),
-                size
-        );
+    public static String globalRanking(String keyword, int topK) {
+        return "ml:ranking:global:" + keyword + ":top" + topK;
     }
 
     public String reviewAiSummary(Long reviewId) {
