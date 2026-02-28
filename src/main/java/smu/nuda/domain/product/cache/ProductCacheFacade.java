@@ -2,6 +2,7 @@ package smu.nuda.domain.product.cache;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import smu.nuda.domain.product.dto.ProductDetailCache;
 import smu.nuda.domain.product.error.ProductErrorCode;
 import smu.nuda.domain.product.repository.ProductImageQueryRepository;
@@ -23,6 +24,7 @@ public class ProductCacheFacade {
     private final ProductQueryRepository productQueryRepository;
     private final ProductImageQueryRepository productImageQueryRepository;
 
+    @Transactional(readOnly = true)
     public ProductDetailCache getProductDetail(Long productId) {
         String key = keyFactory.productDetail(productId);
 

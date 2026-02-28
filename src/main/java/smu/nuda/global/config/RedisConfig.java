@@ -1,6 +1,7 @@
 package smu.nuda.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,8 +26,15 @@ public class RedisConfig {
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
+
+        BasicPolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
+                .allowIfBaseType("smu.nuda.")
+                .allowIfBaseType("java.util.")
+                .allowIfBaseType("java.time.")
+                .build();
+
         objectMapper.activateDefaultTyping(
-                objectMapper.getPolymorphicTypeValidator(),
+                ptv,
                 ObjectMapper.DefaultTyping.NON_FINAL
         );
 
