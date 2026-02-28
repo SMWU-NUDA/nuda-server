@@ -28,9 +28,10 @@ public class RedisConfig {
         objectMapper.registerModule(new JavaTimeModule());
 
         BasicPolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
-                .allowIfBaseType("smu.nuda.")
-                .allowIfBaseType("java.util.")
-                .allowIfBaseType("java.time.")
+                .allowIfBaseType(Object.class)
+                .allowIfSubType("smu.nuda.")
+                .allowIfSubType("java.util.")
+                .allowIfSubType("java.time.")
                 .build();
 
         objectMapper.activateDefaultTyping(
