@@ -10,5 +10,6 @@ import lombok.Getter;
 public class CartProductResponse {
     private Long productId;
     private int quantity;
-
+    private int costPrice;
+    private int totalPrice; // 수량 * 단가
 }

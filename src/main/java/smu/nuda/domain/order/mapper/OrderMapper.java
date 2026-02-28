@@ -50,6 +50,7 @@ public class OrderMapper {
                                 Product product = productMap.get(item.getProductId());
                                 return new OrderProductItem(
                                         product.getId(),
+                                        product.getThumbnailImg(),
                                         product.getName(),
                                         item.getQuantity(),
                                         item.getUnitPrice(),
