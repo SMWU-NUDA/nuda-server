@@ -13,7 +13,6 @@ import smu.nuda.domain.product.dto.ProductDetailResponse;
 import smu.nuda.domain.product.dto.ProductItem;
 import smu.nuda.domain.product.dto.enums.ProductKeywordType;
 import smu.nuda.domain.product.dto.enums.ProductSortType;
-import smu.nuda.domain.product.entity.Product;
 import smu.nuda.domain.product.repository.ProductQueryRepository;
 import smu.nuda.domain.like.repository.ProductLikeRepository;
 import smu.nuda.domain.product.repository.ProductRepository;
@@ -23,8 +22,6 @@ import smu.nuda.global.cache.facade.MlRankingCacheFacade;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -71,7 +68,7 @@ public class ProductService {
         int pageSize = size == null ? DEFAULT_SIZE : size;
 
         // redis에서 ml ranking 캐시 추출
-        List<Integer> rankedIds = rankingCacheFacade.getRanking(keyword);
+        List<Integer> rankedIds = rankingCacheFacade.getGlobalRanking(keyword);
 
         // index 기반 slice
         CursorPageResponse<Integer> indexPage = CursorPageResponse.sliceFromIndex(rankedIds, cursor, pageSize);

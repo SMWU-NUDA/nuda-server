@@ -14,21 +14,35 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MlRankingCacheFacade {
 
-    private static final int ML_TOP_K = 50;
+    private static final int GLOBAL_TOP_K = 50;
+    private static final int PERSONAL_TOP_K = 500;
 
     private final CacheTemplate cacheTemplate;
     private final MlApiClient mlApiClient;
 
-    public List<Integer> getRanking(ProductKeywordType keyword) {
-        String key = CacheKeyFactory.globalRanking(keyword, ML_TOP_K);
+    public List<Integer> getGlobalRanking(ProductKeywordType keyword) {
+        String key = CacheKeyFactory.globalRanking(keyword, GLOBAL_TOP_K);
 
         return cacheTemplate.get(
                 key,
                 CachePolicy.ML_GLOBAL_RANKING_TTL,
                 () -> mlApiClient
-                        .getKeywordRanking(keyword.getMlParam(), ML_TOP_K)
+                        .getKeywordRanking(keyword.getMlParam(), GLOBAL_TOP_K)
                         .rankedIds(),
                     List.class
+        );
+    }
+
+    public List<Long> getPersonalRanking(Long memberId, ProductKeywordType keyword) {
+        String key = CacheKeyFactory.personalRanking(memberId, keyword, PERSONAL_TOP_K);
+
+        return cacheTemplate.get(
+                key,
+                CachePolicy.ML_PERSONAL_RANKING_TTL,
+                () -> mlApiClient
+                        .getPersonalRanking(keyword.getMlParam(), PERSONAL_TOP_K)
+                        .rankedIds(),
+                List.class
         );
     }
 }

@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import smu.nuda.global.ml.dto.KeywordSyncRequest;
 import smu.nuda.global.ml.dto.KeywordSyncResponse;
-import smu.nuda.global.ml.dto.MlRankingRequest;
 import smu.nuda.global.ml.dto.MlRankingResponse;
 
 @Component
@@ -34,4 +33,13 @@ public class MlApiClient {
         );
     }
 
+    // 키워드별 맞춤 상품 랭킹 조회
+    public MlRankingResponse getPersonalRanking(String keyword, int topK) {
+        return httpClient.get(
+                "/ml/products/personalized-rank?keyword={keyword}&topK={topK}",
+                MlRankingResponse.class,
+                keyword,
+                topK
+        );
+    }
 }

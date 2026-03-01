@@ -22,7 +22,7 @@ public class WarmUpService {
 
         for (ProductKeywordType keyword : ProductKeywordType.values()) {
             try {
-                rankingCacheFacade.getRanking(keyword);
+                rankingCacheFacade.getGlobalRanking(keyword);
                 log.info("WarmUp 성공: {}", keyword);
             } catch (Exception e) {
                 log.warn("WarmUp 실패: {}", keyword);

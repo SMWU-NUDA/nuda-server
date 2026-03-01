@@ -14,6 +14,10 @@ public class CacheKeyFactory {
         return "ml:ranking:global:" + keyword.name() + ":top" + topK;
     }
 
+    public static String personalRanking(Long memberId, ProductKeywordType keyword, int topK) {
+        return "ml:ranking:personal:" + memberId + ":" + keyword.name() + ":top" + topK;
+    }
+
     public String reviewAiSummary(Long reviewId) {
         return "review:ai-summary:" + reviewId;
     }
