@@ -118,7 +118,7 @@ public class ProductController {
         return new Cursor<>(sortValue, id);
     }
 
-    @GetMapping("/rankings")
+    @GetMapping("/global-rankings")
     @Operation(
             summary = "키워드별 전체 상품 랭킹 조회",
             description = """
@@ -138,5 +138,28 @@ public class ProductController {
             @RequestParam(required = false) Integer size
     ) {
         return ApiResponse.success(productService.getGlobalRankingPage(keyword, cursor, size));
+    }
+
+    @GetMapping("/personal-rankings")
+    @Operation(
+            summary = "키워드별 맞춤 상품 랭킹 조회",
+            description = """
+                    키워드(자극도, 향, 흡수력 등)를 기준으로 정렬된 사용자 맞춤 랭킹 상품을 조회합니다.
+                    - DEFAULT : 전체
+                    - IRRITATION_LEVEL : 민감도 순
+                    - SCENT : 향 순
+                    - ABSORBENCY : 흡수력 순
+                    - ADHESION : 접착력 순
+                    """
+    )
+    @SecurityRequirement(name = "JWT")
+    @LoginRequired
+    public ApiResponse<CursorPageResponse<ProductItem>> getPersonalRanking(
+            @RequestParam ProductKeywordType keyword,
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(required = false) Integer size
+    ) {
+        Long memberId = authenticationGuard.currentMemberId();
+        return ApiResponse.success(productService.getPersonalRankingPage(memberId, keyword, cursor, size));
     }
 }

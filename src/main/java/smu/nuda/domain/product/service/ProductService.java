@@ -20,6 +20,7 @@ import smu.nuda.domain.product.repository.projection.ProductRankingProjection;
 import smu.nuda.global.cache.facade.MlRankingCacheFacade;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -65,23 +66,34 @@ public class ProductService {
     }
 
     public CursorPageResponse<ProductItem> getGlobalRankingPage(ProductKeywordType keyword, Long cursor, Integer size) {
+        List<Integer> rankedIds = rankingCacheFacade.getGlobalRanking(keyword);
+        return getRankingPageFromIds(rankedIds, cursor, size);
+    }
+
+    public CursorPageResponse<ProductItem> getPersonalRankingPage(Long memberId, ProductKeywordType keyword, Long cursor, Integer size) {
+        List<Integer> rankedIds = rankingCacheFacade.getPersonalRanking(memberId, keyword);
+        return getRankingPageFromIds(rankedIds, cursor, size);
+    }
+
+    private CursorPageResponse<ProductItem> getRankingPageFromIds(List<Integer> rankedIds, Long cursor, Integer size) {
         int pageSize = size == null ? DEFAULT_SIZE : size;
 
-        // redis에서 ml ranking 캐시 추출
-        List<Integer> rankedIds = rankingCacheFacade.getGlobalRanking(keyword);
+        if (rankedIds == null || rankedIds.isEmpty()) return new CursorPageResponse<>(List.of(), null, false);
 
         // index 기반 slice
         CursorPageResponse<Integer> indexPage = CursorPageResponse.sliceFromIndex(rankedIds, cursor, pageSize);
         if (indexPage.getContent().isEmpty()) return new CursorPageResponse<>(List.of(), null, false);
+        List<Long> pageIds = indexPage.getContent().stream().map(Integer::longValue) .toList();
 
-        List<Long> pageIds = indexPage.getContent()
-                .stream()
-                .map(Integer::longValue)
-                .toList();
-
-        // DB 조회
+        // 최적화를 위해 index map 생성 -> O(n)
+        Map<Long, Integer> orderMap = new HashMap<>();
+        for (int i = 0; i < pageIds.size(); i++) {
+            orderMap.put(pageIds.get(i), i);
+        }
+        // DB 조회 후 ml 순서대로 정렬 -> O(n)
         List<ProductRankingProjection> projections = productRepository.findRankingItems(pageIds)
-                .stream().sorted(Comparator.comparingInt(p -> pageIds.indexOf(p.getProductId())))
+                .stream()
+                .sorted(Comparator.comparingInt(p -> orderMap.get(p.getProductId())))
                 .toList();
         Map<Long, List<String>> labelMap = productQueryRepository.findIngredientLabelsByProductIds(pageIds);
 
@@ -98,11 +110,7 @@ public class ProductService {
                             p.getLikeCount(),
                             p.getCostPrice()
                     );
-
-                    item.setIngredientLabels(
-                            labelMap.getOrDefault(p.getProductId(), List.of())
-                    );
-
+                    item.setIngredientLabels(labelMap.getOrDefault(p.getProductId(), List.of()));
                     return item;
                 })
                 .toList();

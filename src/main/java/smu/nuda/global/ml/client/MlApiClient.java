@@ -34,10 +34,11 @@ public class MlApiClient {
     }
 
     // 키워드별 맞춤 상품 랭킹 조회
-    public MlRankingResponse getPersonalRanking(String keyword, int topK) {
+    public MlRankingResponse getPersonalRanking(Long memberId, String keyword, int topK) {
         return httpClient.get(
-                "/ml/products/personalized-rank?keyword={keyword}&topK={topK}",
+                "/ml/products/personalized-rank?memberId={memberId}&keyword={keyword}&topK={topK}",
                 MlRankingResponse.class,
+                memberId,
                 keyword,
                 topK
         );

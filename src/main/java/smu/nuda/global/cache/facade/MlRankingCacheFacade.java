@@ -33,14 +33,14 @@ public class MlRankingCacheFacade {
         );
     }
 
-    public List<Long> getPersonalRanking(Long memberId, ProductKeywordType keyword) {
+    public List<Integer> getPersonalRanking(Long memberId, ProductKeywordType keyword) {
         String key = CacheKeyFactory.personalRanking(memberId, keyword, PERSONAL_TOP_K);
 
         return cacheTemplate.get(
                 key,
                 CachePolicy.ML_PERSONAL_RANKING_TTL,
                 () -> mlApiClient
-                        .getPersonalRanking(keyword.getMlParam(), PERSONAL_TOP_K)
+                        .getPersonalRanking(memberId, keyword.getMlParam(), PERSONAL_TOP_K)
                         .rankedIds(),
                 List.class
         );
