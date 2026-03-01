@@ -10,6 +10,6 @@ public class CachePolicy {
     public static final Duration ML_GLOBAL_RANKING_TTL = Duration.ofMinutes(20);
 
     // 키워드별 상품 맞춤 추천 조회
-    public static final Duration ML_PERSONAL_RANKING_TTL = Duration.ofMinutes(30);
+    public static final Duration ML_PERSONAL_RANKING_TTL = Duration.ofMinutes(7);
 
 }
