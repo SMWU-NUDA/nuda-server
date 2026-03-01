@@ -1,5 +1,6 @@
 package smu.nuda.global.ml.client;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatusCode;
@@ -13,6 +14,7 @@ public class MlHttpClient {
 
     private final WebClient mlWebClient;
 
+    @CircuitBreaker(name = "ml")
     public <T> T post(String uriTemplate, Object body, Class<T> responseType, Object... uriVariables) {
         T result = mlWebClient.post()
                 .uri(uriTemplate, uriVariables)
@@ -38,6 +40,7 @@ public class MlHttpClient {
         return result;
     }
 
+    @CircuitBreaker(name = "ml")
     public <T> T get(String uriTemplate, Class<T> responseType, Object... uriVariables) {
         T result = mlWebClient.get()
                 .uri(uriTemplate, uriVariables)
