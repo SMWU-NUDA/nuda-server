@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import smu.nuda.domain.common.dto.Cursor;
+import smu.nuda.domain.common.dto.CursorPageResponse;
 import smu.nuda.domain.common.dto.CursorResponse;
 import smu.nuda.domain.ingredient.dto.IngredientResponse;
 import smu.nuda.domain.ingredient.dto.IngredientSummaryResponse;
@@ -13,6 +14,7 @@ import smu.nuda.domain.ingredient.dto.enums.IngredientFilterType;
 import smu.nuda.domain.ingredient.service.IngredientService;
 import smu.nuda.domain.product.dto.ProductDetailResponse;
 import smu.nuda.domain.product.dto.ProductItem;
+import smu.nuda.domain.product.dto.enums.ProductKeywordType;
 import smu.nuda.domain.product.dto.enums.ProductSortType;
 import smu.nuda.domain.product.service.ProductService;
 import smu.nuda.global.guard.annotation.LoginRequired;
@@ -114,5 +116,27 @@ public class ProductController {
         };
 
         return new Cursor<>(sortValue, id);
+    }
+
+    @GetMapping("/rankings")
+    @Operation(
+            summary = "키워드별 전체 상품 랭킹 조회",
+            description = """
+                    키워드(자극도, 향, 흡수력 등)를 기준으로 정렬된 전체 상품의 랭킹을 조회합니다.
+                    - DEFAULT : 전체
+                    - IRRITATION_LEVEL : 민감도 순
+                    - SCENT : 향 순
+                    - ABSORBENCY : 흡수력 순
+                    - ADHESION : 접착력 순
+                    """
+    )
+    @SecurityRequirement(name = "JWT")
+    @LoginRequired
+    public ApiResponse<CursorPageResponse<ProductItem>> getGlobalRanking(
+            @RequestParam ProductKeywordType keyword,
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(required = false) Integer size
+    ) {
+        return ApiResponse.success(productService.getGlobalRankingPage(keyword, cursor, size));
     }
 }

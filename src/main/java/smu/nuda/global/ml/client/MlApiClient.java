@@ -24,6 +24,7 @@ public class MlApiClient {
     }
 
     // 키워드별 전체 상품 랭킹 조회
+    @SuppressWarnings("unchecked")
     public MlRankingResponse getKeywordRanking(String keyword, int topK) {
         return httpClient.get(
                 "/ml/products/global-score?keyword={keyword}&topK={topK}",

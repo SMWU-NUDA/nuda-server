@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import smu.nuda.domain.product.entity.Product;
+import smu.nuda.domain.product.repository.projection.ProductRankingProjection;
 
 import java.util.List;
 
@@ -26,4 +27,21 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     join fetch p.category
     """)
     List<Product> findAllWithCategory();
+
+    @Query("""
+        SELECT 
+            p.id as productId,
+            p.thumbnailImg as thumbnailImg,
+            b.id as brandId,
+            b.name as brandName,
+            p.name as productName,
+            p.averageRating as averageRating,
+            p.reviewCount as reviewCount,
+            p.likeCount as likeCount,
+            p.costPrice as costPrice
+        FROM Product p
+        JOIN p.brand b
+        WHERE p.id IN :ids
+    """)
+    List<ProductRankingProjection> findRankingItems(@Param("ids") List<Long> ids);
 }

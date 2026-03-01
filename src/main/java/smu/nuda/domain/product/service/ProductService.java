@@ -4,26 +4,37 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import smu.nuda.domain.common.dto.Cursor;
+import smu.nuda.domain.common.dto.CursorPageResponse;
 import smu.nuda.domain.common.dto.CursorResponse;
 import smu.nuda.domain.like.repository.BrandLikeRepository;
 import smu.nuda.domain.product.cache.ProductCacheFacade;
 import smu.nuda.domain.product.dto.ProductDetailCache;
 import smu.nuda.domain.product.dto.ProductDetailResponse;
 import smu.nuda.domain.product.dto.ProductItem;
+import smu.nuda.domain.product.dto.enums.ProductKeywordType;
 import smu.nuda.domain.product.dto.enums.ProductSortType;
+import smu.nuda.domain.product.entity.Product;
 import smu.nuda.domain.product.repository.ProductQueryRepository;
 import smu.nuda.domain.like.repository.ProductLikeRepository;
+import smu.nuda.domain.product.repository.ProductRepository;
+import smu.nuda.domain.product.repository.projection.ProductRankingProjection;
 import smu.nuda.global.cache.facade.MlRankingCacheFacade;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ProductService {
 
+    private static final int DEFAULT_SIZE = 20;
+
     private final ProductCacheFacade productCacheFacade;
     private final MlRankingCacheFacade rankingCacheFacade;
+    private final ProductRepository productRepository;
     private final ProductQueryRepository productQueryRepository;
     private final ProductLikeRepository productLikeRepository;
     private final BrandLikeRepository brandLikeRepository;
@@ -56,8 +67,54 @@ public class ProductService {
         return response;
     }
 
-    public List<Integer> getRankedProductIds(String keyword) {
-        return rankingCacheFacade.getRanking(keyword, 30);
+    public CursorPageResponse<ProductItem> getGlobalRankingPage(ProductKeywordType keyword, Long cursor, Integer size) {
+        int pageSize = size == null ? DEFAULT_SIZE : size;
+
+        // redis에서 ml ranking 캐시 추출
+        List<Integer> rankedIds = rankingCacheFacade.getRanking(keyword);
+
+        // index 기반 slice
+        CursorPageResponse<Integer> indexPage = CursorPageResponse.sliceFromIndex(rankedIds, cursor, pageSize);
+        if (indexPage.getContent().isEmpty()) return new CursorPageResponse<>(List.of(), null, false);
+
+        List<Long> pageIds = indexPage.getContent()
+                .stream()
+                .map(Integer::longValue)
+                .toList();
+
+        // DB 조회
+        List<ProductRankingProjection> projections = productRepository.findRankingItems(pageIds)
+                .stream().sorted(Comparator.comparingInt(p -> pageIds.indexOf(p.getProductId())))
+                .toList();
+        Map<Long, List<String>> labelMap = productQueryRepository.findIngredientLabelsByProductIds(pageIds);
+
+        List<ProductItem> result = projections.stream()
+                .map(p -> {
+                    ProductItem item = new ProductItem(
+                            p.getProductId(),
+                            p.getThumbnailImg(),
+                            p.getBrandId(),
+                            p.getBrandName(),
+                            p.getProductName(),
+                            p.getAverageRating(),
+                            p.getReviewCount(),
+                            p.getLikeCount(),
+                            p.getCostPrice()
+                    );
+
+                    item.setIngredientLabels(
+                            labelMap.getOrDefault(p.getProductId(), List.of())
+                    );
+
+                    return item;
+                })
+                .toList();
+
+        return new CursorPageResponse<>(
+                result,
+                indexPage.getNextCursor(),
+                indexPage.isHasNext()
+        );
     }
 
 }
