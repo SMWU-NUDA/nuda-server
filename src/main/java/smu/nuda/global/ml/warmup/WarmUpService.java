@@ -1,0 +1,34 @@
+package smu.nuda.global.ml.warmup;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
+import smu.nuda.domain.product.dto.enums.ProductKeywordType;
+import smu.nuda.global.cache.facade.MlRankingCacheFacade;
+
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class WarmUpService {
+
+    private final MlRankingCacheFacade rankingCacheFacade;
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void warmUpRankingCache() {
+
+        log.info("[ML] Global Ranking Warm-Up started");
+
+        for (ProductKeywordType keyword : ProductKeywordType.values()) {
+            try {
+                rankingCacheFacade.getGlobalRanking(keyword);
+                log.info("WarmUp 성공: {}", keyword);
+            } catch (Exception e) {
+                log.warn("WarmUp 실패: {}", keyword);
+            }
+        }
+
+        log.info("[ML] Global Ranking Warm-Up ended");
+    }
+}

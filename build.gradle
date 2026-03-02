@@ -10,6 +10,10 @@ group = 'smu'
 version = '0.0.1-SNAPSHOT'
 description = 'Demo project for Spring Boot'
 
+ext {
+	set('springCloudVersion', "2023.0.1")
+}
+
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(17)
@@ -26,9 +30,15 @@ repositories {
 	mavenCentral()
 }
 
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+
 dependencies {
 
-	// Web
+	// web
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
@@ -85,6 +95,11 @@ dependencies {
 	// aws sdk
 	implementation "software.amazon.awssdk:s3"
 	implementation(platform("software.amazon.awssdk:bom:2.25.60"))
+
+	// circuit breaker
+	implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
+	implementation 'io.github.resilience4j:resilience4j-spring-boot3'
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
 
 	// test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'

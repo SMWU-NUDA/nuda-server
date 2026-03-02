@@ -1,5 +1,6 @@
 package smu.nuda.global.exception
 
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException
 import jakarta.servlet.http.HttpServletRequest
 import org.apache.catalina.connector.ClientAbortException
 import org.apache.tomcat.util.http.fileupload.impl.IOFileUploadException
@@ -11,11 +12,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.multipart.MultipartException
 import smu.nuda.domain.file.error.FileErrorCode
-import smu.nuda.global.error.DomainException
-import smu.nuda.global.error.CommonErrorCode
-import smu.nuda.global.error.ValidationErrorCode
-import smu.nuda.global.error.ValidationErrorDetail
+import smu.nuda.global.error.*
 import smu.nuda.global.response.ApiResponse
+import java.util.concurrent.TimeoutException
+
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
@@ -23,9 +23,7 @@ class GlobalExceptionHandler {
     private val log = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
 
     @ExceptionHandler(DomainException::class)
-    fun handleDomainException(
-        e: DomainException
-    ): ResponseEntity<ApiResponse<Any>> {
+    fun handleDomainException(e: DomainException): ResponseEntity<ApiResponse<Any>> {
 
         return ResponseEntity
             .badRequest()
@@ -57,10 +55,7 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception::class)
-    fun handleUnexpectedException(
-        e: Exception,
-        request: HttpServletRequest
-    ): ResponseEntity<ApiResponse<Nothing>> {
+    fun handleUnexpectedException(e: Exception, request: HttpServletRequest): ResponseEntity<ApiResponse<Nothing>> {
         if (request.requestURI.startsWith("/v3/api-docs")) {
             throw e
         }
@@ -79,9 +74,7 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
-    fun handleValidationException(
-        e: MethodArgumentNotValidException
-    ): ResponseEntity<ApiResponse<List<ValidationErrorDetail>>> {
+    fun handleValidationException(e: MethodArgumentNotValidException): ResponseEntity<ApiResponse<List<ValidationErrorDetail>>> {
 
         val details = e.bindingResult.fieldErrors.map { fieldError ->
             ValidationErrorDetail(
@@ -101,4 +94,17 @@ class GlobalExceptionHandler {
             )
     }
 
+    @ExceptionHandler(CallNotPermittedException::class)
+    fun handleCircuitBreakerOpen(): ResponseEntity<ApiResponse<Nothing>> {
+        return ResponseEntity
+            .status(HttpStatus.SERVICE_UNAVAILABLE)
+            .body(ApiResponse.fail(MlErrorCode.UNAVAILABLE))
+    }
+
+    @ExceptionHandler(TimeoutException::class)
+    fun handleTimeout(): ResponseEntity<ApiResponse<Nothing>> {
+        return ResponseEntity
+            .status(HttpStatus.SERVICE_UNAVAILABLE)
+            .body(ApiResponse.fail(MlErrorCode.TIMEOUT))
+    }
 }

@@ -53,4 +53,9 @@ public class Ingredient extends BaseEntity {
         return ingredient;
     }
 
+    public String getDisplayLabel() {
+        if (layerType == null) return name;
+        return name + "(" + layerType.getDescription() + ")";
+    }
+
 }
