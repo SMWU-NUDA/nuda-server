@@ -9,10 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import smu.nuda.domain.common.dto.Cursor;
 import smu.nuda.domain.common.dto.CursorPageResponse;
 import smu.nuda.domain.common.dto.CursorResponse;
-import smu.nuda.domain.ingredient.dto.IngredientResponse;
-import smu.nuda.domain.ingredient.dto.IngredientSummaryResponse;
-import smu.nuda.domain.ingredient.dto.enums.IngredientFilterType;
-import smu.nuda.domain.ingredient.service.IngredientService;
 import smu.nuda.domain.product.dto.ProductDetailResponse;
 import smu.nuda.domain.product.dto.ProductItem;
 import smu.nuda.domain.product.dto.enums.ProductKeywordType;
@@ -29,7 +25,6 @@ import smu.nuda.global.response.ApiResponse;
 public class ProductController {
 
     private final ProductService productService;
-    private final IngredientService ingredientService;
     private final AuthenticationGuard authenticationGuard;
 
     @GetMapping("/{productId}")
@@ -42,33 +37,6 @@ public class ProductController {
     public ApiResponse<ProductDetailResponse> getProductDetail(@PathVariable Long productId) {
         Long memberId = authenticationGuard.currentMemberId();
         return ApiResponse.success(productService.getProductDetail(productId, memberId));
-    }
-
-    @GetMapping("/{productId}/ingredient-summary")
-    @Operation(
-            summary = "상품 성분 구성 요약",
-            description = "해당 상품의 레이어별(표지, 흡수체 등) 성분 구성 요약을 조회합니다."
-    )
-    @SecurityRequirement(name = "JWT")
-    @LoginRequired
-    public ApiResponse<IngredientSummaryResponse> getSummary(@PathVariable Long productId) {
-        Long memberId = authenticationGuard.currentMemberId();
-        return ApiResponse.success(ingredientService.getIngredientSummary(productId, memberId));
-    }
-
-    @GetMapping("/{productId}/ingredients")
-    @Operation(
-            summary = "상품 전성분 조회",
-            description = "해당 상품의 전체 성분을 조회합니다."
-    )
-    @SecurityRequirement(name = "JWT")
-    @LoginRequired
-    public ApiResponse<IngredientResponse> getProductIngredients(
-            @PathVariable Long productId,
-            @RequestParam(defaultValue = "ALL") IngredientFilterType filter
-    ) {
-        Long memberId = authenticationGuard.currentMemberId();
-        return ApiResponse.success(ingredientService.getIngredients(productId, filter, memberId));
     }
 
     @GetMapping
