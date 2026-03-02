@@ -25,7 +25,7 @@ public class WarmUpService {
                 rankingCacheFacade.getGlobalRanking(keyword);
                 log.info("WarmUp 성공: {}", keyword);
             } catch (Exception e) {
-                log.warn("WarmUp 실패: {}", keyword);
+                log.warn("WarmUp 실패: {}, 사유: {}", keyword, e.getMessage(), e);
             }
         }
 

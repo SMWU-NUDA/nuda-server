@@ -1,11 +1,14 @@
 package smu.nuda.global.ml.client;
 
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import smu.nuda.global.error.MlErrorCode;
+import smu.nuda.global.ml.exception.MlApiException;
 
 @Component
 @RequiredArgsConstructor
@@ -14,7 +17,7 @@ public class MlHttpClient {
 
     private final WebClient mlWebClient;
 
-    @CircuitBreaker(name = "ml")
+    @CircuitBreaker(name = "mlApi", fallbackMethod = "handleFallback")
     public <T> T post(String uriTemplate, Object body, Class<T> responseType, Object... uriVariables) {
         T result = mlWebClient.post()
                 .uri(uriTemplate, uriVariables)
@@ -40,7 +43,7 @@ public class MlHttpClient {
         return result;
     }
 
-    @CircuitBreaker(name = "ml")
+    @CircuitBreaker(name = "mlApi", fallbackMethod = "handleFallback")
     public <T> T get(String uriTemplate, Class<T> responseType, Object... uriVariables) {
         T result = mlWebClient.get()
                 .uri(uriTemplate, uriVariables)
@@ -64,5 +67,20 @@ public class MlHttpClient {
         }
 
         return result;
+    }
+
+    private <T> T handleFallback(CallNotPermittedException e) {
+        log.error("ML Circuit Breaker is OPEN", e);
+        throw new MlApiException(MlErrorCode.UNAVAILABLE);
+    }
+
+    private <T> T handleFallback(java.util.concurrent.TimeoutException e) {
+        log.error("ML Request Timeout", e);
+        throw new MlApiException(MlErrorCode.TIMEOUT);
+    }
+
+    private <T> T handleFallback(Exception e) {
+        log.error("ML Unexpected Error", e);
+        throw new MlApiException(MlErrorCode.INTERNAL_SERVER_ERROR);
     }
 }
