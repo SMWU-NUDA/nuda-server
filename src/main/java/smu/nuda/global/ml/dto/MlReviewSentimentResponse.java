@@ -7,7 +7,7 @@ public record MlReviewSentimentResponse(
         String analyzedAt
 ) {
     public record SentimentDistribution(
-            int positive,
-            int negative
+            double positive,
+            double negative
     ) {}
 }

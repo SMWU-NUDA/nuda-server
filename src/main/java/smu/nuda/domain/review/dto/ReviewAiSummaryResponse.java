@@ -22,11 +22,8 @@ public class ReviewAiSummaryResponse {
             MlReviewSentimentResponse sentiment,
             MlReviewKeywordsResponse keywords
     ) {
-        int positive = sentiment.sentimentDistribution().positive();
-        int negative = sentiment.sentimentDistribution().negative();
-
-        int total = positive + negative;
-        int satisfactionRate = total == 0 ? 0 : (int) Math.round((positive * 100.0) / total);
+        double positiveRatio = sentiment.sentimentDistribution().positive();
+        int satisfactionRate = (int) Math.round(positiveRatio * 100);
 
         return ReviewAiSummaryResponse.builder()
                 .keywords(SentimentKeywordsItem.from(keywords))

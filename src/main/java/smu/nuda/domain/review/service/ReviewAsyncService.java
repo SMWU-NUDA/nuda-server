@@ -18,22 +18,16 @@ public class ReviewAsyncService {
 
     @Async("mlExecutor")
     public CompletableFuture<MlReviewTrendResponse> getTrendAsync(Long productId) {
-        return CompletableFuture.completedFuture(
-                mlReviewCacheFacade.getReviewTrend(productId)
-        );
+        return CompletableFuture.completedFuture(mlReviewCacheFacade.getReviewTrend(productId));
     }
 
     @Async("mlExecutor")
     public CompletableFuture<MlReviewSentimentResponse> getSentimentAsync(Long productId) {
-        return CompletableFuture.completedFuture(
-                mlReviewCacheFacade.getReviewSentiment(productId)
-        );
+        return CompletableFuture.completedFuture(mlReviewCacheFacade.getReviewSentiment(productId));
     }
 
     @Async("mlExecutor")
     public CompletableFuture<MlReviewKeywordsResponse> getKeywordsAsync(Long productId, int topN) {
-        return CompletableFuture.completedFuture(
-                mlReviewCacheFacade.getReviewKeywords(productId, topN)
-        );
+        return CompletableFuture.completedFuture(mlReviewCacheFacade.getReviewKeywords(productId, topN));
     }
 }

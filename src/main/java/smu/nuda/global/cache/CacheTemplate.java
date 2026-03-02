@@ -27,12 +27,7 @@ public class CacheTemplate {
     }
 
     public <T> T get(String key, Duration ttl, Supplier<T> supplier, Class<T> type) {
-        long redisStart = System.nanoTime();
         Object cached = jsonRedisTemplate.opsForValue().get(key);
-        long redisEnd = System.nanoTime();
-
-        log.debug("Redis GET time = {} μs", (redisEnd - redisStart) / 1000);
-
         if (type.isInstance(cached)) {
             log.info("CACHE HIT key={}", key);
             return type.cast(cached);
@@ -41,7 +36,6 @@ public class CacheTemplate {
         T value = supplier.get();
         if (value != null) jsonRedisTemplate.opsForValue().set(key, value, ttl);
         log.info("CACHE Miss key={}", key);
-        log.info("cached class={}", cached == null ? null : cached.getClass());
         return value;
     }
 

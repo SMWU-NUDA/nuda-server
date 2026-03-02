@@ -44,13 +44,7 @@ public class MlReviewCacheFacade {
         return cacheTemplate.get(
                 key,
                 CachePolicy.ML_REVIEW_KEYWORDS_TTL,
-                () -> {
-                    long start = System.currentTimeMillis();
-                    MlReviewKeywordsResponse result = mlApiClient.getReviewKeywords(productId, topN);
-                    long end = System.currentTimeMillis();
-                    log.info("ML Keyword API Time = {} ms", (end - start));
-                    return result;
-                },
+                () -> mlApiClient.getReviewKeywords(productId, topN),
                 MlReviewKeywordsResponse.class
         );
     }
@@ -61,13 +55,7 @@ public class MlReviewCacheFacade {
         return cacheTemplate.get(
                 key,
                 CachePolicy.ML_REVIEW_TREND_TTL,
-                () -> {
-                    long start = System.currentTimeMillis();
-                    MlReviewTrendResponse result = mlApiClient.getReviewTrend(productId);
-                    long end = System.currentTimeMillis();
-                    log.info("ML Trend API Time = {} ms", (end - start));
-                    return result;
-                },
+                () -> mlApiClient.getReviewTrend(productId),
                 MlReviewTrendResponse.class
         );
     }
@@ -78,13 +66,7 @@ public class MlReviewCacheFacade {
         return cacheTemplate.get(
                 key,
                 CachePolicy.ML_REVIEW_SENTIMENT_TTL,
-                () -> {
-                    long start = System.currentTimeMillis();
-                    MlReviewSentimentResponse result = mlApiClient.getReviewSentiment(productId);
-                    long end = System.currentTimeMillis();
-                    log.info("ML Sentiment API Time = {} ms", (end - start));
-                    return result;
-                },
+                () -> mlApiClient.getReviewSentiment(productId),
                 MlReviewSentimentResponse.class
         );
     }
