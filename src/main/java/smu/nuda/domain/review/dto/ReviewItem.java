@@ -10,7 +10,7 @@ import java.util.List;
 
 @Getter
 @Builder
-public class ReviewDetailResponse {
+public class ReviewItem {
     private Long reviewId;
     private Long productId;
 
@@ -24,8 +24,8 @@ public class ReviewDetailResponse {
 
     private String createdAt;
 
-    public static ReviewDetailResponse of(Review review, List<String> imageUrls, boolean likedByMe) {
-        return ReviewDetailResponse.builder()
+    public static ReviewItem of(Review review, List<String> imageUrls, boolean likedByMe) {
+        return ReviewItem.builder()
                 .reviewId(review.getId())
                 .productId(review.getProduct().getId())
                 .me(MeResponse.from(review.getMember()))

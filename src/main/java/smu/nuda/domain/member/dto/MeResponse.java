@@ -22,4 +22,14 @@ public class MeResponse {
                 member.getEmail()
         );
     }
+
+    public static MeResponse of(
+            Long id,
+            String username,
+            String nickname,
+            String profileImg,
+            String email
+    ) {
+        return new MeResponse(id, username, nickname, profileImg, email);
+    }
 }

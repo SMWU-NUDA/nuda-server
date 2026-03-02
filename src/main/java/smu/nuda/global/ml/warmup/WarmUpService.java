@@ -6,14 +6,14 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import smu.nuda.domain.product.dto.enums.ProductKeywordType;
-import smu.nuda.global.cache.facade.MlRankingCacheFacade;
+import smu.nuda.global.cache.facade.MlProductCacheFacade;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class WarmUpService {
 
-    private final MlRankingCacheFacade rankingCacheFacade;
+    private final MlProductCacheFacade rankingCacheFacade;
 
     @EventListener(ApplicationReadyEvent.class)
     public void warmUpRankingCache() {

@@ -24,7 +24,7 @@ public class MlApiClient {
 
     // 키워드별 전체 상품 랭킹 조회
     @SuppressWarnings("unchecked")
-    public MlRankingResponse getKeywordRanking(String keyword, int topK) {
+    public MlRankingResponse getProductGlobalRanking(String keyword, int topK) {
         return httpClient.get(
                 "/ml/products/global-score?keyword={keyword}&topK={topK}",
                 MlRankingResponse.class,
@@ -34,11 +34,23 @@ public class MlApiClient {
     }
 
     // 키워드별 맞춤 상품 랭킹 조회
-    public MlRankingResponse getPersonalRanking(Long memberId, String keyword, int topK) {
+    public MlRankingResponse getProductPersonalRanking(Long memberId, String keyword, int topK) {
         return httpClient.get(
                 "/ml/products/personalized-rank?memberId={memberId}&keyword={keyword}&topK={topK}",
                 MlRankingResponse.class,
                 memberId,
+                keyword,
+                topK
+        );
+    }
+
+    // 키워드별 전체 리뷰 랭킹 조회
+    @SuppressWarnings("unchecked")
+    public MlRankingResponse getReviewGlobalRanking(Long productId, String keyword, int topK) {
+        return httpClient.get(
+                "/ml/reviews/{productId}?keyword={keyword}&topK={topK}",
+                MlRankingResponse.class,
+                productId,
                 keyword,
                 topK
         );

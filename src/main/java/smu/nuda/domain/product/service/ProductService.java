@@ -17,7 +17,7 @@ import smu.nuda.domain.product.repository.ProductQueryRepository;
 import smu.nuda.domain.like.repository.ProductLikeRepository;
 import smu.nuda.domain.product.repository.ProductRepository;
 import smu.nuda.domain.product.repository.projection.ProductRankingProjection;
-import smu.nuda.global.cache.facade.MlRankingCacheFacade;
+import smu.nuda.global.cache.facade.MlProductCacheFacade;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -31,7 +31,7 @@ public class ProductService {
     private static final int DEFAULT_SIZE = 20;
 
     private final ProductCacheFacade productCacheFacade;
-    private final MlRankingCacheFacade rankingCacheFacade;
+    private final MlProductCacheFacade mlProductCacheFacade;
     private final ProductRepository productRepository;
     private final ProductQueryRepository productQueryRepository;
     private final ProductLikeRepository productLikeRepository;
@@ -67,13 +67,13 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public CursorPageResponse<ProductItem> getGlobalRankingPage(ProductKeywordType keyword, Long cursor, Integer size) {
-        List<Integer> rankedIds = rankingCacheFacade.getGlobalRanking(keyword);
+        List<Integer> rankedIds = mlProductCacheFacade.getGlobalRanking(keyword);
         return getRankingPageFromIds(rankedIds, cursor, size);
     }
 
     @Transactional(readOnly = true)
     public CursorPageResponse<ProductItem> getPersonalRankingPage(Long memberId, ProductKeywordType keyword, Long cursor, Integer size) {
-        List<Integer> rankedIds = rankingCacheFacade.getPersonalRanking(memberId, keyword);
+        List<Integer> rankedIds = mlProductCacheFacade.getPersonalRanking(memberId, keyword);
         return getRankingPageFromIds(rankedIds, cursor, size);
     }
 
@@ -93,7 +93,7 @@ public class ProductService {
             orderMap.put(pageIds.get(i), i);
         }
         // DB 조회 후 ml 순서대로 정렬 -> O(n)
-        List<ProductRankingProjection> projections = productRepository.findRankingItems(pageIds)
+        List<ProductRankingProjection> projections = productRepository.findRankingProducts(pageIds)
                 .stream()
                 .sorted(Comparator.comparingInt(p -> orderMap.get(p.getProductId())))
                 .toList();

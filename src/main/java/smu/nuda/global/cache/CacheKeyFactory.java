@@ -2,7 +2,7 @@ package smu.nuda.global.cache;
 
 import org.springframework.stereotype.Component;
 import smu.nuda.domain.product.dto.enums.ProductKeywordType;
-import smu.nuda.domain.product.dto.enums.ProductSortType;
+import smu.nuda.domain.review.dto.enums.ReviewKeywordType;
 
 @Component
 public class CacheKeyFactory {
@@ -10,15 +10,15 @@ public class CacheKeyFactory {
         return "product:detail:" + productId;
     }
 
-    public String globalRanking(ProductKeywordType keyword, int topK) {
-        return "ml:ranking:global:" + keyword.name() + ":top" + topK;
+    public String productGlobalRanking(ProductKeywordType keyword, int topK) {
+        return "ml:product:ranking:global:" + keyword.name() + ":top" + topK;
     }
 
-    public String personalRanking(Long memberId, ProductKeywordType keyword, int topK) {
-        return "ml:ranking:personal:" + memberId + ":" + keyword.name() + ":top" + topK;
+    public String productPersonalRanking(Long memberId, ProductKeywordType keyword, int topK) {
+        return "ml:product:ranking:personal:" + memberId + ":" + keyword.name() + ":top" + topK;
     }
 
-    public String reviewAiSummary(Long reviewId) {
-        return "review:ai-summary:" + reviewId;
+    public String reviewGlobalRanking(Long productId, ReviewKeywordType keyword, int topK) {
+        return "ml:review:ranking:global:" + productId + ":" + keyword.name() + ":top" + topK;
     }
 }

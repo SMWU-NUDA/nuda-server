@@ -11,7 +11,6 @@ import org.springframework.stereotype.Repository;
 import smu.nuda.domain.common.dto.Cursor;
 import smu.nuda.domain.common.dto.CursorResponse;
 import smu.nuda.domain.ingredient.entity.Ingredient;
-import smu.nuda.domain.ingredient.entity.enums.LayerType;
 import smu.nuda.domain.product.dto.ProductDetailCache;
 import smu.nuda.domain.product.dto.ProductItem;
 import smu.nuda.domain.product.dto.enums.ProductSortType;

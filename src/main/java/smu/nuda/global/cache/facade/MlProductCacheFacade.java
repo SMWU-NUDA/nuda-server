@@ -12,7 +12,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class MlRankingCacheFacade {
+public class MlProductCacheFacade {
 
     private static final int GLOBAL_TOP_K = 50;
     private static final int PERSONAL_TOP_K = 500;
@@ -22,26 +22,26 @@ public class MlRankingCacheFacade {
     private final MlApiClient mlApiClient;
 
     public List<Integer> getGlobalRanking(ProductKeywordType keyword) {
-        String key = cacheKeyFactory.globalRanking(keyword, GLOBAL_TOP_K);
+        String key = cacheKeyFactory.productGlobalRanking(keyword, GLOBAL_TOP_K);
 
         return cacheTemplate.get(
                 key,
-                CachePolicy.ML_GLOBAL_RANKING_TTL,
+                CachePolicy.ML_PRODUCT_GLOBAL_RANKING_TTL,
                 () -> mlApiClient
-                        .getKeywordRanking(keyword.getMlParam(), GLOBAL_TOP_K)
+                        .getProductGlobalRanking(keyword.getMlParam(), GLOBAL_TOP_K)
                         .rankedIds(),
                     List.class
         );
     }
 
     public List<Integer> getPersonalRanking(Long memberId, ProductKeywordType keyword) {
-        String key = cacheKeyFactory.personalRanking(memberId, keyword, PERSONAL_TOP_K);
+        String key = cacheKeyFactory.productPersonalRanking(memberId, keyword, PERSONAL_TOP_K);
 
         return cacheTemplate.get(
                 key,
-                CachePolicy.ML_PERSONAL_RANKING_TTL,
+                CachePolicy.ML_PRODUCT_PERSONAL_RANKING_TTL,
                 () -> mlApiClient
-                        .getPersonalRanking(memberId, keyword.getMlParam(), PERSONAL_TOP_K)
+                        .getProductPersonalRanking(memberId, keyword.getMlParam(), PERSONAL_TOP_K)
                         .rankedIds(),
                 List.class
         );
