@@ -28,15 +28,40 @@ public class CacheTemplate {
 
     public <T> T get(String key, Duration ttl, Supplier<T> supplier, Class<T> type) {
         Object cached = jsonRedisTemplate.opsForValue().get(key);
+        if (type.isInstance(cached)) return type.cast(cached);
+
+        T value = supplier.get();
+        if (value != null) jsonRedisTemplate.opsForValue().set(key, value, ttl);
+
+        return value;
+    }
+
+    public <T> T getWithFallback(String key, Duration ttl, Supplier<T> supplier, Supplier<T> defaultSupplier, Class<T> type) {
+        Object cached = jsonRedisTemplate.opsForValue().get(key);
+
+        // 캐시 HIT
         if (type.isInstance(cached)) {
             log.info("CACHE HIT key={}", key);
             return type.cast(cached);
         }
 
-        T value = supplier.get();
-        if (value != null) jsonRedisTemplate.opsForValue().set(key, value, ttl);
-        log.info("CACHE Miss key={}", key);
-        return value;
+        // 캐시 MISS → ML 시도
+        try {
+            T value = supplier.get();
+            if (value != null) {
+                jsonRedisTemplate.opsForValue().set(key, value, ttl);
+            }
+            log.info("CACHE MISS → ML SUCCESS key={}", key);
+            return value;
+        } catch (Exception e) {
+            log.warn(
+                    "ML FAILED key={} → DEFAULT USED cause={} message={}",
+                    key,
+                    e.getClass().getSimpleName(),
+                    e.getMessage()
+            );
+            return defaultSupplier.get();
+        }
     }
 
     public void put(String key, Object value, Duration ttl) {

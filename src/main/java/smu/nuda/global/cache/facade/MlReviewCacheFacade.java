@@ -41,10 +41,11 @@ public class MlReviewCacheFacade {
     public MlReviewKeywordsResponse getReviewKeywords(Long productId, int topN) {
         String key = cacheKeyFactory.reviewKeywords(productId, topN);
 
-        return cacheTemplate.get(
+        return cacheTemplate.getWithFallback(
                 key,
                 CachePolicy.ML_REVIEW_KEYWORDS_TTL,
                 () -> mlApiClient.getReviewKeywords(productId, topN),
+                () -> defaultKeywords(productId, topN),
                 MlReviewKeywordsResponse.class
         );
     }
@@ -52,10 +53,11 @@ public class MlReviewCacheFacade {
     public MlReviewTrendResponse getReviewTrend(Long productId) {
         String key = cacheKeyFactory.reviewTrend(productId);
 
-        return cacheTemplate.get(
+        return cacheTemplate.getWithFallback(
                 key,
                 CachePolicy.ML_REVIEW_TREND_TTL,
                 () -> mlApiClient.getReviewTrend(productId),
+                () -> defaultTrend(productId),
                 MlReviewTrendResponse.class
         );
     }
@@ -63,11 +65,40 @@ public class MlReviewCacheFacade {
     public MlReviewSentimentResponse getReviewSentiment(Long productId) {
         String key = cacheKeyFactory.reviewSentiment(productId);
 
-        return cacheTemplate.get(
+        return cacheTemplate.getWithFallback(
                 key,
                 CachePolicy.ML_REVIEW_SENTIMENT_TTL,
                 () -> mlApiClient.getReviewSentiment(productId),
+                () -> defaultSentiment(productId),
                 MlReviewSentimentResponse.class
+        );
+    }
+
+    private MlReviewKeywordsResponse defaultKeywords(Long productId, int topN) {
+        return new MlReviewKeywordsResponse(
+                productId,
+                List.of(),
+                List.of(),
+                0,
+                null
+        );
+    }
+
+    private MlReviewTrendResponse defaultTrend(Long productId) {
+        return new MlReviewTrendResponse(
+                productId,
+                0,
+                List.of(),
+                null
+        );
+    }
+
+    private MlReviewSentimentResponse defaultSentiment(Long productId) {
+        return new MlReviewSentimentResponse(
+                productId,
+                new MlReviewSentimentResponse.SentimentDistribution(0.5, 0.5),
+                0,
+                null
         );
     }
 }
