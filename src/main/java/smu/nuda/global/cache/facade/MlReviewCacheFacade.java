@@ -1,6 +1,7 @@
 package smu.nuda.global.cache.facade;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import smu.nuda.domain.review.dto.enums.ReviewKeywordType;
 import smu.nuda.global.cache.CacheKeyFactory;
@@ -15,6 +16,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class MlReviewCacheFacade {
 
     private static final int GLOBAL_TOP_K = 300;
@@ -42,7 +44,13 @@ public class MlReviewCacheFacade {
         return cacheTemplate.get(
                 key,
                 CachePolicy.ML_REVIEW_KEYWORDS_TTL,
-                () -> mlApiClient.getReviewKeywords(productId, topN),
+                () -> {
+                    long start = System.currentTimeMillis();
+                    MlReviewKeywordsResponse result = mlApiClient.getReviewKeywords(productId, topN);
+                    long end = System.currentTimeMillis();
+                    log.info("ML Keyword API Time = {} ms", (end - start));
+                    return result;
+                },
                 MlReviewKeywordsResponse.class
         );
     }
@@ -53,7 +61,13 @@ public class MlReviewCacheFacade {
         return cacheTemplate.get(
                 key,
                 CachePolicy.ML_REVIEW_TREND_TTL,
-                () -> mlApiClient.getReviewTrend(productId),
+                () -> {
+                    long start = System.currentTimeMillis();
+                    MlReviewTrendResponse result = mlApiClient.getReviewTrend(productId);
+                    long end = System.currentTimeMillis();
+                    log.info("ML Trend API Time = {} ms", (end - start));
+                    return result;
+                },
                 MlReviewTrendResponse.class
         );
     }
@@ -64,7 +78,13 @@ public class MlReviewCacheFacade {
         return cacheTemplate.get(
                 key,
                 CachePolicy.ML_REVIEW_SENTIMENT_TTL,
-                () -> mlApiClient.getReviewSentiment(productId),
+                () -> {
+                    long start = System.currentTimeMillis();
+                    MlReviewSentimentResponse result = mlApiClient.getReviewSentiment(productId);
+                    long end = System.currentTimeMillis();
+                    log.info("ML Sentiment API Time = {} ms", (end - start));
+                    return result;
+                },
                 MlReviewSentimentResponse.class
         );
     }

@@ -195,11 +195,16 @@ public class ReviewService {
     }
 
     public ReviewAiSummaryResponse getReviewAiSummary(Long productId) {
+        long start = System.currentTimeMillis();
+
         CompletableFuture<MlReviewTrendResponse> trendFuture = reviewAsyncService.getTrendAsync(productId);
         CompletableFuture<MlReviewSentimentResponse> sentimentFuture = reviewAsyncService.getSentimentAsync(productId);
         CompletableFuture<MlReviewKeywordsResponse> keywordsFuture = reviewAsyncService.getKeywordsAsync(productId, 5);
 
         CompletableFuture.allOf(trendFuture, sentimentFuture, keywordsFuture).join();
+
+        long end = System.currentTimeMillis();
+        log.info("ReviewAiSummary TOTAL TIME = {} ms", (end - start));
 
         return ReviewAiSummaryResponse.of(
                 trendFuture.join(),
