@@ -74,6 +74,12 @@ public class MlReviewCacheFacade {
         );
     }
 
+    public void evictReviewAiSummary(Long productId) {
+        cacheTemplate.evict(cacheKeyFactory.reviewTrend(productId));
+        cacheTemplate.evict(cacheKeyFactory.reviewSentiment(productId));
+        cacheTemplate.evictByPrefix("ml:review:keywords:" + productId);
+    }
+
     private MlReviewKeywordsResponse defaultKeywords(Long productId, int topN) {
         return new MlReviewKeywordsResponse(
                 productId,
