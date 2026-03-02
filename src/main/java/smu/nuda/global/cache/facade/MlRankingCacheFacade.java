@@ -18,10 +18,11 @@ public class MlRankingCacheFacade {
     private static final int PERSONAL_TOP_K = 500;
 
     private final CacheTemplate cacheTemplate;
+    private final CacheKeyFactory cacheKeyFactory;
     private final MlApiClient mlApiClient;
 
     public List<Integer> getGlobalRanking(ProductKeywordType keyword) {
-        String key = CacheKeyFactory.globalRanking(keyword, GLOBAL_TOP_K);
+        String key = cacheKeyFactory.globalRanking(keyword, GLOBAL_TOP_K);
 
         return cacheTemplate.get(
                 key,
@@ -34,7 +35,7 @@ public class MlRankingCacheFacade {
     }
 
     public List<Integer> getPersonalRanking(Long memberId, ProductKeywordType keyword) {
-        String key = CacheKeyFactory.personalRanking(memberId, keyword, PERSONAL_TOP_K);
+        String key = cacheKeyFactory.personalRanking(memberId, keyword, PERSONAL_TOP_K);
 
         return cacheTemplate.get(
                 key,

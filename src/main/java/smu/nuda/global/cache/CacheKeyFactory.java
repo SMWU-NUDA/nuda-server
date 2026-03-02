@@ -10,11 +10,11 @@ public class CacheKeyFactory {
         return "product:detail:" + productId;
     }
 
-    public static String globalRanking(ProductKeywordType keyword, int topK) {
+    public String globalRanking(ProductKeywordType keyword, int topK) {
         return "ml:ranking:global:" + keyword.name() + ":top" + topK;
     }
 
-    public static String personalRanking(Long memberId, ProductKeywordType keyword, int topK) {
+    public String personalRanking(Long memberId, ProductKeywordType keyword, int topK) {
         return "ml:ranking:personal:" + memberId + ":" + keyword.name() + ":top" + topK;
     }
 
