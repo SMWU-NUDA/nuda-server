@@ -7,6 +7,9 @@ import smu.nuda.global.cache.CacheKeyFactory;
 import smu.nuda.global.cache.CachePolicy;
 import smu.nuda.global.cache.CacheTemplate;
 import smu.nuda.global.ml.client.MlApiClient;
+import smu.nuda.global.ml.dto.MlReviewKeywordResponse;
+import smu.nuda.global.ml.dto.MlReviewSentimentResponse;
+import smu.nuda.global.ml.dto.MlReviewTrendResponse;
 
 import java.util.List;
 
@@ -15,13 +18,13 @@ import java.util.List;
 public class MlReviewCacheFacade {
 
     private static final int GLOBAL_TOP_K = 300;
+    private static final int DEFAULT_TOP_N = 5;
 
     private final CacheTemplate cacheTemplate;
     private final CacheKeyFactory cacheKeyFactory;
     private final MlApiClient mlApiClient;
 
     public List<Integer> getGlobalReviewRanking(Long productId, ReviewKeywordType keyword) {
-
         String key = cacheKeyFactory.reviewGlobalRanking(productId, keyword, GLOBAL_TOP_K);
 
         return cacheTemplate.get(
@@ -31,6 +34,39 @@ public class MlReviewCacheFacade {
                         .getReviewGlobalRanking(productId, keyword.getMlParam(), GLOBAL_TOP_K)
                         .rankedIds(),
                 List.class
+        );
+    }
+
+    public MlReviewKeywordResponse getReviewKeywords(Long productId) {
+        String key = cacheKeyFactory.reviewKeywords(productId, DEFAULT_TOP_N);
+
+        return cacheTemplate.get(
+                key,
+                CachePolicy.ML_REVIEW_KEYWORDS_TTL,
+                () -> mlApiClient.getReviewKeywords(productId, DEFAULT_TOP_N),
+                MlReviewKeywordResponse.class
+        );
+    }
+
+    public MlReviewTrendResponse getReviewTrend(Long productId) {
+        String key = cacheKeyFactory.reviewTrend(productId);
+
+        return cacheTemplate.get(
+                key,
+                CachePolicy.ML_REVIEW_TREND_TTL,
+                () -> mlApiClient.getReviewTrend(productId),
+                MlReviewTrendResponse.class
+        );
+    }
+
+    public MlReviewSentimentResponse getReviewSentiment(Long productId) {
+        String key = cacheKeyFactory.reviewSentiment(productId);
+
+        return cacheTemplate.get(
+                key,
+                CachePolicy.ML_REVIEW_SENTIMENT_TTL,
+                () -> mlApiClient.getReviewSentiment(productId),
+                MlReviewSentimentResponse.class
         );
     }
 }

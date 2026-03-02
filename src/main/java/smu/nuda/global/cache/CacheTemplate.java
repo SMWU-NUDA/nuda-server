@@ -1,6 +1,7 @@
 package smu.nuda.global.cache;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -9,6 +10,7 @@ import java.util.function.Supplier;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class CacheTemplate {
 
     private final RedisTemplate<String, Object> jsonRedisTemplate;
@@ -26,7 +28,13 @@ public class CacheTemplate {
 
     public <T> T get(String key, Duration ttl, Supplier<T> supplier, Class<T> type) {
         Object cached = jsonRedisTemplate.opsForValue().get(key);
-        if (type.isInstance(cached)) return type.cast(cached);
+
+        if (type.isInstance(cached)) {
+            log.debug("[CACHE HIT] {}", key);
+            return type.cast(cached);
+        }
+
+        log.debug("[CACHE MISS] {}", key);
 
         T value = supplier.get();
         if (value != null) jsonRedisTemplate.opsForValue().set(key, value, ttl);

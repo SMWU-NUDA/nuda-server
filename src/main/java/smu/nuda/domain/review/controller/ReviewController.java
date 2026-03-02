@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import smu.nuda.domain.common.dto.CursorPageResponse;
 import smu.nuda.domain.member.entity.Member;
@@ -18,10 +19,14 @@ import smu.nuda.domain.review.guard.ReviewGuard;
 import smu.nuda.domain.review.service.ReviewService;
 import smu.nuda.global.guard.annotation.LoginRequired;
 import smu.nuda.global.guard.guard.AuthenticationGuard;
+import smu.nuda.global.ml.dto.MlReviewKeywordResponse;
+import smu.nuda.global.ml.dto.MlReviewSentimentResponse;
+import smu.nuda.global.ml.dto.MlReviewTrendResponse;
 import smu.nuda.global.response.ApiResponse;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 @Tag(name = "[REVIEW] 리뷰 API")
 public class ReviewController {
 
@@ -93,6 +98,24 @@ public class ReviewController {
     ) {
         Long memberId = authenticationGuard.currentMemberId();
         return ApiResponse.success(reviewService.getGlobalRankingPage(productId, memberId, keyword, cursor, size));
+    }
+
+    @GetMapping("/reviews/keyword/{productId}")
+    public MlReviewKeywordResponse getKeyword(@PathVariable Long productId){
+        MlReviewKeywordResponse result = reviewService.getKeywords(productId);
+        return result;
+    }
+
+    @GetMapping("/reviews/trend/{productId}")
+    public MlReviewTrendResponse getTrend(@PathVariable Long productId){
+        MlReviewTrendResponse result = reviewService.getTrend(productId);
+        return result;
+    }
+
+    @GetMapping("/reviews/sentiment/{productId}")
+    public MlReviewSentimentResponse getSentiment(@PathVariable Long productId){
+        MlReviewSentimentResponse result = reviewService.getSentiment(productId);
+        return result;
     }
 
 }

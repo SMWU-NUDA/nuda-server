@@ -27,6 +27,10 @@ import smu.nuda.domain.review.repository.projection.ReviewImageProjection;
 import smu.nuda.domain.review.repository.projection.ReviewRankingProjection;
 import smu.nuda.global.cache.facade.MlReviewCacheFacade;
 import smu.nuda.global.error.DomainException;
+import smu.nuda.global.ml.client.MlApiClient;
+import smu.nuda.global.ml.dto.MlReviewKeywordResponse;
+import smu.nuda.global.ml.dto.MlReviewSentimentResponse;
+import smu.nuda.global.ml.dto.MlReviewTrendResponse;
 import smu.nuda.global.ml.exception.MlApiException;
 import smu.nuda.global.util.DateFormatUtil;
 
@@ -186,5 +190,17 @@ public class ReviewService {
                 indexPage.getNextCursor(),
                 indexPage.isHasNext()
         );
+    }
+
+    public MlReviewKeywordResponse getKeywords(Long productId) {
+        return mlReviewCacheFacade.getReviewKeywords(productId);
+    }
+
+    public MlReviewTrendResponse getTrend(Long productId) {
+        return mlReviewCacheFacade.getReviewTrend(productId);
+    }
+
+    public MlReviewSentimentResponse getSentiment(Long productId) {
+        return mlReviewCacheFacade.getReviewSentiment(productId);
     }
 }
