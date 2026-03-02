@@ -45,5 +45,14 @@ public class MlApiClient {
     }
 
     // 키워드별 전체 리뷰 랭킹 조회
-
+    @SuppressWarnings("unchecked")
+    public MlRankingResponse getReviewGlobalRanking(Long productId, String keyword, int topK) {
+        return httpClient.get(
+                "/ml/reviews?productId={productId}&keyword={keyword}&topK={topK}",
+                MlRankingResponse.class,
+                productId,
+                keyword,
+                topK
+        );
+    }
 }

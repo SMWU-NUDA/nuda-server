@@ -12,4 +12,6 @@ public class CachePolicy {
     // 키워드별 상품 맞춤 추천 조회
     public static final Duration ML_PRODUCT_PERSONAL_RANKING_TTL = Duration.ofMinutes(7);
 
+    // 키워드별 전체 리뷰 정렬
+    public static final Duration ML_REVIEW_GLOBAL_RANKING_TTL = Duration.ofMinutes(20);
 }
