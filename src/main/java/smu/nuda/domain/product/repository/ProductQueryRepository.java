@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import smu.nuda.domain.common.dto.Cursor;
 import smu.nuda.domain.common.dto.CursorResponse;
+import smu.nuda.domain.ingredient.entity.Ingredient;
 import smu.nuda.domain.ingredient.entity.enums.LayerType;
 import smu.nuda.domain.product.dto.ProductDetailCache;
 import smu.nuda.domain.product.dto.ProductItem;
@@ -148,6 +149,8 @@ public class ProductQueryRepository {
     }
 
     public Map<Long, List<String>> findIngredientLabelsByProductIds(List<Long> productIds) {
+        if (productIds == null || productIds.isEmpty()) return Map.of();
+
         List<Tuple> rows = queryFactory
                 .select(
                         productIngredient.product.id,
@@ -163,11 +166,10 @@ public class ProductQueryRepository {
                 .collect(Collectors.groupingBy(
                         tuple -> tuple.get(productIngredient.product.id),
                         Collectors.mapping(
-                                tuple -> {
-                                    String name = tuple.get(ingredient.name);
-                                    LayerType layerType = tuple.get(ingredient.layerType);
-                                    return layerType == null ? name : name + "(" + layerType.getDescription() + ")";
-                                },
+                                tuple -> Ingredient.getDisplayLabel(
+                                        tuple.get(ingredient.name),
+                                        tuple.get(ingredient.layerType)
+                                ),
                                 Collectors.toList()
                         )
                 ));

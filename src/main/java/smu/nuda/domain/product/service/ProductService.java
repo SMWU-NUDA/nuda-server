@@ -65,11 +65,13 @@ public class ProductService {
         return response;
     }
 
+    @Transactional(readOnly = true)
     public CursorPageResponse<ProductItem> getGlobalRankingPage(ProductKeywordType keyword, Long cursor, Integer size) {
         List<Integer> rankedIds = rankingCacheFacade.getGlobalRanking(keyword);
         return getRankingPageFromIds(rankedIds, cursor, size);
     }
 
+    @Transactional(readOnly = true)
     public CursorPageResponse<ProductItem> getPersonalRankingPage(Long memberId, ProductKeywordType keyword, Long cursor, Integer size) {
         List<Integer> rankedIds = rankingCacheFacade.getPersonalRanking(memberId, keyword);
         return getRankingPageFromIds(rankedIds, cursor, size);

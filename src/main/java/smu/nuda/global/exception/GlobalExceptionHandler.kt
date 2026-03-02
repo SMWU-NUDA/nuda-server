@@ -94,17 +94,4 @@ class GlobalExceptionHandler {
             )
     }
 
-    @ExceptionHandler(CallNotPermittedException::class)
-    fun handleCircuitBreakerOpen(): ResponseEntity<ApiResponse<Nothing>> {
-        return ResponseEntity
-            .status(HttpStatus.SERVICE_UNAVAILABLE)
-            .body(ApiResponse.fail(MlErrorCode.UNAVAILABLE))
-    }
-
-    @ExceptionHandler(TimeoutException::class)
-    fun handleTimeout(): ResponseEntity<ApiResponse<Nothing>> {
-        return ResponseEntity
-            .status(HttpStatus.SERVICE_UNAVAILABLE)
-            .body(ApiResponse.fail(MlErrorCode.TIMEOUT))
-    }
 }
