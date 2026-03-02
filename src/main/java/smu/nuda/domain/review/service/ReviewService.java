@@ -23,6 +23,7 @@ import smu.nuda.domain.review.event.ReviewUpdateEvent;
 import smu.nuda.domain.review.repository.ReviewImageRepository;
 import smu.nuda.domain.review.repository.ReviewQueryRepository;
 import smu.nuda.domain.review.repository.ReviewRepository;
+import smu.nuda.domain.review.repository.projection.ReviewImageProjection;
 import smu.nuda.domain.review.repository.projection.ReviewRankingProjection;
 import smu.nuda.global.cache.facade.MlReviewCacheFacade;
 import smu.nuda.global.error.DomainException;
@@ -148,12 +149,11 @@ public class ReviewService {
                 .toList();
 
         // 이미지 일괄 조회
-        List<Object[]> imageRows = reviewImageRepository.findImages(pageIds);
-        Map<Long, List<String>> imageMap = imageRows
-                .stream()
+        List<ReviewImageProjection> imageRows = reviewImageRepository.findImages(pageIds);
+        Map<Long, List<String>> imageMap = imageRows.stream()
                 .collect(Collectors.groupingBy(
-                        row -> (Long) row[0],
-                        Collectors.mapping(row -> (String) row[1], Collectors.toList())
+                        ReviewImageProjection::getReviewId,
+                        Collectors.mapping(ReviewImageProjection::getImageUrl, Collectors.toList())
                 ));
 
         // 좋아요 여부 조회
