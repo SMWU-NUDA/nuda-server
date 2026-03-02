@@ -1,5 +1,6 @@
 package smu.nuda.domain.review.repository;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -27,4 +28,12 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     where r.id in :reviewIds
 """)
     List<ReviewRankingProjection> findRankingReviews(@Param("reviewIds") List<Long> reviewIds);
+
+    @Query("""
+        select r.id
+        from Review r
+        where r.product.id = :productId
+        order by r.likeCount desc, r.createdAt desc
+    """)
+    List<Long> findFallbackTopIds(@Param("productId") Long productId, Pageable pageable);
 }

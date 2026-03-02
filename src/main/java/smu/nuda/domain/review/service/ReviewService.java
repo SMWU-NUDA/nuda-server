@@ -1,7 +1,9 @@
 package smu.nuda.domain.review.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import smu.nuda.domain.common.dto.CursorPageResponse;
@@ -24,6 +26,7 @@ import smu.nuda.domain.review.repository.ReviewRepository;
 import smu.nuda.domain.review.repository.projection.ReviewRankingProjection;
 import smu.nuda.global.cache.facade.MlReviewCacheFacade;
 import smu.nuda.global.error.DomainException;
+import smu.nuda.global.ml.exception.MlApiException;
 import smu.nuda.global.util.DateFormatUtil;
 
 import java.util.*;
@@ -31,6 +34,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ReviewService {
 
     private static final int DEFAULT_SIZE = 20;
@@ -104,7 +108,20 @@ public class ReviewService {
 
     @Transactional(readOnly = true)
     public CursorPageResponse<ReviewItem> getGlobalRankingPage(Long productId, Long memberId, ReviewKeywordType keyword, Long cursor, Integer size) {
-        List<Integer> rankedIds = mlReviewCacheFacade.getGlobalReviewRanking(productId, keyword);
+        final int topK = 300;
+        List<Integer> rankedIds;
+
+        try {
+            rankedIds = mlReviewCacheFacade.getGlobalReviewRanking(productId, keyword);
+        } catch (MlApiException e) {
+            log.warn("[ReviewFallback] ML 실패 → DB fallback 사용. productId={}", productId);
+
+            List<Long> fallbackIds = reviewRepository.findFallbackTopIds(productId, PageRequest.of(0, topK));
+            rankedIds = fallbackIds.stream()
+                    .map(Long::intValue)
+                    .toList();
+        }
+
         return getReviewRankingPageFromIds(rankedIds, memberId, cursor, size);
     }
 
