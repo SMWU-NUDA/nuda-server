@@ -199,12 +199,57 @@ public class ReviewService {
         CompletableFuture<MlReviewSentimentResponse> sentimentFuture = reviewAsyncService.getSentimentAsync(productId);
         CompletableFuture<MlReviewKeywordsResponse> keywordsFuture = reviewAsyncService.getKeywordsAsync(productId, 5);
 
-        CompletableFuture.allOf(trendFuture, sentimentFuture, keywordsFuture).join();
+        MlReviewTrendResponse trend = trendFuture.join();
+        MlReviewSentimentResponse sentiment = sentimentFuture.join();
+        MlReviewKeywordsResponse keywords = keywordsFuture.join();
+
+        if (trend == null) {
+            log.warn("[ML PartialFailure] trend default used productId={}", productId);
+            trend = defaultTrend(productId);
+        }
+
+        if (sentiment == null) {
+            log.warn("[ML PartialFailure] sentiment default used productId={}", productId);
+            sentiment = defaultSentiment(productId);
+        }
+
+        if (keywords == null) {
+            log.warn("[ML PartialFailure] keywords default used productId={}", productId);
+            keywords = defaultKeywords(productId, 5);
+        }
 
         return ReviewAiSummaryResponse.of(
                 trendFuture.join(),
                 sentimentFuture.join(),
                 keywordsFuture.join()
+        );
+    }
+
+    private MlReviewKeywordsResponse defaultKeywords(Long productId, int topN) {
+        return new MlReviewKeywordsResponse(
+                productId,
+                List.of(),
+                List.of(),
+                0,
+                null
+        );
+    }
+
+    private MlReviewTrendResponse defaultTrend(Long productId) {
+        return new MlReviewTrendResponse(
+                productId,
+                0,
+                List.of(),
+                null
+        );
+    }
+
+    private MlReviewSentimentResponse defaultSentiment(Long productId) {
+        return new MlReviewSentimentResponse(
+                productId,
+                new MlReviewSentimentResponse.SentimentDistribution(0.5, 0.5),
+                0,
+                null
         );
     }
 }
