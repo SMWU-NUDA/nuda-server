@@ -55,10 +55,10 @@ public class MlApiClient {
     }
 
     // 리뷰 긍정/부정 키워드 조회
-    public MlReviewKeywordResponse getReviewKeywords(Long productId, int topN) {
+    public MlReviewKeywordsResponse getReviewKeywords(Long productId, int topN) {
         return httpClient.get(
                 "/ml/products/{productId}/review-keywords?topN={topN}",
-                MlReviewKeywordResponse.class,
+                MlReviewKeywordsResponse.class,
                 productId,
                 topN
         );

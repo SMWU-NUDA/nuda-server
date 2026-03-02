@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import smu.nuda.domain.common.dto.CursorPageResponse;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.review.dto.MyReviewResponse;
+import smu.nuda.domain.review.dto.ReviewAiSummaryResponse;
 import smu.nuda.domain.review.dto.ReviewCreateRequest;
 import smu.nuda.domain.review.dto.ReviewItem;
 import smu.nuda.domain.review.dto.enums.ReviewKeywordType;
@@ -19,9 +20,6 @@ import smu.nuda.domain.review.guard.ReviewGuard;
 import smu.nuda.domain.review.service.ReviewService;
 import smu.nuda.global.guard.annotation.LoginRequired;
 import smu.nuda.global.guard.guard.AuthenticationGuard;
-import smu.nuda.global.ml.dto.MlReviewKeywordResponse;
-import smu.nuda.global.ml.dto.MlReviewSentimentResponse;
-import smu.nuda.global.ml.dto.MlReviewTrendResponse;
 import smu.nuda.global.response.ApiResponse;
 
 @RestController
@@ -100,22 +98,21 @@ public class ReviewController {
         return ApiResponse.success(reviewService.getGlobalRankingPage(productId, memberId, keyword, cursor, size));
     }
 
-    @GetMapping("/reviews/keyword/{productId}")
-    public MlReviewKeywordResponse getKeyword(@PathVariable Long productId){
-        MlReviewKeywordResponse result = reviewService.getKeywords(productId);
-        return result;
-    }
-
-    @GetMapping("/reviews/trend/{productId}")
-    public MlReviewTrendResponse getTrend(@PathVariable Long productId){
-        MlReviewTrendResponse result = reviewService.getTrend(productId);
-        return result;
-    }
-
-    @GetMapping("/reviews/sentiment/{productId}")
-    public MlReviewSentimentResponse getSentiment(@PathVariable Long productId){
-        MlReviewSentimentResponse result = reviewService.getSentiment(productId);
-        return result;
+    @GetMapping("products/{productId}/review-summary")
+    @Operation(
+            summary = "리뷰 AI 요약 조회",
+            description = """
+                    해당 상품의 리뷰를 AI 기반으로 분석한 요약 정보를 조회합니다.
+                    - 긍정/부정 키워드 Top N
+                    - 사용자 만족도 (긍정 비율 기반)
+                    - 주요 리뷰 트렌드 하이라이트
+                    """
+    )
+    @SecurityRequirement(name = "JWT")
+    @LoginRequired
+    public ApiResponse<ReviewAiSummaryResponse> getReviewAiSummary(@PathVariable Long productId){
+        Long memberId = authenticationGuard.currentMemberId();
+        return ApiResponse.success(reviewService.getReviewAiSummary(productId));
     }
 
 }

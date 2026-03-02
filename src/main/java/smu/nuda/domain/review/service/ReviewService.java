@@ -14,6 +14,7 @@ import smu.nuda.domain.product.entity.Product;
 import smu.nuda.domain.product.error.ProductErrorCode;
 import smu.nuda.domain.product.repository.ProductRepository;
 import smu.nuda.domain.review.dto.MyReviewResponse;
+import smu.nuda.domain.review.dto.ReviewAiSummaryResponse;
 import smu.nuda.domain.review.dto.ReviewCreateRequest;
 import smu.nuda.domain.review.dto.ReviewItem;
 import smu.nuda.domain.review.dto.enums.ReviewKeywordType;
@@ -27,14 +28,14 @@ import smu.nuda.domain.review.repository.projection.ReviewImageProjection;
 import smu.nuda.domain.review.repository.projection.ReviewRankingProjection;
 import smu.nuda.global.cache.facade.MlReviewCacheFacade;
 import smu.nuda.global.error.DomainException;
-import smu.nuda.global.ml.client.MlApiClient;
-import smu.nuda.global.ml.dto.MlReviewKeywordResponse;
+import smu.nuda.global.ml.dto.MlReviewKeywordsResponse;
 import smu.nuda.global.ml.dto.MlReviewSentimentResponse;
 import smu.nuda.global.ml.dto.MlReviewTrendResponse;
 import smu.nuda.global.ml.exception.MlApiException;
 import smu.nuda.global.util.DateFormatUtil;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,6 +45,7 @@ public class ReviewService {
 
     private static final int DEFAULT_SIZE = 20;
 
+    private final ReviewAsyncService reviewAsyncService;
     private final MlReviewCacheFacade mlReviewCacheFacade;
     private final ReviewRepository reviewRepository;
     private final ReviewQueryRepository reviewQueryRepository;
@@ -192,15 +194,17 @@ public class ReviewService {
         );
     }
 
-    public MlReviewKeywordResponse getKeywords(Long productId) {
-        return mlReviewCacheFacade.getReviewKeywords(productId);
-    }
+    public ReviewAiSummaryResponse getReviewAiSummary(Long productId) {
+        CompletableFuture<MlReviewTrendResponse> trendFuture = reviewAsyncService.getTrendAsync(productId);
+        CompletableFuture<MlReviewSentimentResponse> sentimentFuture = reviewAsyncService.getSentimentAsync(productId);
+        CompletableFuture<MlReviewKeywordsResponse> keywordsFuture = reviewAsyncService.getKeywordsAsync(productId, 5);
 
-    public MlReviewTrendResponse getTrend(Long productId) {
-        return mlReviewCacheFacade.getReviewTrend(productId);
-    }
+        CompletableFuture.allOf(trendFuture, sentimentFuture, keywordsFuture).join();
 
-    public MlReviewSentimentResponse getSentiment(Long productId) {
-        return mlReviewCacheFacade.getReviewSentiment(productId);
+        return ReviewAiSummaryResponse.of(
+                trendFuture.join(),
+                sentimentFuture.join(),
+                keywordsFuture.join()
+        );
     }
 }

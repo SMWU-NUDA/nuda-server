@@ -28,17 +28,15 @@ public class CacheTemplate {
 
     public <T> T get(String key, Duration ttl, Supplier<T> supplier, Class<T> type) {
         Object cached = jsonRedisTemplate.opsForValue().get(key);
-
         if (type.isInstance(cached)) {
-            log.debug("[CACHE HIT] {}", key);
+            log.info("CACHE HIT key={}", key);
             return type.cast(cached);
         }
 
-        log.debug("[CACHE MISS] {}", key);
-
         T value = supplier.get();
         if (value != null) jsonRedisTemplate.opsForValue().set(key, value, ttl);
-
+        log.info("CACHE Miss key={}", key);
+        log.info("cached class={}", cached == null ? null : cached.getClass());
         return value;
     }
 
