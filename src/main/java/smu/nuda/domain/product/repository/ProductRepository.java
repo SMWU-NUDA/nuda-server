@@ -43,5 +43,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         JOIN p.brand b
         WHERE p.id IN :ids
     """)
-    List<ProductRankingProjection> findRankingItems(@Param("ids") List<Long> ids);
+    List<ProductRankingProjection> findRankingProducts(@Param("ids") List<Long> ids);
 }

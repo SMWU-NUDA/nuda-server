@@ -93,7 +93,7 @@ public class ProductService {
             orderMap.put(pageIds.get(i), i);
         }
         // DB 조회 후 ml 순서대로 정렬 -> O(n)
-        List<ProductRankingProjection> projections = productRepository.findRankingItems(pageIds)
+        List<ProductRankingProjection> projections = productRepository.findRankingProducts(pageIds)
                 .stream()
                 .sorted(Comparator.comparingInt(p -> orderMap.get(p.getProductId())))
                 .toList();

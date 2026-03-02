@@ -1,6 +1,7 @@
 package smu.nuda.domain.product.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -134,9 +135,10 @@ public class ProductController {
     @LoginRequired
     public ApiResponse<CursorPageResponse<ProductItem>> getGlobalRanking(
             @RequestParam ProductKeywordType keyword,
-            @RequestParam(required = false) Long cursor,
-            @RequestParam(required = false) Integer size
+            @Parameter(description = "이전 페이지의 마지막 id (첫 요청 시 null)") @RequestParam(required = false) Long cursor,
+            @Parameter(description = "한 페이지당 조회 개수 (기본값 20)") @RequestParam(defaultValue = "20") int size
     ) {
+        Long memberId = authenticationGuard.currentMemberId();
         return ApiResponse.success(productService.getGlobalRankingPage(keyword, cursor, size));
     }
 
@@ -156,8 +158,8 @@ public class ProductController {
     @LoginRequired
     public ApiResponse<CursorPageResponse<ProductItem>> getPersonalRanking(
             @RequestParam ProductKeywordType keyword,
-            @RequestParam(required = false) Long cursor,
-            @RequestParam(required = false) Integer size
+            @Parameter(description = "이전 페이지의 마지막 id (첫 요청 시 null)") @RequestParam(required = false) Long cursor,
+            @Parameter(description = "한 페이지당 조회 개수 (기본값 20)") @RequestParam(defaultValue = "20") int size
     ) {
         Long memberId = authenticationGuard.currentMemberId();
         return ApiResponse.success(productService.getPersonalRankingPage(memberId, keyword, cursor, size));

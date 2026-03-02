@@ -48,7 +48,7 @@ public class MlApiClient {
     @SuppressWarnings("unchecked")
     public MlRankingResponse getReviewGlobalRanking(Long productId, String keyword, int topK) {
         return httpClient.get(
-                "/ml/reviews?productId={productId}&keyword={keyword}&topK={topK}",
+                "/ml/reviews/{productId}?keyword={keyword}&topK={topK}",
                 MlRankingResponse.class,
                 productId,
                 keyword,

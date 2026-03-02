@@ -11,7 +11,8 @@ import smu.nuda.domain.common.dto.CursorPageResponse;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.review.dto.MyReviewResponse;
 import smu.nuda.domain.review.dto.ReviewCreateRequest;
-import smu.nuda.domain.review.dto.ReviewDetailResponse;
+import smu.nuda.domain.review.dto.ReviewItem;
+import smu.nuda.domain.review.dto.enums.ReviewKeywordType;
 import smu.nuda.domain.review.entity.Review;
 import smu.nuda.domain.review.guard.ReviewGuard;
 import smu.nuda.domain.review.service.ReviewService;
@@ -21,7 +22,6 @@ import smu.nuda.global.response.ApiResponse;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/reviews")
 @Tag(name = "[REVIEW] 리뷰 API")
 public class ReviewController {
 
@@ -29,19 +29,19 @@ public class ReviewController {
     private final AuthenticationGuard authenticationGuard;
     private final ReviewGuard reviewGuard;
 
-    @PostMapping
+    @PostMapping("/reviews")
     @Operation(
             summary = "리뷰 작성",
             description = "특정 상품에 대한 리뷰를 작성합니다. 이미지를 presigned URL로 요청해주세요."
     )
     @SecurityRequirement(name = "JWT")
     @LoginRequired
-    public ApiResponse<ReviewDetailResponse> createReview(@Valid @RequestBody ReviewCreateRequest request) {
+    public ApiResponse<ReviewItem> createReview(@Valid @RequestBody ReviewCreateRequest request) {
         Member member = authenticationGuard.currentMember();
         return ApiResponse.success(reviewService.create(request, member));
     }
 
-    @DeleteMapping("/{reviewId}")
+    @DeleteMapping("/reviews/{reviewId}")
     @Operation(
             summary = "리뷰 삭제",
             description = "사용자가 작성한 리뷰를 삭제합니다. " +
@@ -56,7 +56,7 @@ public class ReviewController {
         return ApiResponse.success("해당 리뷰가 성공적으로 삭제되었습니다.");
     }
 
-    @GetMapping("/me")
+    @GetMapping("/reviews/me")
     @Operation(
             summary = "나의 리뷰 목록 조회",
             description = "현재 로그인한 사용자가 작성한 리뷰들을 최신순으로 조회합니다."
@@ -65,9 +65,34 @@ public class ReviewController {
     @LoginRequired
     public ApiResponse<CursorPageResponse<MyReviewResponse>> myReviews(
             @Parameter(description = "이전 페이지의 마지막 id (첫 요청 시 null)") @RequestParam(required = false) Long cursor,
-            @Parameter(description = "한 페이지당 조회 개수 (기본값 20)") @RequestParam(defaultValue = "20") int size) {
+            @Parameter(description = "한 페이지당 조회 개수 (기본값 20)") @RequestParam(defaultValue = "20") int size
+    ) {
         Long memberId = authenticationGuard.currentMemberId();
         return ApiResponse.success(reviewService.getMyReviews(memberId, cursor, size));
+    }
+
+    @GetMapping("/products/{productId}/reviews/global-rankings")
+    @Operation(
+            summary = "키워드별 전체 리뷰 랭킹 조회",
+            description = """
+                    키워드(자극도, 향, 흡수력 등)를 기준으로 정렬된 전체 리뷰의 랭킹을 조회합니다.
+                    - DEFAULT : 전체
+                    - IRRITATION_LEVEL : 민감도 순
+                    - SCENT : 향 순
+                    - ABSORBENCY : 흡수력 순
+                    - ADHESION : 접착력 순
+                    """
+    )
+    @SecurityRequirement(name = "JWT")
+    @LoginRequired
+    public ApiResponse<CursorPageResponse<ReviewItem>> getGlobalRanking(
+            @PathVariable Long productId,
+            @RequestParam ReviewKeywordType keyword,
+            @Parameter(description = "이전 페이지의 마지막 id (첫 요청 시 null)") @RequestParam(required = false) Long cursor,
+            @Parameter(description = "한 페이지당 조회 개수 (기본값 20)") @RequestParam(defaultValue = "20") int size
+    ) {
+        Long memberId = authenticationGuard.currentMemberId();
+        return ApiResponse.success(reviewService.getGlobalRankingPage(productId, memberId, keyword, cursor, size));
     }
 
 }
