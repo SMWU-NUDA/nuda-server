@@ -25,36 +25,29 @@ public class KeywordSyncMapper {
     ) {
         return new KeywordSyncMapper(
                 memberId,
-                mapIrritation(irritation),
-                mapScent(scent),
+                irritation.name(),
+                scent.name(),
                 mapAbsorption(absorption),
                 mapAdhesion(adhesion)
         );
     }
 
-    private static String mapAdhesion(Enum<?> level) {
-        return switch (level.name()) {
-            case "WEAK" -> "LOW";
-            case "NORMAL" -> "MEDIUM";
-            case "STRONG" -> "HIGH";
+    private static String mapAdhesion(AdhesionLevel level) {
+        return switch (level) {
+            case WEAK -> "LOW";
+            case NORMAL -> "MEDIUM";
+            case STRONG -> "HIGH";
             default -> throw new IllegalArgumentException("Unknown level: " + level);
         };
     }
 
-    private static String mapAbsorption(Enum<?> level) {
-        return switch (level.name()) {
-            case "THIN" -> "LOW";
-            case "NORMAL" -> "MEDIUM";
-            case "THICK" -> "HIGH";
+    private static String mapAbsorption(ThicknessLevel level) {
+        return switch (level) {
+            case THIN -> "LOW";
+            case NORMAL -> "MEDIUM";
+            case THICK -> "HIGH";
             default -> throw new IllegalArgumentException("Unknown level: " + level);
         };
     }
 
-    private static String mapIrritation(IrritationLevel level) {
-        return level.name();
-    }
-
-    private static String mapScent(ScentLevel level) {
-        return level.name();
-    }
 }
