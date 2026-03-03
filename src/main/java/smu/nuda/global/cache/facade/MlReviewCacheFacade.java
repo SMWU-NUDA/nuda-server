@@ -12,6 +12,7 @@ import smu.nuda.global.ml.dto.MlReviewKeywordsResponse;
 import smu.nuda.global.ml.dto.MlReviewSentimentResponse;
 import smu.nuda.global.ml.dto.MlReviewTrendResponse;
 
+import java.time.Duration;
 import java.util.List;
 
 @Component
@@ -20,6 +21,7 @@ import java.util.List;
 public class MlReviewCacheFacade {
 
     private static final int GLOBAL_TOP_K = 300;
+    private static final Duration FALLBACK_TTL = Duration.ofMinutes(1);
 
     private final CacheTemplate cacheTemplate;
     private final CacheKeyFactory cacheKeyFactory;
@@ -44,6 +46,7 @@ public class MlReviewCacheFacade {
         return cacheTemplate.getWithFallback(
                 key,
                 CachePolicy.ML_REVIEW_KEYWORDS_TTL,
+                FALLBACK_TTL,
                 () -> mlApiClient.getReviewKeywords(productId, topN),
                 () -> defaultKeywords(productId, topN),
                 MlReviewKeywordsResponse.class
@@ -56,6 +59,7 @@ public class MlReviewCacheFacade {
         return cacheTemplate.getWithFallback(
                 key,
                 CachePolicy.ML_REVIEW_TREND_TTL,
+                FALLBACK_TTL,
                 () -> mlApiClient.getReviewTrend(productId),
                 () -> defaultTrend(productId),
                 MlReviewTrendResponse.class
@@ -68,6 +72,7 @@ public class MlReviewCacheFacade {
         return cacheTemplate.getWithFallback(
                 key,
                 CachePolicy.ML_REVIEW_SENTIMENT_TTL,
+                FALLBACK_TTL,
                 () -> mlApiClient.getReviewSentiment(productId),
                 () -> defaultSentiment(productId),
                 MlReviewSentimentResponse.class
