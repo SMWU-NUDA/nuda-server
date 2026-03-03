@@ -13,10 +13,7 @@ import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.product.entity.Product;
 import smu.nuda.domain.product.error.ProductErrorCode;
 import smu.nuda.domain.product.repository.ProductRepository;
-import smu.nuda.domain.review.dto.MyReviewResponse;
-import smu.nuda.domain.review.dto.ReviewAiSummaryResponse;
-import smu.nuda.domain.review.dto.ReviewCreateRequest;
-import smu.nuda.domain.review.dto.ReviewItem;
+import smu.nuda.domain.review.dto.*;
 import smu.nuda.domain.review.dto.enums.ReviewKeywordType;
 import smu.nuda.domain.review.entity.Review;
 import smu.nuda.domain.review.entity.ReviewImage;
@@ -194,10 +191,10 @@ public class ReviewService {
         );
     }
 
-    public ReviewAiSummaryResponse getReviewAiSummary(Long productId) {
+    public ReviewAiSummaryResponse getReviewAiSummary(Long productId, int topN) {
         CompletableFuture<MlReviewTrendResponse> trendFuture = reviewAsyncService.getTrendAsync(productId);
         CompletableFuture<MlReviewSentimentResponse> sentimentFuture = reviewAsyncService.getSentimentAsync(productId);
-        CompletableFuture<MlReviewKeywordsResponse> keywordsFuture = reviewAsyncService.getKeywordsAsync(productId, 5);
+        CompletableFuture<MlReviewKeywordsResponse> keywordsFuture = reviewAsyncService.getKeywordsAsync(productId, topN);
 
         MlReviewTrendResponse trend = trendFuture.join();
         MlReviewSentimentResponse sentiment = sentimentFuture.join();
@@ -223,6 +220,10 @@ public class ReviewService {
                 sentimentFuture.join(),
                 keywordsFuture.join()
         );
+    }
+
+    public SentimentKeywordsItem getReviewKeywords(Long productId, int topN) {
+        return SentimentKeywordsItem.from(mlReviewCacheFacade.getReviewKeywords(productId, topN));
     }
 
     private MlReviewKeywordsResponse defaultKeywords(Long productId, int topN) {
