@@ -1,5 +1,6 @@
 package smu.nuda.global.cache;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -14,6 +15,7 @@ import java.util.function.Supplier;
 public class CacheTemplate {
 
     private final RedisTemplate<String, Object> jsonRedisTemplate;
+    private final ObjectMapper objectMapper;
 
     @SuppressWarnings("unchecked")
     public <T> T get(String key, Duration ttl, Supplier<T> supplier) {
@@ -28,7 +30,12 @@ public class CacheTemplate {
 
     public <T> T get(String key, Duration ttl, Supplier<T> supplier, Class<T> type) {
         Object cached = jsonRedisTemplate.opsForValue().get(key);
-        if (type.isInstance(cached)) return type.cast(cached);
+        if (cached != null) {
+            log.info("CACHE HIT key={}", key);
+            return objectMapper.convertValue(cached, type);
+        }
+
+        log.info("CACHE Miss key={}", key);
 
         T value = supplier.get();
         if (value != null) jsonRedisTemplate.opsForValue().set(key, value, ttl);
@@ -40,9 +47,9 @@ public class CacheTemplate {
         Object cached = jsonRedisTemplate.opsForValue().get(key);
 
         // 캐시 HIT
-        if (type.isInstance(cached)) {
+        if (cached != null) {
             log.info("CACHE HIT key={}", key);
-            return type.cast(cached);
+            return objectMapper.convertValue(cached, type);
         }
 
         // 캐시 MISS
