@@ -212,14 +212,10 @@ public class ReviewService {
 
         if (keywords == null) {
             log.warn("[ML PartialFailure] keywords default used productId={}", productId);
-            keywords = defaultKeywords(productId, 5);
+            keywords = defaultKeywords(productId, topN);
         }
 
-        return ReviewAiSummaryResponse.of(
-                trendFuture.join(),
-                sentimentFuture.join(),
-                keywordsFuture.join()
-        );
+        return ReviewAiSummaryResponse.of(trend, sentiment, keywords);
     }
 
     public SentimentKeywordsItem getReviewKeywords(Long productId, int topN) {
