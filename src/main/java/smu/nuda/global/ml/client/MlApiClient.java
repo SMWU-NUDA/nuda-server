@@ -57,7 +57,7 @@ public class MlApiClient {
     // 리뷰 긍정/부정 키워드 조회
     public MlReviewKeywordsResponse getReviewKeywords(Long productId, int topN) {
         return httpClient.get(
-                "/ml/products/{productId}/review-keywords?topN={topN}",
+                "/ml/products/{productId}/review-keywords?topn={topN}",
                 MlReviewKeywordsResponse.class,
                 productId,
                 topN
