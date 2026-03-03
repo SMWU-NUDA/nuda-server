@@ -2,9 +2,7 @@ package smu.nuda.global.ml.client;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import smu.nuda.global.ml.dto.KeywordSyncRequest;
-import smu.nuda.global.ml.dto.KeywordSyncResponse;
-import smu.nuda.global.ml.dto.MlRankingResponse;
+import smu.nuda.global.ml.dto.*;
 
 @Component
 @RequiredArgsConstructor
@@ -53,6 +51,34 @@ public class MlApiClient {
                 productId,
                 keyword,
                 topK
+        );
+    }
+
+    // 리뷰 긍정/부정 키워드 조회
+    public MlReviewKeywordsResponse getReviewKeywords(Long productId, int topN) {
+        return httpClient.get(
+                "/ml/products/{productId}/review-keywords?topn={topN}",
+                MlReviewKeywordsResponse.class,
+                productId,
+                topN
+        );
+    }
+
+    // 상품 리뷰 트렌드 조회
+    public MlReviewTrendResponse getReviewTrend(Long productId) {
+        return httpClient.get(
+                "/ml/products/{productId}/review-trend",
+                MlReviewTrendResponse.class,
+                productId
+        );
+    }
+
+    // 리뷰 사용자 만족도 조회
+    public MlReviewSentimentResponse getReviewSentiment(Long productId) {
+        return httpClient.get(
+                "/ml/products/{productId}/review-sentiment",
+                MlReviewSentimentResponse.class,
+                productId
         );
     }
 }

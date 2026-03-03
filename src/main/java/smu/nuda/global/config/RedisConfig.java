@@ -1,7 +1,7 @@
 package smu.nuda.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,23 +24,13 @@ public class RedisConfig {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(factory);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
+        StringRedisSerializer keySerializer = new StringRedisSerializer();
 
-        BasicPolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
-                .allowIfBaseType(Object.class)
-                .allowIfSubType("smu.nuda.")
-                .allowIfSubType("java.util.")
-                .allowIfSubType("java.time.")
-                .build();
-
-        objectMapper.activateDefaultTyping(
-                ptv,
-                ObjectMapper.DefaultTyping.NON_FINAL
-        );
+        ObjectMapper objectMapper = new ObjectMapper()
+                .registerModule(new JavaTimeModule())
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
         GenericJackson2JsonRedisSerializer valueSerializer = new GenericJackson2JsonRedisSerializer(objectMapper);
-        StringRedisSerializer keySerializer = new StringRedisSerializer();
 
         template.setKeySerializer(keySerializer);
         template.setValueSerializer(valueSerializer);

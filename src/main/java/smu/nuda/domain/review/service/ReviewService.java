@@ -13,9 +13,7 @@ import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.product.entity.Product;
 import smu.nuda.domain.product.error.ProductErrorCode;
 import smu.nuda.domain.product.repository.ProductRepository;
-import smu.nuda.domain.review.dto.MyReviewResponse;
-import smu.nuda.domain.review.dto.ReviewCreateRequest;
-import smu.nuda.domain.review.dto.ReviewItem;
+import smu.nuda.domain.review.dto.*;
 import smu.nuda.domain.review.dto.enums.ReviewKeywordType;
 import smu.nuda.domain.review.entity.Review;
 import smu.nuda.domain.review.entity.ReviewImage;
@@ -27,10 +25,14 @@ import smu.nuda.domain.review.repository.projection.ReviewImageProjection;
 import smu.nuda.domain.review.repository.projection.ReviewRankingProjection;
 import smu.nuda.global.cache.facade.MlReviewCacheFacade;
 import smu.nuda.global.error.DomainException;
+import smu.nuda.global.ml.dto.MlReviewKeywordsResponse;
+import smu.nuda.global.ml.dto.MlReviewSentimentResponse;
+import smu.nuda.global.ml.dto.MlReviewTrendResponse;
 import smu.nuda.global.ml.exception.MlApiException;
 import smu.nuda.global.util.DateFormatUtil;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,6 +42,7 @@ public class ReviewService {
 
     private static final int DEFAULT_SIZE = 20;
 
+    private final ReviewAsyncService reviewAsyncService;
     private final MlReviewCacheFacade mlReviewCacheFacade;
     private final ReviewRepository reviewRepository;
     private final ReviewQueryRepository reviewQueryRepository;
@@ -185,6 +188,65 @@ public class ReviewService {
                 result,
                 indexPage.getNextCursor(),
                 indexPage.isHasNext()
+        );
+    }
+
+    public ReviewAiSummaryResponse getReviewAiSummary(Long productId, int topN) {
+        CompletableFuture<MlReviewTrendResponse> trendFuture = reviewAsyncService.getTrendAsync(productId);
+        CompletableFuture<MlReviewSentimentResponse> sentimentFuture = reviewAsyncService.getSentimentAsync(productId);
+        CompletableFuture<MlReviewKeywordsResponse> keywordsFuture = reviewAsyncService.getKeywordsAsync(productId, topN);
+
+        MlReviewTrendResponse trend = trendFuture.join();
+        MlReviewSentimentResponse sentiment = sentimentFuture.join();
+        MlReviewKeywordsResponse keywords = keywordsFuture.join();
+
+        if (trend == null) {
+            log.warn("[ML PartialFailure] trend default used productId={}", productId);
+            trend = defaultTrend(productId);
+        }
+
+        if (sentiment == null) {
+            log.warn("[ML PartialFailure] sentiment default used productId={}", productId);
+            sentiment = defaultSentiment(productId);
+        }
+
+        if (keywords == null) {
+            log.warn("[ML PartialFailure] keywords default used productId={}", productId);
+            keywords = defaultKeywords(productId, topN);
+        }
+
+        return ReviewAiSummaryResponse.of(trend, sentiment, keywords);
+    }
+
+    public SentimentKeywordsItem getReviewKeywords(Long productId, int topN) {
+        return SentimentKeywordsItem.from(mlReviewCacheFacade.getReviewKeywords(productId, topN));
+    }
+
+    private MlReviewKeywordsResponse defaultKeywords(Long productId, int topN) {
+        return new MlReviewKeywordsResponse(
+                productId,
+                List.of(),
+                List.of(),
+                0,
+                null
+        );
+    }
+
+    private MlReviewTrendResponse defaultTrend(Long productId) {
+        return new MlReviewTrendResponse(
+                productId,
+                0,
+                List.of(),
+                null
+        );
+    }
+
+    private MlReviewSentimentResponse defaultSentiment(Long productId) {
+        return new MlReviewSentimentResponse(
+                productId,
+                new MlReviewSentimentResponse.SentimentDistribution(0.5, 0.5),
+                0,
+                null
         );
     }
 }

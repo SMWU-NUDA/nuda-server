@@ -6,12 +6,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import smu.nuda.domain.common.dto.CursorPageResponse;
 import smu.nuda.domain.member.entity.Member;
-import smu.nuda.domain.review.dto.MyReviewResponse;
-import smu.nuda.domain.review.dto.ReviewCreateRequest;
-import smu.nuda.domain.review.dto.ReviewItem;
+import smu.nuda.domain.review.dto.*;
 import smu.nuda.domain.review.dto.enums.ReviewKeywordType;
 import smu.nuda.domain.review.entity.Review;
 import smu.nuda.domain.review.guard.ReviewGuard;
@@ -22,6 +21,7 @@ import smu.nuda.global.response.ApiResponse;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 @Tag(name = "[REVIEW] 리뷰 API")
 public class ReviewController {
 
@@ -95,4 +95,37 @@ public class ReviewController {
         return ApiResponse.success(reviewService.getGlobalRankingPage(productId, memberId, keyword, cursor, size));
     }
 
+    @GetMapping("/products/{productId}/review-summary")
+    @Operation(
+            summary = "리뷰 AI 요약 조회",
+            description = """
+                    해당 상품의 리뷰를 AI 기반으로 분석한 요약 정보를 조회합니다.
+                    - 긍정/부정 키워드 Top 5
+                    - 사용자 만족도 (긍정 비율 기반)
+                    - 주요 리뷰 트렌드 하이라이트
+                    """
+    )
+    @SecurityRequirement(name = "JWT")
+    @LoginRequired
+    public ApiResponse<ReviewAiSummaryResponse> getReviewAiSummary(
+            @PathVariable Long productId,
+            @RequestParam(defaultValue = "5") int topN
+    ){
+        Long memberId = authenticationGuard.currentMemberId();
+        return ApiResponse.success(reviewService.getReviewAiSummary(productId, topN));
+    }
+
+    @GetMapping("/products/{productId}/review-keywords")
+    @Operation(
+            summary = "리뷰 긍정/부정 키워드 조회",
+            description = "ML 분석을 통한 해당 상품 리뷰의 긍정/부정 키워드 리스트를 조회합니다."
+    )
+    @SecurityRequirement(name = "JWT")
+    @LoginRequired
+    public ApiResponse<SentimentKeywordsItem> getReviewKeywordsOnly(
+            @PathVariable Long productId,
+            @RequestParam(defaultValue = "3") int topN
+    ) {
+        return ApiResponse.success(reviewService.getReviewKeywords(productId, topN));
+    }
 }
