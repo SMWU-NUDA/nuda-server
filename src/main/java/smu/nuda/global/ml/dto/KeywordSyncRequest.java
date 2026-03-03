@@ -9,7 +9,7 @@ public record KeywordSyncRequest (
     Long memberId,
     IrritationLevel irritationLevel,
     ScentLevel scent,
-    ThicknessLevel thickness,
+    ThicknessLevel absorption,
     AdhesionLevel adhesion
 ){
 }

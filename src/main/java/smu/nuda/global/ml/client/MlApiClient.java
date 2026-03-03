@@ -11,12 +11,12 @@ public class MlApiClient {
     private final MlHttpClient httpClient;
 
     // 키워드 점수 동기화
-    public KeywordSyncResponse syncKeywordPreference(KeywordSyncRequest request) {
+    public KeywordSyncResponse syncKeywordPreference(KeywordSyncMapper request) {
         return httpClient.post(
                 "/members/{memberId}/preference/keyword-update",
                 request,
                 KeywordSyncResponse.class,
-                request.memberId()
+                request.getMemberId()
         );
     }
 

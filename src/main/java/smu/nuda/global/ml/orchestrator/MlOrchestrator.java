@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import smu.nuda.global.ml.client.MlApiClient;
+import smu.nuda.global.ml.dto.KeywordSyncMapper;
 import smu.nuda.global.ml.dto.KeywordSyncRequest;
 import smu.nuda.global.ml.dto.KeywordSyncResponse;
 
@@ -24,7 +25,14 @@ public class MlOrchestrator {
         log.info("[ML-Orchestrator] Start keyword sync - memberId={}", request.memberId());
 
         try {
-            KeywordSyncResponse response = mlApiClient.syncKeywordPreference(request);
+            KeywordSyncMapper keywordSyncMapper = KeywordSyncMapper.from(
+                    request.memberId(),
+                    request.irritationLevel(),
+                    request.scent(),
+                    request.absorption(),
+                    request.adhesion()
+            );
+            KeywordSyncResponse response = mlApiClient.syncKeywordPreference(keywordSyncMapper);
 
             Instant end = Instant.now(clock);
             long duration = Duration.between(start, end).toMillis();
