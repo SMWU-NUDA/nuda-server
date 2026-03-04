@@ -10,10 +10,9 @@ import smu.nuda.domain.member.entity.Member;
 
 @Getter
 @AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class KeywordResponse {
 
-    private MeResponse me;
+    @JsonInclude(JsonInclude.Include.NON_NULL) private MeResponse me;
     private IrritationLevel irritationLevel;
     private ScentLevel scent;
     private AdhesionLevel adhesion;
