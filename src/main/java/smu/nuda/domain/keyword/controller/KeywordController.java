@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import smu.nuda.domain.keyword.dto.KeywordRequest;
 import smu.nuda.domain.keyword.dto.KeywordResponse;
 import smu.nuda.domain.keyword.service.KeywordService;
+import smu.nuda.domain.member.entity.Member;
 import smu.nuda.global.guard.annotation.LoginRequired;
 import smu.nuda.global.guard.guard.AuthenticationGuard;
 import smu.nuda.global.response.ApiResponse;
@@ -29,8 +30,8 @@ public class KeywordController {
     @SecurityRequirement(name = "JWT")
     @LoginRequired
     public ApiResponse<KeywordResponse> getMyKeyword() {
-        Long memberId = authenticationGuard.currentMemberId();
-        return ApiResponse.success(keywordService.getMyKeyword(memberId));
+        Member member = authenticationGuard.currentMember();
+        return ApiResponse.success(keywordService.getMyKeyword(member));
     }
 
     @PatchMapping("/me/keywords")
