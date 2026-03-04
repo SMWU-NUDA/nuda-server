@@ -10,6 +10,7 @@ import smu.nuda.domain.keyword.entity.Keyword;
 import smu.nuda.domain.keyword.error.KeywordErrorCode;
 import smu.nuda.domain.keyword.event.KeywordUpdateEvent;
 import smu.nuda.domain.keyword.repository.KeywordRepository;
+import smu.nuda.domain.member.entity.Member;
 import smu.nuda.global.error.DomainException;
 import smu.nuda.global.ml.dto.KeywordSyncRequest;
 
@@ -21,10 +22,10 @@ public class KeywordService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
-    public KeywordResponse getMyKeyword(Long memberId) {
-        Keyword keyword = keywordRepository.findByMemberId(memberId)
+    public KeywordResponse getMyKeyword(Member member) {
+        Keyword keyword = keywordRepository.findByMemberId(member.getId())
                 .orElseThrow(() -> new DomainException(KeywordErrorCode.KEYWORD_NOT_FOUND));
-        return KeywordResponse.from(keyword);
+        return KeywordResponse.of(keyword, member);
     }
 
     @Transactional
