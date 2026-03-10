@@ -25,6 +25,7 @@ import smu.nuda.domain.review.repository.projection.ReviewImageProjection;
 import smu.nuda.domain.review.repository.projection.ReviewRankingProjection;
 import smu.nuda.global.cache.facade.MlReviewCacheFacade;
 import smu.nuda.global.error.DomainException;
+import smu.nuda.global.error.MlErrorCode;
 import smu.nuda.global.ml.dto.MlReviewKeywordsResponse;
 import smu.nuda.global.ml.dto.MlReviewSentimentResponse;
 import smu.nuda.global.ml.dto.MlReviewTrendResponse;
@@ -192,34 +193,59 @@ public class ReviewService {
     }
 
     public ReviewAiSummaryResponse getReviewAiSummary(Long productId, int topN) {
-        CompletableFuture<MlReviewTrendResponse> trendFuture = reviewAsyncService.getTrendAsync(productId);
-        CompletableFuture<MlReviewSentimentResponse> sentimentFuture = reviewAsyncService.getSentimentAsync(productId);
-        CompletableFuture<MlReviewKeywordsResponse> keywordsFuture = reviewAsyncService.getKeywordsAsync(productId, topN);
 
-        MlReviewTrendResponse trend = trendFuture.join();
-        MlReviewSentimentResponse sentiment = sentimentFuture.join();
-        MlReviewKeywordsResponse keywords = keywordsFuture.join();
+        try{
+            CompletableFuture<MlReviewTrendResponse> trendFuture = reviewAsyncService.getTrendAsync(productId);
+            CompletableFuture<MlReviewSentimentResponse> sentimentFuture = reviewAsyncService.getSentimentAsync(productId);
+            CompletableFuture<MlReviewKeywordsResponse> keywordsFuture = reviewAsyncService.getKeywordsAsync(productId, topN);
 
-        if (trend == null) {
-            log.warn("[ML PartialFailure] trend default used productId={}", productId);
-            trend = defaultTrend(productId);
+            MlReviewTrendResponse trend = safeJoin(trendFuture);
+            MlReviewSentimentResponse sentiment = safeJoin(sentimentFuture);
+            MlReviewKeywordsResponse keywords = safeJoin(keywordsFuture);
+
+            if (trend == null) {
+                log.warn("[ML PartialFailure] trend default used productId={}", productId);
+                trend = defaultTrend(productId);
+            }
+
+            if (sentiment == null) {
+                log.warn("[ML PartialFailure] sentiment default used productId={}", productId);
+                sentiment = defaultSentiment(productId);
+            }
+
+            if (keywords == null) {
+                log.warn("[ML PartialFailure] keywords default used productId={}", productId);
+                keywords = defaultKeywords(productId, topN);
+            }
+
+            return ReviewAiSummaryResponse.of(trend, sentiment, keywords);
+        } catch (MlApiException e) {
+            if (e.getErrorCode() == MlErrorCode.REVIEW_INSUFFICIENT) {
+                throw new DomainException(MlErrorCode.REVIEW_INSUFFICIENT);
+            }
+
+            throw e;
         }
 
-        if (sentiment == null) {
-            log.warn("[ML PartialFailure] sentiment default used productId={}", productId);
-            sentiment = defaultSentiment(productId);
-        }
-
-        if (keywords == null) {
-            log.warn("[ML PartialFailure] keywords default used productId={}", productId);
-            keywords = defaultKeywords(productId, topN);
-        }
-
-        return ReviewAiSummaryResponse.of(trend, sentiment, keywords);
     }
 
     public SentimentKeywordsItem getReviewKeywords(Long productId, int topN) {
         return SentimentKeywordsItem.from(mlReviewCacheFacade.getReviewKeywords(productId, topN));
+    }
+
+    private <T> T safeJoin(CompletableFuture<T> future) {
+        try {
+            return future.join();
+        } catch (java.util.concurrent.CompletionException e) {
+
+            Throwable cause = e.getCause();
+
+            if (cause instanceof MlApiException mlException) {
+                throw mlException;
+            }
+
+            throw e;
+        }
     }
 
     private MlReviewKeywordsResponse defaultKeywords(Long productId, int topN) {
