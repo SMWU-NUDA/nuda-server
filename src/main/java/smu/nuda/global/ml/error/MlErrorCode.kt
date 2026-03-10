@@ -20,6 +20,9 @@ enum class MlErrorCode(
     REVIEW_INSUFFICIENT(
         "ML_REVIEW_INSUFFICIENT", "리뷰가 충분하지 않아 AI 분석을 수행할 수 없습니다."
     ),
+    EMPTY_RESPONSE(
+        "ML_EMPTY_RESPONSE","ML 서버가 빈 응답을 반환했습니다."
+    ),
 
     ;
 }
