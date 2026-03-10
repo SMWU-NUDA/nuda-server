@@ -10,7 +10,7 @@ import java.util.List;
 public class ProductDetailResponse {
     private Long productId;
 
-    private List<String> imageUrls;
+    private List<String> mainImageUrls;
     private Long brandId;
     private String brandName;
     private boolean brandLikedByMe;
@@ -20,12 +20,13 @@ public class ProductDetailResponse {
     private boolean productLikedByMe;
     private int price;
 
+    private List<String> detailImageUrls;
     private String content;
 
     public static ProductDetailResponse of(ProductDetailCache cache, boolean productLikedByMe, boolean brandLikedByMe) {
         return ProductDetailResponse.builder()
                 .productId(cache.getProductId())
-                .imageUrls(cache.getImageUrls())
+                .mainImageUrls(cache.getMainImageUrls())
                 .brandName(cache.getBrandName())
                 .name(cache.getName())
                 .averageRating(cache.getAverageRating())
@@ -34,6 +35,7 @@ public class ProductDetailResponse {
                 .content(cache.getContent())
                 .productLikedByMe(productLikedByMe)
                 .brandLikedByMe(brandLikedByMe)
+                .detailImageUrls(cache.getDetailImageUrls())
                 .brandId(cache.getBrandId())
                 .build();
     }

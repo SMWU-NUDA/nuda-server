@@ -36,13 +36,14 @@ public class ProductQueryRepository {
                 .select(Projections.constructor(
                         ProductDetailCache.class,
                         product.id,
-                        Expressions.constant(List.of()), // imageUrls는 나중에
+                        Expressions.constant(List.of()), // mainImageUrls 나중에
                         brand.id,
                         brand.name,
                         product.name,
                         product.averageRating,
                         product.reviewCount,
                         product.costPrice,
+                        Expressions.constant(List.of()), // detailImageUrls 나중에
                         product.content
                 ))
                 .from(product)

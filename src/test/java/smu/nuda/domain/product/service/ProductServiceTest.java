@@ -12,6 +12,7 @@ import smu.nuda.domain.like.repository.BrandLikeRepository;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.product.dto.ProductDetailCache;
 import smu.nuda.domain.product.dto.ProductDetailResponse;
+import smu.nuda.domain.product.entity.enums.ImageType;
 import smu.nuda.domain.product.repository.ProductImageQueryRepository;
 import smu.nuda.domain.product.repository.ProductQueryRepository;
 import smu.nuda.domain.like.repository.ProductLikeRepository;
@@ -52,7 +53,8 @@ public class ProductServiceTest {
 
     private ProductDetailResponse getProductDetailWithoutCache(Long productId, Member member) {
         ProductDetailCache base = productQueryRepository.findProductBase(productId);
-        List<String> imageUrls = productImageQueryRepository.findImageUrlsByProductId(productId);
+        List<String> mainImageUrls = productImageQueryRepository.findImageUrlsByProductIdAndType(productId, ImageType.MAIN);
+        List<String> detailImageUrls = productImageQueryRepository.findImageUrlsByProductIdAndType(productId, ImageType.DETAIL);
 
         ProductDetailCache cache = ProductDetailCache.builder()
                 .productId(base.getProductId())
@@ -63,7 +65,8 @@ public class ProductServiceTest {
                 .reviewCount(base.getReviewCount())
                 .price(base.getPrice())
                 .content(base.getContent())
-                .imageUrls(imageUrls)
+                .mainImageUrls(mainImageUrls)
+                .detailImageUrls(detailImageUrls)
                 .build();
         boolean productLikedByMe = productLikeRepository.existsByMember_IdAndProduct_Id(member.getId(), productId);
         boolean brandLikedByMe = brandLikeRepository.existsByMember_IdAndBrand_Id(member.getId(), cache.getBrandId());

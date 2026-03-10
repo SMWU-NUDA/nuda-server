@@ -14,7 +14,7 @@ import java.util.List;
 public class ProductDetailCache {
     private Long productId;
 
-    private List<String> imageUrls;
+    private List<String> mainImageUrls;
     private Long brandId;
     private String brandName;
     private String name;
@@ -22,5 +22,6 @@ public class ProductDetailCache {
     private Integer reviewCount;
     private Integer price;
 
+    private List<String> detailImageUrls;
     private String content;
 }
