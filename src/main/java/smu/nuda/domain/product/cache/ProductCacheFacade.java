@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import smu.nuda.domain.product.dto.ProductDetailCache;
+import smu.nuda.domain.product.entity.enums.ImageType;
 import smu.nuda.domain.product.error.ProductErrorCode;
 import smu.nuda.domain.product.repository.ProductImageQueryRepository;
 import smu.nuda.domain.product.repository.ProductQueryRepository;
@@ -40,7 +41,8 @@ public class ProductCacheFacade {
         ProductDetailCache base = productQueryRepository.findProductBase(productId);
         if (base == null) throw new DomainException(ProductErrorCode.INVALID_PRODUCT);
 
-        List<String> imageUrls = productImageQueryRepository.findImageUrlsByProductId(productId);
+        List<String> mainImageUrls = productImageQueryRepository.findImageUrlsByProductIdAndType(productId, ImageType.MAIN);
+        List<String> detailImageUrls = productImageQueryRepository.findImageUrlsByProductIdAndType(productId, ImageType.DETAIL);
 
         return ProductDetailCache.builder()
                 .productId(base.getProductId())
@@ -51,7 +53,8 @@ public class ProductCacheFacade {
                 .reviewCount(base.getReviewCount())
                 .price(base.getPrice())
                 .content(base.getContent())
-                .imageUrls(imageUrls)
+                .mainImageUrls(mainImageUrls)
+                .detailImageUrls(detailImageUrls)
                 .build();
     }
 
