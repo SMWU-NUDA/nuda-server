@@ -27,13 +27,17 @@ public class MlHttpClient {
                 // 4xx 에러 처리
                 .onStatus(HttpStatusCode::is4xxClientError,
                         resp -> resp.bodyToMono(String.class)
-                                .map(errorBody -> new IllegalArgumentException(
-                                        String.format("ML client error %s: %s", resp.statusCode(), errorBody))))
+                                .map(errorBody -> {
+                                    log.warn("ML client error %s: %s", resp.statusCode(), errorBody);
+                                    return new MlApiException(MlErrorCode.CLIENT_ERROR);
+                                }))
                 // 5xx 에러 처리
                 .onStatus(HttpStatusCode::is5xxServerError,
                         resp -> resp.bodyToMono(String.class)
-                                .map(errorBody -> new IllegalStateException(
-                                        String.format("ML server error %s: %s", resp.statusCode(), errorBody))))
+                                .map(errorBody -> {
+                                    log.warn("ML client error %s: %s", resp.statusCode(), errorBody);
+                                    return new MlApiException(MlErrorCode.INTERNAL_SERVER_ERROR);
+                                }))
                 .bodyToMono(responseType)
                 .block(); // 동기 방식으로 결과 대기
 
@@ -52,13 +56,24 @@ public class MlHttpClient {
                 // 4xx 에러 처리
                 .onStatus(HttpStatusCode::is4xxClientError,
                         resp -> resp.bodyToMono(String.class)
-                                .map(errorBody -> new IllegalArgumentException(
-                                        String.format("ML client error %s: %s", resp.statusCode(), errorBody))))
+                                .map(errorBody -> {
+
+                                    // 리뷰가 부족할 때 비즈니스 예외 처리
+                                    if (errorBody.contains("리뷰수가 10개 이하")) {
+                                        log.warn("ML Review Insufficient: {}", errorBody);
+                                        return new MlApiException(MlErrorCode.REVIEW_INSUFFICIENT);
+                                    }
+
+                                    log.error("ML client error {}: {}", resp.statusCode(), errorBody);
+                                    return new MlApiException(MlErrorCode.CLIENT_ERROR);
+                                }))
                 // 5xx 에러 처리
                 .onStatus(HttpStatusCode::is5xxServerError,
                         resp -> resp.bodyToMono(String.class)
-                                .map(errorBody -> new IllegalStateException(
-                                        String.format("ML server error %s: %s", resp.statusCode(), errorBody))))
+                                .map(errorBody -> {
+                                    log.warn("ML server error %s: %s", resp.statusCode(), errorBody);
+                                    return new MlApiException(MlErrorCode.INTERNAL_SERVER_ERROR);
+                                }))
                 .bodyToMono(responseType)
                 .block();
 
