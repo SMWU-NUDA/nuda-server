@@ -233,6 +233,10 @@ public class ReviewService {
     }
 
     public SentimentKeywordsItem getReviewKeywords(Long productId, int topN) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new DomainException(ProductErrorCode.INVALID_PRODUCT));
+        if(product.getReviewCount() < 10) throw new DomainException(MlErrorCode.REVIEW_INSUFFICIENT);
+        
         return SentimentKeywordsItem.from(mlReviewCacheFacade.getReviewKeywords(productId, topN));
     }
 
