@@ -193,6 +193,9 @@ public class ReviewService {
     }
 
     public ReviewAiSummaryResponse getReviewAiSummary(Long productId, int topN) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new DomainException(ProductErrorCode.INVALID_PRODUCT));
+        if(product.getReviewCount() < 10) throw new DomainException(MlErrorCode.REVIEW_INSUFFICIENT);
 
         try{
             CompletableFuture<MlReviewTrendResponse> trendFuture = reviewAsyncService.getTrendAsync(productId);
