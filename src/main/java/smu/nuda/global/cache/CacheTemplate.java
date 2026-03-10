@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+import smu.nuda.global.error.MlErrorCode;
+import smu.nuda.global.ml.exception.MlApiException;
 
 import java.time.Duration;
 import java.util.function.Supplier;
@@ -65,6 +67,17 @@ public class CacheTemplate {
             }
 
             log.warn("ML RETURNED NULL key={} → DEFAULT USED", key);
+        } catch (MlApiException e) {
+
+            // 리뷰 부족은 비즈니스 예외 → 그대로 전파
+            if (e.getErrorCode() == MlErrorCode.REVIEW_INSUFFICIENT) throw e;
+
+            log.warn(
+                    "ML FAILED key={} → DEFAULT USED cause={} message={}",
+                    key,
+                    e.getClass().getSimpleName(),
+                    e.getMessage()
+            );
         } catch (Exception e) {
             log.warn(
                     "ML FAILED key={} → DEFAULT USED cause={} message={}",

@@ -7,7 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 import smu.nuda.global.error.MlErrorCode;
+import smu.nuda.global.ml.dto.MlErrorResponse;
 import smu.nuda.global.ml.exception.MlApiException;
 
 @Component
@@ -26,19 +28,23 @@ public class MlHttpClient {
 
                 // 4xx 에러 처리
                 .onStatus(HttpStatusCode::is4xxClientError,
-                        resp -> resp.bodyToMono(String.class)
-                                .map(errorBody -> new IllegalArgumentException(
-                                        String.format("ML client error %s: %s", resp.statusCode(), errorBody))))
+                        resp -> resp.bodyToMono(MlErrorResponse.class)
+                                .flatMap(error -> {
+                                    log.warn("ML client error %s: %s", resp.statusCode(), error.getDetail());
+                                    return Mono.error(new MlApiException(MlErrorCode.CLIENT_ERROR));
+                                }))
                 // 5xx 에러 처리
                 .onStatus(HttpStatusCode::is5xxServerError,
-                        resp -> resp.bodyToMono(String.class)
-                                .map(errorBody -> new IllegalStateException(
-                                        String.format("ML server error %s: %s", resp.statusCode(), errorBody))))
+                        resp -> resp.bodyToMono(MlErrorResponse.class)
+                                .flatMap(error -> {
+                                    log.warn("ML client error %s: %s", resp.statusCode(), error.getDetail());
+                                    return Mono.error(new MlApiException(MlErrorCode.INTERNAL_SERVER_ERROR));
+                                }))
                 .bodyToMono(responseType)
                 .block(); // 동기 방식으로 결과 대기
 
         // 응답 바디가 비어있는 경우(null) 확인
-        if (result == null) throw new IllegalStateException(String.format("ML 서버가 빈 응답을 반환했습니다. (URI: %s)", uriTemplate));
+        if (result == null) throw new MlApiException(MlErrorCode.EMPTY_RESPONSE);
 
         return result;
     }
@@ -51,19 +57,30 @@ public class MlHttpClient {
 
                 // 4xx 에러 처리
                 .onStatus(HttpStatusCode::is4xxClientError,
-                        resp -> resp.bodyToMono(String.class)
-                                .map(errorBody -> new IllegalArgumentException(
-                                        String.format("ML client error %s: %s", resp.statusCode(), errorBody))))
+                        resp -> resp.bodyToMono(MlErrorResponse.class)
+                                .flatMap(error -> {
+
+                                    // 리뷰가 부족할 때 비즈니스 예외 처리
+                                    if (resp.statusCode().value() == 422) {
+                                        log.warn("ML Review Insufficient: {}", error.getDetail());
+                                        return Mono.error(new MlApiException(MlErrorCode.REVIEW_INSUFFICIENT));
+                                    }
+
+                                    log.error("ML client error {}: {}", resp.statusCode(), error.getDetail());
+                                    return Mono.error(new MlApiException(MlErrorCode.CLIENT_ERROR));
+                                }))
                 // 5xx 에러 처리
                 .onStatus(HttpStatusCode::is5xxServerError,
-                        resp -> resp.bodyToMono(String.class)
-                                .map(errorBody -> new IllegalStateException(
-                                        String.format("ML server error %s: %s", resp.statusCode(), errorBody))))
+                        resp -> resp.bodyToMono(MlErrorResponse.class)
+                                .flatMap(error -> {
+                                    log.warn("ML server error %s: %s", resp.statusCode(), error.getDetail());
+                                    return Mono.error(new MlApiException(MlErrorCode.INTERNAL_SERVER_ERROR));
+                                }))
                 .bodyToMono(responseType)
                 .block();
 
         if (result == null) {
-            throw new IllegalStateException("ML 서버가 빈 응답을 반환했습니다.");
+            throw new MlApiException(MlErrorCode.EMPTY_RESPONSE);
         }
 
         return result;
@@ -80,7 +97,9 @@ public class MlHttpClient {
     }
 
     private <T> T handleFallback(Exception e) {
+        if (e instanceof MlApiException mlApiException) throw mlApiException;
         log.error("ML Unexpected Error", e);
+
         throw new MlApiException(MlErrorCode.INTERNAL_SERVER_ERROR);
     }
 }
