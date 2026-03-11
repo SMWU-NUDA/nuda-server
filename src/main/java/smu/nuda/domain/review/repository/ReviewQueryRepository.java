@@ -17,6 +17,19 @@ import static smu.nuda.domain.brand.entity.QBrand.brand;
 public class ReviewQueryRepository {
     private final JPAQueryFactory queryFactory;
 
+    public List<Integer> findReviewIdsByDefaultRanking(Long productId, int topK) {
+        return queryFactory
+                .select(review.id)
+                .from(review)
+                .where(review.product.id.eq(productId))
+                .orderBy(review.likeCount.desc(), review.createdAt.desc())
+                .limit(topK)
+                .fetch()
+                .stream()
+                .map(Long::intValue)
+                .toList();
+    }
+
     public List<MyReviewResponse> findMyReviews(Long memberId, Long cursor, int size) {
         return queryFactory
                 .select(Projections.constructor(
