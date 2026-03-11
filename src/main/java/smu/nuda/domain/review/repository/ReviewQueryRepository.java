@@ -22,7 +22,7 @@ public class ReviewQueryRepository {
                 .select(review.id)
                 .from(review)
                 .where(review.product.id.eq(productId))
-                .orderBy(review.likeCount.desc(), review.id.desc())
+                .orderBy(review.likeCount.desc(), review.createdAt.desc())
                 .limit(topK)
                 .fetch()
                 .stream()
