@@ -9,6 +9,7 @@ import smu.nuda.domain.common.dto.CursorResponse;
 import smu.nuda.domain.like.repository.BrandLikeRepository;
 import smu.nuda.domain.product.cache.ProductCacheFacade;
 import smu.nuda.domain.product.dto.ProductDetailCache;
+import smu.nuda.domain.product.entity.Product;
 import smu.nuda.domain.product.dto.ProductDetailResponse;
 import smu.nuda.domain.product.dto.ProductItem;
 import smu.nuda.domain.product.dto.enums.ProductKeywordType;
@@ -37,9 +38,12 @@ public class ProductService {
     private final ProductLikeRepository productLikeRepository;
     private final BrandLikeRepository brandLikeRepository;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public ProductDetailResponse getProductDetail(Long productId, Long memberId) {
         ProductDetailCache cache = productCacheFacade.getProductDetail(productId);
+
+        // 조회 수 증가
+        productRepository.findById(productId).ifPresent(Product::increaseViewCount);
 
         boolean productLikedByMe = productLikeRepository.existsByMember_IdAndProduct_Id(memberId, productId);
         boolean brandLikedByMe = brandLikeRepository.existsByMember_IdAndBrand_Id(memberId, cache.getBrandId());
