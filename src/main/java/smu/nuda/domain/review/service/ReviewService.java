@@ -67,6 +67,9 @@ public class ReviewService {
         );
         reviewRepository.save(review);
 
+        // 리뷰 수 증가
+        product.increaseReviewCount();
+
         // 상품 상세조회 캐시 삭제 이벤트 발행
         eventPublisher.publishEvent(new ReviewUpdateEvent(product.getId()));
 
@@ -95,6 +98,9 @@ public class ReviewService {
     public void delete(Review review) {
         Long productId = review.getProduct().getId();
         reviewRepository.delete(review);
+
+        // 리뷰 수 감소
+        productRepository.findById(productId).ifPresent(Product::decreaseReviewCount);
 
         // 상품 상세조회 캐시 삭제 이벤트 발행
         eventPublisher.publishEvent(new ReviewUpdateEvent(productId));
