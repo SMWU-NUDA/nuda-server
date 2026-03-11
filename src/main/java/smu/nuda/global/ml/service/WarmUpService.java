@@ -21,6 +21,8 @@ public class WarmUpService {
         log.info("[ML] Global Ranking Warm-Up started");
 
         for (ProductKeywordType keyword : ProductKeywordType.values()) {
+            if (keyword == ProductKeywordType.DEFAULT) continue;
+
             try {
                 rankingCacheFacade.getGlobalRanking(keyword);
                 log.info("WarmUp 성공: {}", keyword);
