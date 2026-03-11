@@ -15,6 +15,7 @@ public class ProductDetailResponse {
     private String brandName;
     private boolean brandLikedByMe;
     private String name;
+    private List<String> ingredientLabels;
     private double averageRating;
     private long reviewCount;
     private boolean productLikedByMe;
@@ -29,6 +30,7 @@ public class ProductDetailResponse {
                 .mainImageUrls(cache.getMainImageUrls())
                 .brandName(cache.getBrandName())
                 .name(cache.getName())
+                .ingredientLabels(cache.getIngredientLabels())
                 .averageRating(cache.getAverageRating())
                 .reviewCount(cache.getReviewCount())
                 .price(cache.getPrice())
