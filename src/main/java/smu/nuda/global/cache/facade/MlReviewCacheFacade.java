@@ -20,7 +20,7 @@ import java.util.List;
 @Slf4j
 public class MlReviewCacheFacade {
 
-    private static final int GLOBAL_TOP_K = 300;
+    public static final int GLOBAL_TOP_K = 300;
     private static final Duration FALLBACK_TTL = Duration.ofMinutes(1);
 
     private final CacheTemplate cacheTemplate;

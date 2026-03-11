@@ -119,18 +119,21 @@ public class ReviewService {
 
     @Transactional(readOnly = true)
     public CursorPageResponse<ReviewItem> getGlobalRankingPage(Long productId, Long memberId, ReviewKeywordType keyword, Long cursor, Integer size) {
-        final int topK = 300;
         List<Integer> rankedIds;
 
-        try {
-            rankedIds = mlReviewCacheFacade.getGlobalReviewRanking(productId, keyword);
-        } catch (MlApiException e) {
-            log.warn("[ReviewFallback] ML 실패 → DB fallback 사용. productId={}", productId);
+        if (keyword == ReviewKeywordType.DEFAULT) {
+            rankedIds = reviewQueryRepository.findReviewIdsByDefaultRanking(productId, MlReviewCacheFacade.GLOBAL_TOP_K);
+        } else {
+            try {
+                rankedIds = mlReviewCacheFacade.getGlobalReviewRanking(productId, keyword);
+            } catch (MlApiException e) {
+                log.warn("[ReviewFallback] ML 실패 → DB fallback 사용. productId={}", productId);
 
-            List<Long> fallbackIds = reviewRepository.findFallbackTopIds(productId, PageRequest.of(0, topK));
-            rankedIds = fallbackIds.stream()
-                    .map(Long::intValue)
-                    .toList();
+                List<Long> fallbackIds = reviewRepository.findFallbackTopIds(productId, PageRequest.of(0, MlReviewCacheFacade.GLOBAL_TOP_K));
+                rankedIds = fallbackIds.stream()
+                        .map(Long::intValue)
+                        .toList();
+            }
         }
 
         return getReviewRankingPageFromIds(rankedIds, memberId, cursor, size);
