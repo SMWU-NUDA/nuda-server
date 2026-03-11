@@ -112,4 +112,20 @@ public class Product extends BaseEntity {
         this.likeCount--;
     }
 
+    public void increaseReviewCount() {
+        this.reviewCount++;
+    }
+
+    public void decreaseReviewCount() {
+        this.reviewCount--;
+    }
+
+    public void increaseSalesCount(int quantity) {
+        this.salesCount += quantity;
+    }
+
+    public void increaseViewCount() {
+        this.viewCount++;
+    }
+
 }
