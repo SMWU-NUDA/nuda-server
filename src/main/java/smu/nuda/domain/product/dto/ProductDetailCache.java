@@ -18,6 +18,7 @@ public class ProductDetailCache {
     private Long brandId;
     private String brandName;
     private String name;
+    private List<String> ingredientLabels;
     private Double averageRating;
     private Integer reviewCount;
     private Integer price;
