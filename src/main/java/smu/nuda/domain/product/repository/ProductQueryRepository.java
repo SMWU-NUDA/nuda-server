@@ -40,6 +40,7 @@ public class ProductQueryRepository {
                         brand.id,
                         brand.name,
                         product.name,
+                        Expressions.constant(List.of()), // ingredientLabels 나중에
                         product.averageRating,
                         product.reviewCount,
                         product.costPrice,

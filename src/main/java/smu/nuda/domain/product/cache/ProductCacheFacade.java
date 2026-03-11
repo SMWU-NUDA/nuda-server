@@ -43,12 +43,14 @@ public class ProductCacheFacade {
 
         List<String> mainImageUrls = productImageQueryRepository.findImageUrlsByProductIdAndType(productId, ImageType.MAIN);
         List<String> detailImageUrls = productImageQueryRepository.findImageUrlsByProductIdAndType(productId, ImageType.DETAIL);
+        List<String> ingredientLabels = productQueryRepository.findIngredientLabelsByProductIds(List.of(productId)).getOrDefault(productId, List.of());
 
         return ProductDetailCache.builder()
                 .productId(base.getProductId())
                 .brandId(base.getBrandId())
                 .brandName(base.getBrandName())
                 .name(base.getName())
+                .ingredientLabels(ingredientLabels)
                 .averageRating(base.getAverageRating())
                 .reviewCount(base.getReviewCount())
                 .price(base.getPrice())
