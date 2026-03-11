@@ -149,6 +149,18 @@ public class ProductQueryRepository {
         return new Cursor<>(sortValue, item.getProductId());
     }
 
+    public List<Integer> findProductIdsByDefaultRanking(int topK) {
+        return queryFactory
+                .select(product.id)
+                .from(product)
+                .orderBy(product.likeCount.desc(), product.id.desc())
+                .limit(topK)
+                .fetch()
+                .stream()
+                .map(Long::intValue)
+                .toList();
+    }
+
     public Map<Long, List<String>> findIngredientLabelsByProductIds(List<Long> productIds) {
         if (productIds == null || productIds.isEmpty()) return Map.of();
 

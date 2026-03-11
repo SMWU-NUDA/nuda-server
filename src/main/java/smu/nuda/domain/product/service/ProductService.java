@@ -71,13 +71,17 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public CursorPageResponse<ProductItem> getGlobalRankingPage(ProductKeywordType keyword, Long cursor, Integer size) {
-        List<Integer> rankedIds = mlProductCacheFacade.getGlobalRanking(keyword);
+        List<Integer> rankedIds = keyword == ProductKeywordType.DEFAULT
+                ? productQueryRepository.findProductIdsByDefaultRanking(MlProductCacheFacade.GLOBAL_TOP_K)
+                : mlProductCacheFacade.getGlobalRanking(keyword);
         return getRankingPageFromIds(rankedIds, cursor, size);
     }
 
     @Transactional(readOnly = true)
     public CursorPageResponse<ProductItem> getPersonalRankingPage(Long memberId, ProductKeywordType keyword, Long cursor, Integer size) {
-        List<Integer> rankedIds = mlProductCacheFacade.getPersonalRanking(memberId, keyword);
+        List<Integer> rankedIds = keyword == ProductKeywordType.DEFAULT
+                ? productQueryRepository.findProductIdsByDefaultRanking(MlProductCacheFacade.PERSONAL_TOP_K)
+                : mlProductCacheFacade.getPersonalRanking(memberId, keyword);
         return getRankingPageFromIds(rankedIds, cursor, size);
     }
 

@@ -14,8 +14,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MlProductCacheFacade {
 
-    private static final int GLOBAL_TOP_K = 50;
-    private static final int PERSONAL_TOP_K = 500;
+    public static final int GLOBAL_TOP_K = 50;
+    public static final int PERSONAL_TOP_K = 500;
 
     private final CacheTemplate cacheTemplate;
     private final CacheKeyFactory cacheKeyFactory;
