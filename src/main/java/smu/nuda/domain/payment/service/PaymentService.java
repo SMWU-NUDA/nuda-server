@@ -113,6 +113,9 @@ public class PaymentService {
             Product product = productMap.get(orderItem.getProductId());
             if (product == null) continue;
 
+            // 판매 수 증가
+            product.increaseSalesCount(orderItem.getQuantity());
+
             eventPublisher.publishEvent(
                     new CommerceEvent(
                             order.getMemberId(),
@@ -159,6 +162,9 @@ public class PaymentService {
         for (OrderItem orderItem : order.getOrderItems()) {
             Product product = productMap.get(orderItem.getProductId());
             if (product == null) continue;
+
+            // 판매 수 증가
+            product.increaseSalesCount(orderItem.getQuantity());
 
             eventPublisher.publishEvent(
                     new CommerceEvent(
