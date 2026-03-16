@@ -15,7 +15,7 @@ public class KeywordEventHandler {
 
     private final MlOrchestrator mlOrchestrator;
 
-    @Async("eventExecutor")
+    @Async("mlExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleKeywordUpdated(KeywordUpdateEvent event) {
 
