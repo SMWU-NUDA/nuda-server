@@ -63,13 +63,25 @@ public class MemberController {
     @PostMapping("/withdraw")
     @Operation(
             summary = "회원 탈퇴 요청",
-            description = "탈퇴 가능 여부 판단 후 관리자에게 요청이 전달됩니다."
+            description = "탈퇴 요청 즉시 좋아요/장바구니가 삭제되며, 30일 이내에 취소할 수 있습니다."
     )
     @SecurityRequirement(name = "JWT")
     @LoginRequired
     public ApiResponse<String> withdraw() {
         withdrawService.withdraw();
         return ApiResponse.success("회원 탈퇴 요청이 완료되었습니다.");
+    }
+
+    @DeleteMapping("/withdraw")
+    @Operation(
+            summary = "회원 탈퇴 취소",
+            description = "탈퇴 요청 후 30일 이내에 취소할 수 있습니다. 단, 삭제된 좋아요/장바구니는 복구되지 않습니다."
+    )
+    @SecurityRequirement(name = "JWT")
+    @LoginRequired
+    public ApiResponse<String> cancelWithdraw() {
+        withdrawService.cancelWithdraw();
+        return ApiResponse.success("회원 탈퇴가 취소되었습니다.");
     }
 
     @GetMapping("/me")
