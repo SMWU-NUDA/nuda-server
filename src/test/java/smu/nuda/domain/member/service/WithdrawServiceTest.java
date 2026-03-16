@@ -7,6 +7,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
+import smu.nuda.domain.cart.entity.Cart;
+import smu.nuda.domain.cart.repository.CartRepository;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.member.entity.enums.Status;
 import smu.nuda.domain.member.error.MemberErrorCode;
@@ -38,6 +40,7 @@ class WithdrawServiceTest {
     @Mock AuthenticationGuard authenticationGuard;
     @Mock WithdrawPolicyExecutor withdrawPolicyExecutor;
     @Mock ApplicationEventPublisher eventPublisher;
+    @Mock CartRepository cartRepository;
     @Mock Clock clock;
     @InjectMocks WithdrawService withdrawService;
 
@@ -71,8 +74,9 @@ class WithdrawServiceTest {
         // [when] 탈퇴 취소 요청
         withdrawService.cancelWithdraw();
 
-        // [then] cancelWithdraw()가 호출됨
+        // [then] cancelWithdraw() 호출 후 cart가 새로 생성됨
         verify(member).cancelWithdraw();
+        verify(cartRepository).save(any(Cart.class));
     }
 
     @Test
