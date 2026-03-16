@@ -77,4 +77,13 @@ public class JwtTestFactory {
                 TokenType.ACCESS
         );
     }
+
+    public String accessTokenFor(Member member) {
+        return jwtProvider.generateToken(
+                member.getId(),
+                member.getEmail(),
+                member.getRole().name(),
+                TokenType.ACCESS
+        );
+    }
 }

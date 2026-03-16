@@ -26,9 +26,13 @@ class WithdrawSecurityTest {
     /*
     JwtAuthenticationFilter 내 탈퇴 상태 차단 로직을 검증하는 Security 통합 테스트
 
+    필터는 JWT 토큰의 클레임이 아니라 DB의 member.status를 매 요청마다 조회해 판단함
+    따라서 토큰 재발급 없이 DB 상태 변경만으로 접근 권한이 즉시 반영됨
+
     - WITHDRAWN 멤버의 JWT로 일반 API 접근 → 401 MEMBER_WITHDRAWN
     - WITHDRAW_REQUESTED 멤버의 JWT로 일반 API 접근 → 401 MEMBER_WITHDRAW_IN_PROGRESS
     - WITHDRAW_REQUESTED 멤버의 JWT로 탈퇴 취소 API 접근 → 허용 (200)
+    - 탈퇴 취소 후 동일 토큰으로 일반 API 재접근 → 허용 (200)
     - WITHDRAWN 멤버의 로그인 시도 → 400 MEMBER_WITHDRAWN
      */
 
@@ -52,7 +56,7 @@ class WithdrawSecurityTest {
 
         // [when, then] 일반 API 요청 차단 → 401
         mockMvc.perform(
-                        get("/members/me")
+                        get("/members/me/delivery")
                                 .header("Authorization", "Bearer " + token)
                 )
                 .andExpect(status().isUnauthorized())
@@ -67,7 +71,7 @@ class WithdrawSecurityTest {
 
         // [when, then] 탈퇴 취소 API 외 요청 차단 → 401
         mockMvc.perform(
-                        get("/members/me")
+                        get("/members/me/delivery")
                                 .header("Authorization", "Bearer " + token)
                 )
                 .andExpect(status().isUnauthorized())
@@ -83,6 +87,28 @@ class WithdrawSecurityTest {
         // [when, then] DELETE /members/withdraw 는 허용됨
         mockMvc.perform(
                         delete("/members/withdraw")
+                                .header("Authorization", "Bearer " + token)
+                )
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("탈퇴 취소 후 동일 토큰으로 일반 API 요청 시 허용된다 (필터가 DB 상태를 기준으로 판단함을 증명)")
+    void after_cancel_withdraw_same_token_allows_api() throws Exception {
+        // [given] WITHDRAW_REQUESTED 상태의 멤버와 토큰
+        Member member = memberTestFactory.withdrawRequested();
+        String token = jwtTestFactory.accessTokenFor(member);
+
+        // [when] 탈퇴 취소
+        mockMvc.perform(
+                        delete("/members/withdraw")
+                                .header("Authorization", "Bearer " + token)
+                )
+                .andExpect(status().isOk());
+
+        // [then] 동일 토큰으로 일반 API 접근 허용 → DB 상태(ACTIVE)를 기준으로 판단함을 증명
+        mockMvc.perform(
+                        get("/members/me/delivery")
                                 .header("Authorization", "Bearer " + token)
                 )
                 .andExpect(status().isOk());
