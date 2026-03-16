@@ -115,10 +115,19 @@ public class Member extends BaseEntity {
     }
 
     public void withdraw() {
+        if (this.status != Status.WITHDRAW_REQUESTED) {
+            throw new DomainException(MemberErrorCode.NOT_IN_WITHDRAW_REQUESTED);
+        }
         this.status = Status.WITHDRAWN;
     }
 
-    public void cancelWithdraw() {
+    public void cancelWithdraw(Clock clock) {
+        if (this.status != Status.WITHDRAW_REQUESTED) {
+            throw new DomainException(MemberErrorCode.NOT_IN_WITHDRAW_REQUESTED);
+        }
+        if (!isWithinCancellationWindow(clock)) {
+            throw new DomainException(MemberErrorCode.CANCELLATION_WINDOW_EXPIRED);
+        }
         this.status = Status.ACTIVE;
         this.deletedAt = null;
     }
