@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import smu.nuda.domain.cart.entity.Cart;
+import smu.nuda.domain.cart.repository.CartRepository;
 import smu.nuda.domain.member.entity.Member;
 import smu.nuda.domain.member.entity.enums.Status;
 import smu.nuda.domain.member.error.MemberErrorCode;
@@ -21,6 +23,7 @@ public class WithdrawService {
     private final WithdrawPolicyExecutor withdrawPolicyExecutor;
     private final AuthenticationGuard authenticationGuard;
     private final ApplicationEventPublisher eventPublisher;
+    private final CartRepository cartRepository;
     private final Clock clock;
 
     @Transactional
@@ -49,5 +52,6 @@ public class WithdrawService {
         }
 
         member.cancelWithdraw();
+        cartRepository.save(new Cart(member.getId()));
     }
 }
