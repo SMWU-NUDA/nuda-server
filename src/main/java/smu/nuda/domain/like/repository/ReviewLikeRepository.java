@@ -1,6 +1,7 @@
 package smu.nuda.domain.like.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import smu.nuda.domain.like.entity.ReviewLike;
@@ -24,4 +25,8 @@ public interface ReviewLikeRepository extends JpaRepository<ReviewLike, Long> {
             @Param("memberId") Long memberId,
             @Param("reviewIds") List<Long> reviewIds
     );
+
+    @Modifying
+    @Query("DELETE FROM ReviewLike rl WHERE rl.member.id = :memberId")
+    void deleteByMemberId(@Param("memberId") Long memberId);
 }
