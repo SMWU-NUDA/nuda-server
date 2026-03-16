@@ -14,7 +14,7 @@ public interface BrandLikeRepository extends JpaRepository<BrandLike, Long> {
     boolean existsByMember_IdAndBrand_Id(Long memberId, Long brandId);
     Optional<BrandLike> findByMemberAndBrand(Member member, Brand brand);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("DELETE FROM BrandLike bl WHERE bl.member.id = :memberId")
     void deleteByMemberId(@Param("memberId") Long memberId);
 }

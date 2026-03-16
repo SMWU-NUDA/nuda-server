@@ -14,7 +14,7 @@ public interface ProductLikeRepository extends JpaRepository<ProductLike, Long> 
     boolean existsByMember_IdAndProduct_Id(Long memberId, Long productId);
     Optional<ProductLike> findByMemberAndProduct(Member member, Product product);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("DELETE FROM ProductLike pl WHERE pl.member.id = :memberId")
     void deleteByMemberId(@Param("memberId") Long memberId);
 }

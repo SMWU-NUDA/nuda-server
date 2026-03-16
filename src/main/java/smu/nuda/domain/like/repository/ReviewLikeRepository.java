@@ -26,7 +26,7 @@ public interface ReviewLikeRepository extends JpaRepository<ReviewLike, Long> {
             @Param("reviewIds") List<Long> reviewIds
     );
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("DELETE FROM ReviewLike rl WHERE rl.member.id = :memberId")
     void deleteByMemberId(@Param("memberId") Long memberId);
 }

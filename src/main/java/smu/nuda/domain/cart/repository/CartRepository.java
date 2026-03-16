@@ -20,7 +20,7 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
     Optional<Cart> findByMemberIdForUpdate(Long memberId);
     Optional<Cart> findByMemberId(Long memberId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("DELETE FROM Cart c WHERE c.memberId = :memberId")
     void deleteByMemberId(@Param("memberId") Long memberId);
 }

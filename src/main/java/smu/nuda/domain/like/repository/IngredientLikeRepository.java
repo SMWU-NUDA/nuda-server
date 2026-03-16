@@ -14,7 +14,7 @@ public interface IngredientLikeRepository extends JpaRepository<IngredientLike, 
     Optional<IngredientLike> findByMemberAndIngredient(Member member, Ingredient ingredient);
     Optional<IngredientLike> findByIngredientIdAndMemberId(Long ingredientId, Long memberId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("DELETE FROM IngredientLike il WHERE il.member.id = :memberId")
     void deleteByMemberId(@Param("memberId") Long memberId);
 }
