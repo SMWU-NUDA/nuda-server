@@ -8,7 +8,6 @@ import smu.nuda.global.error.DomainException;
 import smu.nuda.domain.member.error.MemberErrorCode;
 
 import java.time.Clock;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
@@ -21,8 +20,8 @@ class MemberWithdrawTest {
     Member 엔티티의 탈퇴 관련 상태 전이 메서드를 순수 단위 테스트로 검증함
 
     - requestWithdraw(clock) : ACTIVE → WITHDRAW_REQUESTED, deletedAt 기록
-    - withdraw()              : → WITHDRAWN
-    - cancelWithdraw()        : WITHDRAW_REQUESTED → ACTIVE, deletedAt=null
+    - withdraw()              : WITHDRAW_REQUESTED → WITHDRAWN
+    - cancelWithdraw(clock)   : WITHDRAW_REQUESTED → ACTIVE, deletedAt=null (기간 내)
     - isWithinCancellationWindow(clock) : deletedAt 기준 30일 이내 여부
      */
 
@@ -78,7 +77,7 @@ class MemberWithdrawTest {
     }
 
     @Test
-    @DisplayName("withdraw() 호출 시 status가 WITHDRAWN으로 전이된다")
+    @DisplayName("WITHDRAW_REQUESTED 멤버가 withdraw() 호출 시 WITHDRAWN으로 전이된다")
     void withdraw_success() {
         // [given] WITHDRAW_REQUESTED 상태의 멤버
         Member member = activeBuilder();
@@ -92,14 +91,27 @@ class MemberWithdrawTest {
     }
 
     @Test
-    @DisplayName("cancelWithdraw() 호출 시 status가 ACTIVE로 복원되고 deletedAt이 null이 된다")
-    void cancelWithdraw_success() {
-        // [given] WITHDRAW_REQUESTED 상태의 멤버
+    @DisplayName("WITHDRAW_REQUESTED가 아닌 멤버가 withdraw() 호출 시 NOT_IN_WITHDRAW_REQUESTED 예외가 발생한다")
+    void withdraw_fail_when_not_withdraw_requested() {
+        // [given] ACTIVE 상태의 멤버
         Member member = activeBuilder();
-        member.requestWithdraw(Clock.systemDefaultZone());
 
-        // [when] 탈퇴 취소
-        member.cancelWithdraw();
+        // [when, then] NOT_IN_WITHDRAW_REQUESTED 예외 발생
+        assertThatThrownBy(member::withdraw)
+                .isInstanceOf(DomainException.class)
+                .hasMessageContaining(MemberErrorCode.NOT_IN_WITHDRAW_REQUESTED.getMessage());
+    }
+
+    @Test
+    @DisplayName("WITHDRAW_REQUESTED 멤버가 30일 이내에 취소하면 ACTIVE로 복원되고 deletedAt이 null이 된다")
+    void cancelWithdraw_success() {
+        // [given] 오늘 탈퇴 요청한 멤버
+        LocalDateTime requestTime = LocalDateTime.of(2026, 1, 1, 12, 0, 0);
+        Member member = activeBuilder();
+        member.requestWithdraw(fixedClockAt(requestTime));
+
+        // [when] 탈퇴 취소 (같은 시각)
+        member.cancelWithdraw(fixedClockAt(requestTime));
 
         // [then] ACTIVE로 복원되고 deletedAt이 null이 됨
         assertThat(member.getStatus()).isEqualTo(Status.ACTIVE);
@@ -107,17 +119,40 @@ class MemberWithdrawTest {
     }
 
     @Test
+    @DisplayName("WITHDRAW_REQUESTED가 아닌 멤버가 cancelWithdraw() 호출 시 NOT_IN_WITHDRAW_REQUESTED 예외가 발생한다")
+    void cancelWithdraw_fail_when_not_withdraw_requested() {
+        // [given] ACTIVE 상태의 멤버
+        Member member = activeBuilder();
+
+        // [when, then] NOT_IN_WITHDRAW_REQUESTED 예외 발생
+        assertThatThrownBy(() -> member.cancelWithdraw(Clock.systemDefaultZone()))
+                .isInstanceOf(DomainException.class)
+                .hasMessageContaining(MemberErrorCode.NOT_IN_WITHDRAW_REQUESTED.getMessage());
+    }
+
+    @Test
+    @DisplayName("탈퇴 취소 가능 기간이 지난 멤버가 cancelWithdraw() 호출 시 CANCELLATION_WINDOW_EXPIRED 예외가 발생한다")
+    void cancelWithdraw_fail_when_window_expired() {
+        // [given] 31일 전에 탈퇴 요청한 멤버
+        LocalDateTime requestTime = LocalDateTime.of(2026, 1, 1, 12, 0, 0);
+        Member member = activeBuilder();
+        member.requestWithdraw(fixedClockAt(requestTime));
+
+        // [when, then] CANCELLATION_WINDOW_EXPIRED 예외 발생
+        assertThatThrownBy(() -> member.cancelWithdraw(fixedClockAt(requestTime.plusDays(31))))
+                .isInstanceOf(DomainException.class)
+                .hasMessageContaining(MemberErrorCode.CANCELLATION_WINDOW_EXPIRED.getMessage());
+    }
+
+    @Test
     @DisplayName("deletedAt이 오늘이면 isWithinCancellationWindow()가 true를 반환한다")
     void isWithinCancellationWindow_true_when_today() {
-        // [given] 오늘 탈퇴 요청한 멤버 (clock 고정)
+        // [given] 오늘 탈퇴 요청한 멤버
         LocalDateTime requestTime = LocalDateTime.of(2026, 1, 1, 12, 0, 0);
-        Clock requestClock = fixedClockAt(requestTime);
-
         Member member = activeBuilder();
-        member.requestWithdraw(requestClock);
+        member.requestWithdraw(fixedClockAt(requestTime));
 
-        // [when] 같은 시각의 clock으로 취소 가능 여부 확인
-        assertThat(member.isWithinCancellationWindow(requestClock)).isTrue();
+        assertThat(member.isWithinCancellationWindow(fixedClockAt(requestTime))).isTrue();
     }
 
     @Test
@@ -128,9 +163,7 @@ class MemberWithdrawTest {
         Member member = activeBuilder();
         member.requestWithdraw(fixedClockAt(requestTime));
 
-        // [when] 31일 이후 clock으로 취소 가능 여부 확인
-        Clock laterClock = fixedClockAt(requestTime.plusDays(31));
-        assertThat(member.isWithinCancellationWindow(laterClock)).isFalse();
+        assertThat(member.isWithinCancellationWindow(fixedClockAt(requestTime.plusDays(31)))).isFalse();
     }
 
     @Test
@@ -139,7 +172,6 @@ class MemberWithdrawTest {
         // [given] deletedAt이 null인 ACTIVE 멤버
         Member member = activeBuilder();
 
-        // [when, then] 취소 불가
         assertThat(member.isWithinCancellationWindow(Clock.systemDefaultZone())).isFalse();
     }
 }
