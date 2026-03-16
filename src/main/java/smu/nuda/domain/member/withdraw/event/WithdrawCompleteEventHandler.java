@@ -15,7 +15,7 @@ public class WithdrawCompleteEventHandler {
 
     private final RefreshTokenRepository refreshTokenRepository;
 
-    @Async
+    @Async("eventExecutor")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handle(WithdrawCompletedEvent event) {

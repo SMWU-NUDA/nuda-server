@@ -22,7 +22,7 @@ public class CommerceEventHandler {
     private final CommerceLogRepository commerceLogRepository;
     private final Clock clock;
 
-    @Async
+    @Async("eventExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handle(CommerceEvent event) {
