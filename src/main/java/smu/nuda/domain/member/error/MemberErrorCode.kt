@@ -57,5 +57,17 @@ enum class MemberErrorCode(
     ),
     WITHDRAW_COOLDOWN(
         "MEMBER_WITHDRAW_COOLDOWN","최근 탈퇴 요청 이력이 있어 잠시 후에 다시 시도할 수 있습니다."
+    ),
+    MEMBER_WITHDRAWN(
+        "MEMBER_WITHDRAWN", "탈퇴한 회원입니다."
+    ),
+    WITHDRAW_IN_PROGRESS(
+        "MEMBER_WITHDRAW_IN_PROGRESS", "탈퇴 요청 중인 계정입니다. 탈퇴를 취소하려면 탈퇴 취소 API를 이용해주세요."
+    ),
+    CANCELLATION_WINDOW_EXPIRED(
+        "MEMBER_CANCELLATION_WINDOW_EXPIRED", "탈퇴 취소 가능 기간이 지났습니다."
+    ),
+    NOT_IN_WITHDRAW_REQUESTED(
+        "MEMBER_NOT_IN_WITHDRAW_REQUESTED", "탈퇴 요청 상태가 아닙니다."
     )
 }

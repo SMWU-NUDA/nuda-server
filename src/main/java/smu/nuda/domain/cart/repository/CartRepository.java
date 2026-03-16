@@ -4,8 +4,10 @@ import jakarta.persistence.LockModeType;
 import jakarta.persistence.QueryHint;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
+import org.springframework.data.repository.query.Param;
 import smu.nuda.domain.cart.entity.Cart;
 import smu.nuda.domain.member.entity.Member;
 
@@ -17,4 +19,8 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
     @Query("select c from Cart c where c.memberId = :memberId")
     Optional<Cart> findByMemberIdForUpdate(Long memberId);
     Optional<Cart> findByMemberId(Long memberId);
+
+    @Modifying(clearAutomatically = true)
+    @Query("DELETE FROM Cart c WHERE c.memberId = :memberId")
+    void deleteByMemberId(@Param("memberId") Long memberId);
 }

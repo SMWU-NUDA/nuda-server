@@ -32,4 +32,8 @@ public class MeResponse {
     ) {
         return new MeResponse(id, username, nickname, profileImg, email);
     }
+
+    public static MeResponse anonymous() {
+        return new MeResponse(null, null, "탈퇴한 사용자", null, null);
+    }
 }

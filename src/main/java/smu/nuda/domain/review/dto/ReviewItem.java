@@ -28,7 +28,9 @@ public class ReviewItem {
         return ReviewItem.builder()
                 .reviewId(review.getId())
                 .productId(review.getProduct().getId())
-                .me(MeResponse.from(review.getMember()))
+                .me(review.getMember().getDeletedAt() != null
+                        ? MeResponse.anonymous()
+                        : MeResponse.from(review.getMember()))
                 .rating(review.getRating())
                 .likeCount((long) review.getLikeCount())
                 .likedByMe(likedByMe)

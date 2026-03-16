@@ -83,6 +83,11 @@ public class AuthService {
             throw new DomainException(MemberErrorCode.INVALID_CREDENTIALS);
         }
 
+        // 탈퇴 완료된 회원 제한
+        if (member.getStatus() == Status.WITHDRAWN) {
+            throw new DomainException(MemberErrorCode.MEMBER_WITHDRAWN);
+        }
+
         if (member.getStatus() != Status.ACTIVE) {
             throw new DomainException(MemberErrorCode.MEMBER_NOT_ACTIVE);
         }

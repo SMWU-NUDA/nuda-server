@@ -57,4 +57,33 @@ public class JwtTestFactory {
                 TokenType.REFRESH
         );
     }
+
+    public String withdrawRequestedAccessToken() {
+        Member member = memberFactory.withdrawRequested();
+        return jwtProvider.generateToken(
+                member.getId(),
+                member.getEmail(),
+                member.getRole().name(),
+                TokenType.ACCESS
+        );
+    }
+
+    public String withdrawnAccessToken() {
+        Member member = memberFactory.withdrawn();
+        return jwtProvider.generateToken(
+                member.getId(),
+                member.getEmail(),
+                member.getRole().name(),
+                TokenType.ACCESS
+        );
+    }
+
+    public String accessTokenFor(Member member) {
+        return jwtProvider.generateToken(
+                member.getId(),
+                member.getEmail(),
+                member.getRole().name(),
+                TokenType.ACCESS
+        );
+    }
 }

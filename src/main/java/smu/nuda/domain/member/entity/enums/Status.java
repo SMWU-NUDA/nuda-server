@@ -4,5 +4,6 @@ public enum Status {
     ACTIVE,
     INACTIVE,
     BLOCKED,
-    WITHDRAW_REQUESTED
+    WITHDRAW_REQUESTED,
+    WITHDRAWN
 }

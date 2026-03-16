@@ -4,14 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import smu.nuda.domain.cart.entity.Cart;
+import smu.nuda.domain.cart.repository.CartRepository;
 import smu.nuda.domain.member.entity.Member;
-import smu.nuda.domain.member.error.MemberErrorCode;
-import smu.nuda.domain.member.repository.MemberRepository;
 import smu.nuda.domain.member.withdraw.WithdrawPolicyExecutor;
-import smu.nuda.domain.member.withdraw.event.WithdrawCompletedEvent;
 import smu.nuda.domain.member.withdraw.event.WithdrawRequestedEvent;
-import smu.nuda.global.error.DomainException;
 import smu.nuda.global.guard.guard.AuthenticationGuard;
+
+import java.time.Clock;
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +20,8 @@ public class WithdrawService {
     private final WithdrawPolicyExecutor withdrawPolicyExecutor;
     private final AuthenticationGuard authenticationGuard;
     private final ApplicationEventPublisher eventPublisher;
-    private final MemberRepository memberRepository;
+    private final CartRepository cartRepository;
+    private final Clock clock;
 
     @Transactional
     public void withdraw() {
@@ -29,20 +30,18 @@ public class WithdrawService {
         // 탈퇴 정책 검증
         withdrawPolicyExecutor.validate(member);
 
-        member.requestWithdraw();
+        // soft delete -> deletedAt, status = WITHDRAW_REQUESTED
+        member.requestWithdraw(clock);
 
-        // 탈퇴 요청 이벤트 발행
+        // 좋아요, 장바구니 즉시 삭제 이벤트 발행
         eventPublisher.publishEvent(new WithdrawRequestedEvent(member.getId()));
     }
 
     @Transactional
-    public void completeWithdraw(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new DomainException(MemberErrorCode.MEMBER_NOT_FOUND));
+    public void cancelWithdraw() {
+        Member member = authenticationGuard.currentMember();
 
-        // 탈퇴 완료 이벤트 발행
-        eventPublisher.publishEvent(new WithdrawCompletedEvent(memberId));
-
-        memberRepository.delete(member);
+        member.cancelWithdraw(clock);
+        cartRepository.save(new Cart(member.getId()));
     }
 }

@@ -9,6 +9,9 @@ import smu.nuda.domain.member.error.MemberErrorCode;
 import smu.nuda.domain.signupdraft.entity.SignupDraft;
 import smu.nuda.global.error.DomainException;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -60,6 +63,9 @@ public class Member extends BaseEntity {
 
     private String recipient;
 
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
     public static Member from(SignupDraft draft) {
         return Member.builder()
                 .nickname(draft.getNickname())
@@ -100,11 +106,35 @@ public class Member extends BaseEntity {
         this.email = email;
     }
 
-    public void requestWithdraw() {
+    public void requestWithdraw(Clock clock) {
         if (this.status != Status.ACTIVE) {
             throw new DomainException(MemberErrorCode.INVALID_STATUS);
         }
         this.status = Status.WITHDRAW_REQUESTED;
+        this.deletedAt = LocalDateTime.now(clock);
+    }
+
+    public void withdraw() {
+        if (this.status != Status.WITHDRAW_REQUESTED) {
+            throw new DomainException(MemberErrorCode.NOT_IN_WITHDRAW_REQUESTED);
+        }
+        this.status = Status.WITHDRAWN;
+    }
+
+    public void cancelWithdraw(Clock clock) {
+        if (this.status != Status.WITHDRAW_REQUESTED) {
+            throw new DomainException(MemberErrorCode.NOT_IN_WITHDRAW_REQUESTED);
+        }
+        if (!isWithinCancellationWindow(clock)) {
+            throw new DomainException(MemberErrorCode.CANCELLATION_WINDOW_EXPIRED);
+        }
+        this.status = Status.ACTIVE;
+        this.deletedAt = null;
+    }
+
+    public boolean isWithinCancellationWindow(Clock clock) {
+        return this.deletedAt != null &&
+               this.deletedAt.plusDays(30).isAfter(LocalDateTime.now(clock));
     }
 
     public boolean isWithinWithdrawCooldown() {

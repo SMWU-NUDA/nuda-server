@@ -50,9 +50,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Member member = memberRepository.findById(memberId)
                     .orElseThrow(() -> new JwtAuthenticationException(MemberErrorCode.MEMBER_NOT_FOUND));
 
-            // 비활성 계정은 인증 실패 (AuthenticationEntryPoint에서 401 반환)
-            if (member.getStatus() != Status.ACTIVE) {
+            // 비활성 계정 차단
+            if (member.getStatus() == Status.INACTIVE) {
                 throw new JwtAuthenticationException(MemberErrorCode.ACCOUNT_DISABLED);
+            }
+
+            // 최종 탈퇴 계정은 모든 요청 차단
+            if (member.getStatus() == Status.WITHDRAWN) {
+                throw new JwtAuthenticationException(MemberErrorCode.MEMBER_WITHDRAWN);
+            }
+
+            // 탈퇴 요청 중인 계정은 탈퇴 취소 API 만 허용
+            if (member.getStatus() == Status.WITHDRAW_REQUESTED) {
+                boolean isCancelWithdrawRequest = "DELETE".equalsIgnoreCase(request.getMethod())
+                        && "/members/withdraw".equals(request.getRequestURI());
+                if (!isCancelWithdrawRequest) {
+                    throw new JwtAuthenticationException(MemberErrorCode.WITHDRAW_IN_PROGRESS);
+                }
             }
 
             CustomUserDetails principal = new CustomUserDetails(member, tokenType);
