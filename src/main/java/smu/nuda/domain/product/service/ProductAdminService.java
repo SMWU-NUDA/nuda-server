@@ -3,6 +3,7 @@ package smu.nuda.domain.product.service;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,7 +20,7 @@ import smu.nuda.domain.product.repository.CategoryRepository;
 import smu.nuda.domain.product.repository.ProductRepository;
 import smu.nuda.domain.product.validator.ProductCsvValidator;
 import smu.nuda.domain.search.document.ProductDocument;
-import smu.nuda.domain.search.service.ProductSearchService;
+import smu.nuda.domain.search.event.ProductIndexingEvent;
 import smu.nuda.global.batch.error.CsvErrorCode;
 import smu.nuda.global.batch.exception.CsvValidationException;
 
@@ -40,7 +41,7 @@ public class ProductAdminService {
     private final BrandRepository brandRepository;
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
-    private final ProductSearchService productSearchService;
+    private final ApplicationEventPublisher eventPublisher;
 
     private static final int BATCH_SIZE = 50;
     @PersistenceContext private EntityManager em;
@@ -111,7 +112,7 @@ public class ProductAdminService {
         if (!dryRun) {
             em.flush();
             em.clear();
-            productSearchService.indexAll(docs);
+            eventPublisher.publishEvent(new ProductIndexingEvent(docs));
         }
     }
 
