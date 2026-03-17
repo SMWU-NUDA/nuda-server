@@ -12,6 +12,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("select p.externalProductId from Product p")
     List<String> findAllExternalProductIds();
 
+    @Query("select p.id from Product p")
+    List<Long> findAllIds();
+
     @Query("""
         select p
         from Product p

@@ -18,9 +18,12 @@ import smu.nuda.domain.product.entity.enums.ImageType;
 import smu.nuda.domain.product.repository.CategoryRepository;
 import smu.nuda.domain.product.repository.ProductRepository;
 import smu.nuda.domain.product.validator.ProductCsvValidator;
+import smu.nuda.domain.search.document.ProductDocument;
+import smu.nuda.domain.search.service.ProductSearchService;
 import smu.nuda.global.batch.error.CsvErrorCode;
 import smu.nuda.global.batch.exception.CsvValidationException;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +40,7 @@ public class ProductAdminService {
     private final BrandRepository brandRepository;
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
+    private final ProductSearchService productSearchService;
 
     private static final int BATCH_SIZE = 50;
     @PersistenceContext private EntityManager em;
@@ -65,6 +69,7 @@ public class ProductAdminService {
         Set<String> existingExternalIds = new HashSet<>(preloadExistingExternalIds());
         Set<String> seenExternalIdsInCsv = new HashSet<>();
 
+        List<ProductDocument> docs = new ArrayList<>();
         int count = 0;
         for (ProductCsvRow row : rows) {
             String externalId = row.externalProductId();
@@ -93,6 +98,7 @@ public class ProductAdminService {
                     em.persist(thumbnail);
                 }
 
+                docs.add(toDocument(product, row, brand));
                 count++;
 
                 if (count % BATCH_SIZE == 0) {
@@ -105,7 +111,24 @@ public class ProductAdminService {
         if (!dryRun) {
             em.flush();
             em.clear();
+            productSearchService.indexAll(docs);
         }
+    }
+
+    private ProductDocument toDocument(Product product, ProductCsvRow row, Brand brand) {
+        return ProductDocument.builder()
+                .id(String.valueOf(product.getId()))
+                .productId(product.getId())
+                .productName(product.getName())
+                .ingredientNames(List.of())
+                .brandId(brand.getId())
+                .brandName(brand.getName())
+                .thumbnailImg(row.thumbnailImg())
+                .averageRating(product.getAverageRating())
+                .reviewCount(product.getReviewCount())
+                .likeCount(product.getLikeCount())
+                .costPrice(product.getCostPrice())
+                .build();
     }
 
     private Map<String, Brand> preloadBrands() {
