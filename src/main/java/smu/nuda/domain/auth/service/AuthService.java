@@ -8,8 +8,8 @@ import smu.nuda.domain.auth.error.AuthErrorCode;
 import smu.nuda.domain.auth.jwt.JwtProperties;
 import smu.nuda.domain.auth.jwt.JwtProvider;
 import smu.nuda.domain.auth.jwt.TokenType;
-import smu.nuda.domain.auth.repository.EmailAuthRepository;
-import smu.nuda.domain.auth.repository.RefreshTokenRepository;
+import smu.nuda.domain.auth.repository.EmailAuthRedisRepository;
+import smu.nuda.domain.auth.repository.RefreshTokenRedisRepository;
 import smu.nuda.domain.auth.util.VerificationCodeGenerator;
 import smu.nuda.domain.member.dto.MeResponse;
 import smu.nuda.domain.member.entity.Member;
@@ -23,8 +23,8 @@ import smu.nuda.global.mail.EmailService;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final EmailAuthRepository emailAuthRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final EmailAuthRedisRepository emailAuthRedisRepository;
+    private final RefreshTokenRedisRepository refreshTokenRedisRepository;
     private final MemberRepository memberRepository;
     private final VerificationCodeGenerator codeGenerator;
     private final EmailService emailService;
@@ -38,7 +38,7 @@ public class AuthService {
         }
 
         String code = codeGenerator.generate();
-        emailAuthRepository.saveCode(email, code);
+        emailAuthRedisRepository.saveCode(email, code);
         emailService.send(
                 email,
                 "[Nuda] 이메일 인증번호",
@@ -48,29 +48,29 @@ public class AuthService {
 
     public Boolean verifyEmailCode(String email, String inputCode) {
         // 중복 인증 요청 허용
-        if (emailAuthRepository.isVerified(email)) {
+        if (emailAuthRedisRepository.isVerified(email)) {
             return true;
         }
 
         // 중복 인증 요청 횟수 초과
-        if (emailAuthRepository.isAttemptExceeded(email)) {
+        if (emailAuthRedisRepository.isAttemptExceeded(email)) {
             throw new DomainException(MemberErrorCode.EMAIL_VERIFICATION_TOO_MANY_ATTEMPTS);
         }
 
         // Redis에서 저장된 인증번호 조회
-        String savedCode = emailAuthRepository.getCode(email);
+        String savedCode = emailAuthRedisRepository.getCode(email);
         if (savedCode == null) {
             throw new DomainException(MemberErrorCode.EMAIL_VERIFICATION_EXPIRED);
         }
 
         // 인증번호 불일치
         if (!savedCode.equals(inputCode)) {
-            emailAuthRepository.increaseAttempt(email);
+            emailAuthRedisRepository.increaseAttempt(email);
             throw new DomainException(MemberErrorCode.EMAIL_VERIFICATION_MISMATCH);
         }
 
-        emailAuthRepository.markVerified(email);
-        emailAuthRepository.clear(email);
+        emailAuthRedisRepository.markVerified(email);
+        emailAuthRedisRepository.clear(email);
 
         return true;
     }
@@ -104,7 +104,7 @@ public class AuthService {
                 null,
                 TokenType.REFRESH
         );
-        refreshTokenRepository.save(
+        refreshTokenRedisRepository.save(
                 member.getId(),
                 refreshToken,
                 jwtProperties.getExpiration(TokenType.REFRESH)
@@ -117,19 +117,19 @@ public class AuthService {
         jwtProvider.validateTokenTypeOrThrow(refreshToken, TokenType.REFRESH);
         Long memberId = jwtProvider.extractMemberId(refreshToken);
 
-        String savedToken = refreshTokenRepository.find(memberId);
+        String savedToken = refreshTokenRedisRepository.find(memberId);
         if (savedToken == null || !savedToken.equals(refreshToken)) {
             throw new DomainException(AuthErrorCode.INVALID_REFRESH_TOKEN);
         }
 
-        refreshTokenRepository.delete(memberId);
+        refreshTokenRedisRepository.delete(memberId);
         String newRefreshToken = jwtProvider.generateToken(
                 memberId,
                 null,
                 null,
                 TokenType.REFRESH
         );
-        refreshTokenRepository.save(
+        refreshTokenRedisRepository.save(
                 memberId,
                 newRefreshToken,
                 jwtProperties.getExpiration(TokenType.REFRESH)
@@ -149,7 +149,7 @@ public class AuthService {
     }
 
     public void logout(Long memberId) {
-        refreshTokenRepository.delete(memberId);
+        refreshTokenRedisRepository.delete(memberId);
     }
 
     public void checkNickname(String nickname) {
