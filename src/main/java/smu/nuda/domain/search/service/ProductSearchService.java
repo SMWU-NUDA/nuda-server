@@ -15,6 +15,7 @@ import smu.nuda.domain.product.dto.ProductItem;
 import smu.nuda.domain.search.document.ProductDocument;
 import smu.nuda.domain.search.error.SearchErrorCode;
 import smu.nuda.domain.search.repository.ProductSearchRepository;
+import smu.nuda.domain.search.repository.SearchKeywordRedisRepository;
 import smu.nuda.global.error.DomainException;
 
 import java.util.List;
@@ -26,6 +27,7 @@ public class ProductSearchService {
 
     private final ProductSearchRepository productSearchRepository;
     private final ElasticsearchOperations elasticsearchOperations;
+    private final SearchKeywordRedisRepository searchKeywordRedisRepository;
 
     public CursorPageResponse<ProductItem> search(String keyword, Long cursor, int size) {
         int page = cursor == null ? 0 : cursor.intValue();
@@ -51,7 +53,14 @@ public class ProductSearchService {
                 .map(hit -> toProductItem(hit.getContent()))
                 .collect(Collectors.toList());
 
+        // 인기 검색어 키워드 추가
+        searchKeywordRedisRepository.increment(keyword);
+
         return CursorPageResponse.of(items, page + 1, totalPages);
+    }
+
+    public List<String> getPopularKeywords() {
+        return searchKeywordRedisRepository.getTopKeywords(10);
     }
 
     public void index(ProductDocument doc) {

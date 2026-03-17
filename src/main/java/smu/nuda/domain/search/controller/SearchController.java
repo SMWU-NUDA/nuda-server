@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import smu.nuda.domain.common.dto.CursorPageResponse;
 import smu.nuda.domain.product.dto.ProductItem;
 import smu.nuda.domain.search.error.SearchErrorCode;
-import smu.nuda.domain.search.repository.SearchKeywordRedisRepository;
 import smu.nuda.domain.search.service.ProductSearchService;
 import smu.nuda.global.error.DomainException;
 import smu.nuda.global.guard.annotation.LoginRequired;
@@ -26,7 +25,6 @@ import java.util.List;
 public class SearchController {
 
     private final ProductSearchService productSearchService;
-    private final SearchKeywordRedisRepository searchKeywordRedisRepository;
 
     @GetMapping("/products")
     @LoginRequired
@@ -40,11 +38,11 @@ public class SearchController {
             @RequestParam(required = false) Long cursor,
             @RequestParam(defaultValue = "20") int size
     ) {
-        if (keyword == null || keyword.trim().length() < 2) {
+        String normalizedKeyword = keyword == null ? "" : keyword.trim();
+        if (normalizedKeyword.length() < 2) {
             throw new DomainException(SearchErrorCode.KEYWORD_TOO_SHORT);
         }
-        searchKeywordRedisRepository.increment(keyword);
-        return ApiResponse.success(productSearchService.search(keyword, cursor, size));
+        return ApiResponse.success(productSearchService.search(normalizedKeyword, cursor, size));
     }
 
     @GetMapping("/keywords/popular")
@@ -55,6 +53,6 @@ public class SearchController {
     )
     @SecurityRequirement(name = "JWT")
     public ApiResponse<List<String>> popularKeywords() {
-        return ApiResponse.success(searchKeywordRedisRepository.getTopKeywords(10));
+        return ApiResponse.success(productSearchService.getPopularKeywords());
     }
 }
