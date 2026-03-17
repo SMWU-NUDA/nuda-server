@@ -47,6 +47,9 @@ spring:
       max-file-size: 100MB
       max-request-size: 100MB
 
+  elasticsearch:
+    uris: ${ES_URI}
+
 jwt:
   secret: ${JWT_SECRET}
   tokens:
