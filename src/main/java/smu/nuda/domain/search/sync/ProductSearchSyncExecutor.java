@@ -62,9 +62,13 @@ public class ProductSearchSyncExecutor {
     private LocalDateTime loadLastSyncTime() {
         String value = stringRedisTemplate.opsForValue().get(cacheKeyFactory.esSyncLastTimestamp());
         if (value == null) {
-            return LocalDateTime.MIN;
+            return LocalDateTime.of(2000, 1, 1, 0, 0);
         }
-        return LocalDateTime.parse(value);
+        try {
+            return LocalDateTime.parse(value);
+        } catch (Exception e) {
+            return LocalDateTime.of(2000, 1, 1, 0, 0);
+        }
     }
 
     private void saveLastSyncTime(LocalDateTime time) {
