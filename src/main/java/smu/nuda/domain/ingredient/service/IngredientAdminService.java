@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.context.ApplicationEventPublisher;
 import smu.nuda.domain.common.dto.CsvUploadResponse;
 import smu.nuda.domain.ingredient.csv.IngredientCsvReader;
 import smu.nuda.domain.ingredient.dto.IngredientCsvRow;
@@ -18,10 +19,15 @@ import smu.nuda.domain.product.entity.Product;
 import smu.nuda.domain.product.entity.ProductIngredient;
 import smu.nuda.domain.product.entity.enums.CategoryCode;
 import smu.nuda.domain.product.repository.CategoryRepository;
+import smu.nuda.domain.product.repository.ProductQueryRepository;
 import smu.nuda.domain.product.repository.ProductRepository;
+import smu.nuda.domain.search.document.ProductDocument;
+import smu.nuda.domain.search.event.ProductIndexingEvent;
 import smu.nuda.global.batch.error.CsvErrorCode;
 import smu.nuda.global.batch.exception.CsvValidationException;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,7 +41,9 @@ public class IngredientAdminService {
     private final IngredientCsvReader csvReader;
     private final IngredientCsvValidator validator;
     private final ProductRepository productRepository;
+    private final ProductQueryRepository productQueryRepository;
     private final CategoryRepository categoryRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     private static final int BATCH_SIZE = 500;
     @PersistenceContext private EntityManager em;
@@ -45,7 +53,11 @@ public class IngredientAdminService {
         List<IngredientCsvRow> rows = csvReader.read(file);
         validator.validate(rows);
 
-        persistIngredientsInBatch(rows, dryRun);
+        Set<Long> affectedProductIds = persistIngredientsInBatch(rows, dryRun);
+
+        if (!dryRun && !affectedProductIds.isEmpty()) {
+            publishIndexingEvent(new ArrayList<>(affectedProductIds));
+        }
 
         int total = rows.size();
         int success = dryRun ? 0 : total;
@@ -53,11 +65,32 @@ public class IngredientAdminService {
         return new CsvUploadResponse(total, success, 0);
     }
 
-    private void persistIngredientsInBatch(List<IngredientCsvRow> rows, boolean dryRun) {
+    private void publishIndexingEvent(List<Long> productIds) {
+        Map<Long, List<String>> ingredientMap = productQueryRepository.findIngredientLabelsByProductIds(productIds);
+        List<ProductDocument> docs = productRepository.findAllWithBrandByIdIn(productIds).stream()
+                .map(p -> ProductDocument.builder()
+                        .id(String.valueOf(p.getId()))
+                        .productId(p.getId())
+                        .productName(p.getName())
+                        .ingredientNames(ingredientMap.getOrDefault(p.getId(), List.of()))
+                        .brandId(p.getBrand().getId())
+                        .brandName(p.getBrand().getName())
+                        .thumbnailImg(p.getThumbnailImg())
+                        .averageRating(p.getAverageRating())
+                        .reviewCount(p.getReviewCount())
+                        .likeCount(p.getLikeCount())
+                        .costPrice(p.getCostPrice())
+                        .build())
+                .collect(Collectors.toList());
+        eventPublisher.publishEvent(new ProductIndexingEvent(docs));
+    }
+
+    private Set<Long> persistIngredientsInBatch(List<IngredientCsvRow> rows, boolean dryRun) {
         Map<String, Product> productMap = preloadProducts();
         Map<String, Category> categoryMap = preloadCategories();
         Map<String, Ingredient> ingredientCache = preloadIngredients();
         Set<String> mappingSet = preloadMappings();
+        Set<Long> affectedProductIds = new HashSet<>();
 
         int count = 0;
         for (IngredientCsvRow row : rows) {
@@ -67,6 +100,7 @@ public class IngredientAdminService {
 
             Ingredient ingredient = resolveIngredient(ingredientCache, row, layerType, dryRun);
             processMapping(product, ingredient, mappingSet, row, dryRun);
+            affectedProductIds.add(product.getId());
 
             count++;
 
@@ -80,6 +114,8 @@ public class IngredientAdminService {
             em.flush();
             em.clear();
         }
+
+        return affectedProductIds;
     }
 
 
