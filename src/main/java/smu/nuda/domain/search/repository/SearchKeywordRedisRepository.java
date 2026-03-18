@@ -31,9 +31,12 @@ public class SearchKeywordRedisRepository {
     }
 
     public List<String> getTopKeywords(int n) {
+        if (n <= 0) return List.of();
+
         String key = currentWeekKey();
         Set<String> result = stringRedisTemplate.opsForZSet().reverseRange(key, 0, n - 1);
         if (result == null) return List.of();
+
         return List.copyOf(result);
     }
 
