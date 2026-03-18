@@ -89,3 +89,12 @@ ml:
   base-url: ${ML_BASE_URL}
   connect-timeout: 2000
   read-timeout: 5000
+
+resilience4j:
+  retry:
+    instances:
+      es-sync:
+        max-attempts: 3
+        wait-duration: 10s
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
