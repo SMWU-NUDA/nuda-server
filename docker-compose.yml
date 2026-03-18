@@ -17,8 +17,11 @@ services:
   redis:
     container_name: nuda-redis
     image: redis:7-alpine
+    command: redis-server --save 60 1 --loglevel warning
     ports:
       - "6379:6379"
+    volumes:
+      - redis-data:/data
     networks:
       - app-network
     healthcheck:
@@ -49,3 +52,6 @@ services:
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  redis-data:
