@@ -8,7 +8,7 @@ import java.time.Duration;
 
 @Component
 @RequiredArgsConstructor
-public class EmailAuthRepository {
+public class EmailAuthRedisRepository {
 
     private static final int MAX_ATTEMPTS = 5;
 

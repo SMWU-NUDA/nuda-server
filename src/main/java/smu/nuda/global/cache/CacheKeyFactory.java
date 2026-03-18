@@ -33,4 +33,12 @@ public class CacheKeyFactory {
     public String reviewSentiment(Long productId) {
         return "ml:review:sentiment:" + productId;
     }
+
+    public String searchKeywordRanking(String weekKey) {
+        return "search:keyword:ranking:" + weekKey;
+    }
+
+    public String esSyncLastTimestamp() {
+        return "es:sync:last-timestamp";
+    }
 }

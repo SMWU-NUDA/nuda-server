@@ -6,11 +6,18 @@ import org.springframework.data.repository.query.Param;
 import smu.nuda.domain.product.entity.Product;
 import smu.nuda.domain.product.repository.projection.ProductRankingProjection;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("select p.externalProductId from Product p")
     List<String> findAllExternalProductIds();
+
+    @Query("select p.id from Product p")
+    List<Long> findAllIds();
+
+    @Query("SELECT p FROM Product p JOIN FETCH p.brand WHERE p.updatedAt > :since")
+    List<Product> findAllWithBrandUpdatedAfter(@Param("since") LocalDateTime since);
 
     @Query("""
         select p

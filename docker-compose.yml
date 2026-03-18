@@ -9,14 +9,19 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
     networks:
       - app-network
 
   redis:
     container_name: nuda-redis
     image: redis:7-alpine
+    command: redis-server --save 60 1 --loglevel warning
     ports:
       - "6379:6379"
+    volumes:
+      - redis-data:/data
     networks:
       - app-network
     healthcheck:
@@ -25,6 +30,28 @@ services:
       timeout: 5s
       retries: 3
 
+  elasticsearch:
+    container_name: nuda-elasticsearch
+    build:
+      context: ./docker/elasticsearch
+      dockerfile: Dockerfile
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -q '\"status\":\"green\"\\|\"status\":\"yellow\"'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  redis-data:

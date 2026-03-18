@@ -1,0 +1,37 @@
+{
+  "index": {
+    "max_ngram_diff": 10
+  },
+  "analysis": {
+    "tokenizer": {
+      "nori_tokenizer": {
+        "type": "nori_tokenizer",
+        "decompound_mode": "mixed"
+      },
+      "ingredient_ngram_tokenizer": {
+        "type": "ngram",
+        "min_gram": 2,
+        "max_gram": 8,
+        "token_chars": ["letter", "digit"]
+      }
+    },
+    "filter": {
+      "nori_posfilter": {
+        "type": "nori_part_of_speech",
+        "stoptags": ["E", "IC", "J", "MAG", "MAJ", "MM", "SP", "SSC", "SSO", "SC", "SE", "XPN", "XSA", "XSN", "XSV", "UNA", "NA", "VSV"]
+      }
+    },
+    "analyzer": {
+      "nori": {
+        "type": "custom",
+        "tokenizer": "nori_tokenizer",
+        "filter": ["nori_posfilter", "lowercase"]
+      },
+      "ingredient_ngram": {
+        "type": "custom",
+        "tokenizer": "ingredient_ngram_tokenizer",
+        "filter": ["lowercase"]
+      }
+    }
+  }
+}
