@@ -20,13 +20,12 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/search")
 @Tag(name = "[SEARCH] 검색 API")
 public class SearchController {
 
     private final ProductSearchService productSearchService;
 
-    @GetMapping("/products")
+    @GetMapping("/products/search")
     @LoginRequired
     @Operation(
             summary = "상품 검색",
@@ -45,7 +44,7 @@ public class SearchController {
         return ApiResponse.success(productSearchService.search(normalizedKeyword, cursor, size));
     }
 
-    @GetMapping("/keywords/popular")
+    @GetMapping("/products/search/popular")
     @LoginRequired
     @Operation(
             summary = "주간 인기 검색어 Top 10",
