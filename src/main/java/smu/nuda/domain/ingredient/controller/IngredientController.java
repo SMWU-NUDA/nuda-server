@@ -46,11 +46,11 @@ public class IngredientController {
     @SecurityRequirement(name = "JWT")
     @LoginRequired
     public ApiResponse<List<IngredientItem>> searchIngredients(@RequestParam String keyword) {
-        String trimmed = keyword.trim();
-        if (trimmed.length() < 2) {
+        String normalizedKeyword = keyword == null ? "" : keyword.trim();
+        if (normalizedKeyword.length() < 2) {
             throw new DomainException(IngredientErrorCode.KEYWORD_TOO_SHORT);
         }
-        return ApiResponse.success(ingredientService.search(trimmed));
+        return ApiResponse.success(ingredientService.search(normalizedKeyword));
     }
 
     @GetMapping("/products/{productId}/ingredient-summary")
