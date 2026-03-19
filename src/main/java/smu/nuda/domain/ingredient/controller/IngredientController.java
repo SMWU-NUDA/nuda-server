@@ -27,6 +27,17 @@ public class IngredientController {
     private final IngredientService ingredientService;
     private final AuthenticationGuard authenticationGuard;
 
+    @GetMapping("/ingredients/keywords/popular")
+    @Operation(
+            summary = "성분 주간 인기 검색어 Top 10",
+            description = "최근 일주일간 가장 많이 검색된 성분 키워드 상위 10개를 실시간 집계합니다."
+    )
+    @SecurityRequirement(name = "JWT")
+    @LoginRequired
+    public ApiResponse<List<String>> popularIngredientKeywords() {
+        return ApiResponse.success(ingredientService.getPopularKeywords());
+    }
+
     @GetMapping("/ingredients/search")
     @Operation(
             summary = "성분 검색",
