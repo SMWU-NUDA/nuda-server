@@ -38,6 +38,11 @@ public class IngredientService {
     private final ObjectMapper objectMapper;
 
     @Transactional(readOnly = true)
+    public List<IngredientItem> search(String keyword) {
+        return ingredientQueryRepository.searchByKeyword(keyword);
+    }
+
+    @Transactional(readOnly = true)
     public IngredientSummaryResponse getIngredientSummary(Long productId, Long memberId) {
         return ingredientQueryRepository.getProductIngredientSummary(productId, memberId);
     }
