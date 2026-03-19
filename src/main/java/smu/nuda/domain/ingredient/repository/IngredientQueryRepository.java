@@ -1,9 +1,12 @@
 package smu.nuda.domain.ingredient.repository;
 
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import smu.nuda.domain.ingredient.dto.IngredientItem;
 import smu.nuda.domain.ingredient.dto.IngredientSummaryResponse;
 import smu.nuda.domain.ingredient.entity.enums.LayerType;
 import smu.nuda.domain.ingredient.entity.enums.RiskLevel;
@@ -22,6 +25,26 @@ import static smu.nuda.domain.like.entity.QIngredientLike.ingredientLike;
 @RequiredArgsConstructor
 public class IngredientQueryRepository {
     private final JPAQueryFactory queryFactory;
+
+    public List<IngredientItem> searchByKeyword(String keyword) {
+        return queryFactory
+                .select(Projections.constructor(
+                        IngredientItem.class,
+                        ingredient.id,
+                        ingredient.name,
+                        ingredient.riskLevel,
+                        ingredient.layerType
+                ))
+                .from(ingredient)
+                .where(ingredient.name.containsIgnoreCase(keyword))
+                .orderBy(
+                        new CaseBuilder()
+                                .when(ingredient.name.likeIgnoreCase(keyword + "%")).then(0)
+                                .otherwise(1).asc(),
+                        ingredient.name.asc()
+                )
+                .fetch();
+    }
 
     public IngredientSummaryResponse getProductIngredientSummary(Long productId, Long memberId) {
 

@@ -38,6 +38,10 @@ public class CacheKeyFactory {
         return "search:keyword:ranking:" + weekKey;
     }
 
+    public String ingredientKeywordRanking(String weekKey) {
+        return "ingredient:keyword:ranking:" + weekKey;
+    }
+
     public String esSyncLastTimestamp() {
         return "es:sync:last-timestamp";
     }

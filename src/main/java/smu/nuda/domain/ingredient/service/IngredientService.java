@@ -12,6 +12,7 @@ import smu.nuda.domain.ingredient.dto.enums.IngredientFilterType;
 import smu.nuda.domain.ingredient.entity.Ingredient;
 import smu.nuda.domain.ingredient.error.IngredientErrorCode;
 import smu.nuda.domain.ingredient.repository.HazardQueryRepository;
+import smu.nuda.domain.ingredient.repository.IngredientKeywordRedisRepository;
 import smu.nuda.domain.ingredient.repository.IngredientQueryRepository;
 import smu.nuda.domain.ingredient.repository.IngredientRepository;
 import smu.nuda.domain.like.repository.IngredientLikeRepository;
@@ -36,6 +37,17 @@ public class IngredientService {
     private final IngredientLikeRepository ingredientLikeRepository;
     private final HazardQueryRepository hazardQueryRepository;
     private final ObjectMapper objectMapper;
+    private final IngredientKeywordRedisRepository ingredientKeywordRedisRepository;
+
+    @Transactional(readOnly = true)
+    public List<IngredientItem> search(String keyword) {
+        ingredientKeywordRedisRepository.increment(keyword);
+        return ingredientQueryRepository.searchByKeyword(keyword);
+    }
+
+    public List<String> getPopularKeywords() {
+        return ingredientKeywordRedisRepository.getTopKeywords(10);
+    }
 
     @Transactional(readOnly = true)
     public IngredientSummaryResponse getIngredientSummary(Long productId, Long memberId) {

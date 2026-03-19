@@ -6,13 +6,18 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import smu.nuda.domain.ingredient.dto.IngredientDetailResponse;
+import smu.nuda.domain.ingredient.dto.IngredientItem;
 import smu.nuda.domain.ingredient.dto.IngredientResponse;
 import smu.nuda.domain.ingredient.dto.IngredientSummaryResponse;
 import smu.nuda.domain.ingredient.dto.enums.IngredientFilterType;
+import smu.nuda.domain.ingredient.error.IngredientErrorCode;
 import smu.nuda.domain.ingredient.service.IngredientService;
+import smu.nuda.global.error.DomainException;
 import smu.nuda.global.guard.annotation.LoginRequired;
 import smu.nuda.global.guard.guard.AuthenticationGuard;
 import smu.nuda.global.response.ApiResponse;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,6 +26,32 @@ public class IngredientController {
 
     private final IngredientService ingredientService;
     private final AuthenticationGuard authenticationGuard;
+
+    @GetMapping("/ingredients/search/popular")
+    @Operation(
+            summary = "성분 주간 인기 검색어 Top 10",
+            description = "최근 일주일간 가장 많이 검색된 성분 키워드 상위 10개를 실시간 집계합니다."
+    )
+    @SecurityRequirement(name = "JWT")
+    @LoginRequired
+    public ApiResponse<List<String>> popularIngredientKeywords() {
+        return ApiResponse.success(ingredientService.getPopularKeywords());
+    }
+
+    @GetMapping("/ingredients/search")
+    @Operation(
+            summary = "성분 검색",
+            description = "성분명 키워드로 성분을 검색합니다. 대소문자를 구분하지 않으며, 키워드로 시작하는 성분이 우선 표시됩니다."
+    )
+    @SecurityRequirement(name = "JWT")
+    @LoginRequired
+    public ApiResponse<List<IngredientItem>> searchIngredients(@RequestParam String keyword) {
+        String normalizedKeyword = keyword == null ? "" : keyword.trim();
+        if (normalizedKeyword.length() < 2) {
+            throw new DomainException(IngredientErrorCode.KEYWORD_TOO_SHORT);
+        }
+        return ApiResponse.success(ingredientService.search(normalizedKeyword));
+    }
 
     @GetMapping("/products/{productId}/ingredient-summary")
     @Operation(

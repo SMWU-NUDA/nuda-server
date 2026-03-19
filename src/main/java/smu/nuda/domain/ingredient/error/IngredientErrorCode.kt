@@ -13,4 +13,7 @@ enum class IngredientErrorCode (
     EMPTY_PRODUCT_CONTENT(
         "EMPTY_PRODUCT_CONTENT", "상품에 등록된 성분 정보가 존재하지 않습니다."
     ),
+    KEYWORD_TOO_SHORT(
+        "INGREDIENT_KEYWORD_TOO_SHORT", "검색어는 2글자 이상 입력해주세요."
+    ),
 }
