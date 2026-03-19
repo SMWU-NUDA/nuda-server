@@ -14,6 +14,7 @@ import smu.nuda.domain.search.error.SearchErrorCode;
 import smu.nuda.domain.search.service.ProductSearchService;
 import smu.nuda.global.error.DomainException;
 import smu.nuda.global.guard.annotation.LoginRequired;
+import smu.nuda.global.guard.guard.AuthenticationGuard;
 import smu.nuda.global.response.ApiResponse;
 
 import java.util.List;
@@ -24,6 +25,7 @@ import java.util.List;
 public class SearchController {
 
     private final ProductSearchService productSearchService;
+    private final AuthenticationGuard authenticationGuard;
 
     @GetMapping("/products/search")
     @LoginRequired
@@ -37,6 +39,8 @@ public class SearchController {
             @RequestParam(required = false) Long cursor,
             @RequestParam(defaultValue = "20") int size
     ) {
+        Long memberId = authenticationGuard.currentMemberId();
+
         String normalizedKeyword = keyword == null ? "" : keyword.trim();
         if (normalizedKeyword.length() < 2) {
             throw new DomainException(SearchErrorCode.KEYWORD_TOO_SHORT);
@@ -52,6 +56,7 @@ public class SearchController {
     )
     @SecurityRequirement(name = "JWT")
     public ApiResponse<List<String>> popularKeywords() {
+        Long memberId = authenticationGuard.currentMemberId();
         return ApiResponse.success(productSearchService.getPopularKeywords());
     }
 }
