@@ -31,11 +31,17 @@ public class SecurityConfig {
     private final JwtProvider jwtProvider;
     private final MemberRepository memberRepository;
 
-    public static final String[] WHITELIST = {
+    public static final String[] PUBLIC_WHITELIST = {
             "/",
             "/signup/**", "/auth/login", "/auth/reissue", "/auth/search/**",
             "/auth/emails/verification-requests", "/auth/emails/verifications",
             "/swagger-ui/**", "/v3/api-docs/**",
+    };
+
+    public static final String[] INFRA_WHITELIST = {
+            "/actuator/health/**",
+            "/actuator/info",
+            "/actuator/prometheus"
     };
 
     @Bean
@@ -47,7 +53,8 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(WHITELIST).permitAll()
+                        .requestMatchers(PUBLIC_WHITELIST).permitAll()
+                        .requestMatchers(INFRA_WHITELIST).permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
