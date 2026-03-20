@@ -10,8 +10,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import smu.nuda.domain.common.dto.CursorPageResponse;
 import smu.nuda.domain.product.dto.ProductItem;
+import smu.nuda.domain.search.dto.enums.SuggestType;
 import smu.nuda.domain.search.error.SearchErrorCode;
-import smu.nuda.domain.search.service.ProductSearchService;
+import smu.nuda.domain.search.service.SearchService;
 import smu.nuda.global.error.DomainException;
 import smu.nuda.global.guard.annotation.LoginRequired;
 import smu.nuda.global.guard.guard.AuthenticationGuard;
@@ -24,7 +25,7 @@ import java.util.List;
 @Tag(name = "[SEARCH] 검색 API")
 public class SearchController {
 
-    private final ProductSearchService productSearchService;
+    private final SearchService searchService;
     private final AuthenticationGuard authenticationGuard;
 
     @GetMapping("/products/search")
@@ -45,7 +46,26 @@ public class SearchController {
         if (normalizedKeyword.length() < 2) {
             throw new DomainException(SearchErrorCode.KEYWORD_TOO_SHORT);
         }
-        return ApiResponse.success(productSearchService.search(normalizedKeyword, cursor, size));
+        return ApiResponse.success(searchService.searchProducts(normalizedKeyword, cursor, size));
+    }
+
+    @GetMapping("/search/suggest")
+    @LoginRequired
+    @Operation(
+            summary = "검색어 자동완성",
+            description = "INGREDIENT: 성분명 최대 10개(PostgreSQL). PRODUCT: 상품명 최대 5개(ES) + 성분명 최대 5개(PostgreSQL) 병합. " +
+                    "type 파라미터는 대문자(INGREDIENT, PRODUCT) 필수. 인기 검색어 집계 비대상. 사용자당 초당 5회 초과 시 429."
+    )
+    @SecurityRequirement(name = "JWT")
+    public ApiResponse<List<String>> suggest(
+            @RequestParam(required = false, defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "INGREDIENT") SuggestType type) {
+        String trimmed = keyword.trim();
+        if (trimmed.length() < 2) {
+            throw new DomainException(SearchErrorCode.KEYWORD_TOO_SHORT);
+        }
+        Long memberId = authenticationGuard.currentMemberId();
+        return ApiResponse.success(searchService.suggestKeywords(memberId, trimmed, type));
     }
 
     @GetMapping("/products/search/popular")
@@ -57,6 +77,6 @@ public class SearchController {
     @SecurityRequirement(name = "JWT")
     public ApiResponse<List<String>> popularKeywords() {
         Long memberId = authenticationGuard.currentMemberId();
-        return ApiResponse.success(productSearchService.getPopularKeywords());
+        return ApiResponse.success(searchService.getPopularKeywords());
     }
 }
