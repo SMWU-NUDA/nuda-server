@@ -9,7 +9,7 @@ import smu.nuda.domain.product.entity.Product;
 import smu.nuda.domain.product.repository.ProductQueryRepository;
 import smu.nuda.domain.product.repository.ProductRepository;
 import smu.nuda.domain.search.document.ProductDocument;
-import smu.nuda.domain.search.service.ProductSearchService;
+import smu.nuda.domain.search.service.SearchService;
 import smu.nuda.global.cache.CacheKeyFactory;
 
 import java.time.Clock;
@@ -25,7 +25,7 @@ public class ProductSearchSyncExecutor {
 
     private final ProductRepository productRepository;
     private final ProductQueryRepository productQueryRepository;
-    private final ProductSearchService productSearchService;
+    private final SearchService searchService;
     private final StringRedisTemplate stringRedisTemplate;
     private final CacheKeyFactory cacheKeyFactory;
     private final Clock clock;
@@ -50,7 +50,7 @@ public class ProductSearchSyncExecutor {
                 .map(p -> toDocument(p, ingredientMap.getOrDefault(p.getId(), List.of())))
                 .collect(Collectors.toList());
 
-        productSearchService.indexAll(docs);
+        searchService.indexAllProducts(docs);
         saveLastSyncTime(LocalDateTime.now(clock));
         log.info("[ES Sync] {}개 인덱싱 완료", docs.size());
     }

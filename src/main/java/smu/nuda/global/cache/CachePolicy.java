@@ -23,4 +23,14 @@ public class CachePolicy {
 
     // 리뷰 사용자 만족도
     public static final Duration ML_REVIEW_SENTIMENT_TTL = Duration.ofMinutes(30);
+
+    // 검색어 자동완성 응답 캐시
+    public static final Duration SEARCH_SUGGEST_TTL = Duration.ofMinutes(5);
+
+    // 검색어 자동완성 Rate Limit (1초)
+    public static final Duration SEARCH_SUGGEST_RATE_LIMIT_TTL = Duration.ofSeconds(1);
+
+    // 검색어 자동완성 초당 최대 요청 허용 횟수
+    public static final int SEARCH_SUGGEST_MAX_REQUESTS_PER_SECOND = 5;
+
 }
