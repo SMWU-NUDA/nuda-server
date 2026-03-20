@@ -3,6 +3,7 @@ package smu.nuda.global.cache;
 import org.springframework.stereotype.Component;
 import smu.nuda.domain.product.dto.enums.ProductKeywordType;
 import smu.nuda.domain.review.dto.enums.ReviewKeywordType;
+import smu.nuda.domain.search.dto.enums.SuggestType;
 
 @Component
 public class CacheKeyFactory {
@@ -44,5 +45,13 @@ public class CacheKeyFactory {
 
     public String esSyncLastTimestamp() {
         return "es:sync:last-timestamp";
+    }
+
+    public String searchSuggest(SuggestType type, String keyword) {
+        return "suggest:" + type.name().toLowerCase() + ":" + keyword;
+    }
+
+    public String searchSuggestRateLimit(Long memberId, long epochSecond) {
+        return "rate:suggest:" + memberId + ":" + epochSecond;
     }
 }
