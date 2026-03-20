@@ -46,6 +46,26 @@ public class IngredientQueryRepository {
                 .fetch();
     }
 
+    public List<String> suggestByKeyword(String keyword, int limit) {
+        List<String> raw = queryFactory
+                .select(ingredient.name)
+                .from(ingredient)
+                .where(ingredient.name.containsIgnoreCase(keyword))
+                .orderBy(
+                        new CaseBuilder()
+                                .when(ingredient.name.likeIgnoreCase(keyword + "%")).then(0)
+                                .otherwise(1).asc(),
+                        ingredient.name.asc()
+                )
+                .limit((long) limit * 3)
+                .fetch();
+
+        return raw.stream()
+                .distinct()
+                .limit(limit)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
     public IngredientSummaryResponse getProductIngredientSummary(Long productId, Long memberId) {
 
         // totalCount
