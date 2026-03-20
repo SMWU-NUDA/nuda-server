@@ -53,8 +53,13 @@ public class SearchController {
     @LoginRequired
     @Operation(
             summary = "검색어 자동완성",
-            description = "INGREDIENT: 성분명 최대 10개(PostgreSQL). PRODUCT: 상품명 최대 5개(ES) + 성분명 최대 5개(PostgreSQL) 병합. " +
-                    "type 파라미터는 대문자(INGREDIENT, PRODUCT) 필수. 인기 검색어 집계 비대상. 사용자당 초당 5회 초과 시 429."
+            description = """
+            type 별 동작
+            - INGREDIENT: 성분명 최대 10개 반환
+            - PRODUCT: 상품명 최대 5개와 성분명 최대 5개 반환
+            
+            트래픽 제한: 사용자당 초당 5회 초과 요청 시 400 Too Many Requests 반환
+            """
     )
     @SecurityRequirement(name = "JWT")
     public ApiResponse<List<String>> suggest(

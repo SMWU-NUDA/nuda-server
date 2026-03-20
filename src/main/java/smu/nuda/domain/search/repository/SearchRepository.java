@@ -60,10 +60,6 @@ public class SearchRepository {
                 .collect(Collectors.toList());
     }
 
-    public void indexProduct(ProductDocument doc) {
-        elasticsearchOperations.save(doc);
-    }
-
     public void indexAllProducts(List<ProductDocument> docs) {
         elasticsearchOperations.save(docs);
     }

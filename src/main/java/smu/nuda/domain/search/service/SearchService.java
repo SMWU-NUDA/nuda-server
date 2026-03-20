@@ -2,6 +2,7 @@ package smu.nuda.domain.search.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SearchService {
@@ -63,9 +65,11 @@ public class SearchService {
         String cached = stringRedisTemplate.opsForValue().get(cacheKey);
         if (cached != null) {
             try {
-                return objectMapper.readValue(cached,
-                        objectMapper.getTypeFactory().constructCollectionType(List.class, String.class));
-            } catch (Exception ignored) {}
+                log.debug("[Search Suggest] cache hit — memberId={}, keyword={}, type={}", memberId, keyword, type);
+                return objectMapper.readValue(cached, objectMapper.getTypeFactory().constructCollectionType(List.class, String.class));
+            } catch (Exception e) {
+                log.warn("[Search Suggest] cache miss — 원본 조회로 fallback: key={}", cacheKey, e);
+            }
         }
 
         List<String> result = switch (type) {
@@ -75,6 +79,7 @@ public class SearchService {
                 try {
                     productNames = searchRepository.suggestProductNames(keyword, SUGGEST_LIMIT_MIXED);
                 } catch (Exception e) {
+                    log.warn("[Search Suggest] ES 조회 실패, 빈 목록으로 대체 — memberId={}, keyword={}, cause={}", memberId, keyword, e.getMessage());
                     productNames = List.of();
                 }
                 List<String> ingredientNames = ingredientService.suggest(keyword, SUGGEST_LIMIT_MIXED);
@@ -84,16 +89,15 @@ public class SearchService {
             }
         };
 
+        log.debug("[Search Suggest] 결과 반환 — memberId={}, keyword={}, type={}, resultSize={}", memberId, keyword, type, result.size());
+
         try {
-            stringRedisTemplate.opsForValue().set(
-                    cacheKey, objectMapper.writeValueAsString(result), CachePolicy.SEARCH_SUGGEST_TTL);
-        } catch (Exception ignored) {}
+            stringRedisTemplate.opsForValue().set(cacheKey, objectMapper.writeValueAsString(result), CachePolicy.SEARCH_SUGGEST_TTL);
+        } catch (Exception e) {
+            log.warn("[Search Suggest] 자동완성 캐시 저장 실패: key={}", cacheKey, e);
+        }
 
         return result;
-    }
-
-    public void indexProduct(ProductDocument doc) {
-        searchRepository.indexProduct(doc);
     }
 
     public void indexAllProducts(List<ProductDocument> docs) {
@@ -105,7 +109,9 @@ public class SearchService {
         String key = cacheKeyFactory.searchSuggestRateLimit(memberId, epochSecond);
         Long count = stringRedisTemplate.opsForValue().increment(key);
         stringRedisTemplate.expire(key, CachePolicy.SEARCH_SUGGEST_RATE_LIMIT_TTL);
+
         if (count != null && count > CachePolicy.SEARCH_SUGGEST_MAX_REQUESTS_PER_SECOND) {
+            log.warn("[Search Suggest] rate limit 초과 — memberId={}, count={}", memberId, count);
             throw new DomainException(SearchErrorCode.SUGGEST_RATE_LIMIT_EXCEEDED);
         }
     }
