@@ -40,6 +40,11 @@ public class IngredientService {
     private final IngredientKeywordRedisRepository ingredientKeywordRedisRepository;
 
     @Transactional(readOnly = true)
+    public List<String> suggest(String keyword, int limit) {
+        return ingredientQueryRepository.suggestByKeyword(keyword, limit);
+    }
+
+    @Transactional(readOnly = true)
     public List<IngredientItem> search(String keyword) {
         ingredientKeywordRedisRepository.increment(keyword);
         return ingredientQueryRepository.searchByKeyword(keyword);
