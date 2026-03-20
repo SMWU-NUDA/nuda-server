@@ -56,6 +56,7 @@ public class SearchRepository {
         return hits.getSearchHits().stream()
                 .map(hit -> hit.getContent().getProductName())
                 .distinct()
+                .limit(limit)
                 .collect(Collectors.toList());
     }
 
