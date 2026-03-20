@@ -1,0 +1,63 @@
+services:
+  nginx:
+    container_name: nuda-nginx
+    image: nginx:1.25-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/upstream.conf:/etc/nginx/conf.d/upstream.conf
+      - ./nginx/certbot-webroot:/var/www/certbot:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    networks:
+      - nuda-app-network
+    restart: unless-stopped
+
+  app-blue:
+    container_name: nuda-app-blue
+    image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
+    env_file: /tmp/.env.prod
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SERVER_PORT=8080
+    ports:
+      - "8081:8080"
+    networks:
+      - nuda-app-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health/readiness | grep -q '\"status\":\"UP\"' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 40s
+    profiles:
+      - blue
+    stop_grace_period: 35s
+    restart: unless-stopped
+
+  app-green:
+    container_name: nuda-app-green
+    image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
+    env_file: /tmp/.env.prod
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SERVER_PORT=8080
+    ports:
+      - "8082:8080"
+    networks:
+      - nuda-app-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health/readiness | grep -q '\"status\":\"UP\"' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 40s
+    profiles:
+      - green
+    stop_grace_period: 35s
+    restart: unless-stopped
+
+networks:
+  nuda-app-network:
+    external: true

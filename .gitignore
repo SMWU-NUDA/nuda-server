@@ -42,3 +42,8 @@ src/main/resources/application-dev.yml
 
 ### Build ###
 nuda-app.tar.gz
+nuda-app.tar
+
+### Infra ###
+nginx/certbot-webroot/
+/tmp/.env.prod
