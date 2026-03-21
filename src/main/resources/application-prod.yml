@@ -108,6 +108,7 @@ cloud:
 
 server:
   shutdown: graceful
+  forward-headers-strategy: framework
   tomcat:
     connection-timeout: 120000
     max-swallow-size: 100MB
