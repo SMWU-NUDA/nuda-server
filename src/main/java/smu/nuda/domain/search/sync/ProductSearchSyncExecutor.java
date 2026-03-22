@@ -3,14 +3,18 @@ package smu.nuda.domain.search.sync;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.IndexOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import smu.nuda.domain.product.entity.Product;
 import smu.nuda.domain.product.repository.ProductQueryRepository;
 import smu.nuda.domain.product.repository.ProductRepository;
 import smu.nuda.domain.search.document.ProductDocument;
+import smu.nuda.domain.search.error.SearchErrorCode;
 import smu.nuda.domain.search.service.SearchService;
 import smu.nuda.global.cache.CacheKeyFactory;
+import smu.nuda.global.error.DomainException;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -26,12 +30,14 @@ public class ProductSearchSyncExecutor {
     private final ProductRepository productRepository;
     private final ProductQueryRepository productQueryRepository;
     private final SearchService searchService;
+    private final ElasticsearchOperations elasticsearchOperations;
     private final StringRedisTemplate stringRedisTemplate;
     private final CacheKeyFactory cacheKeyFactory;
     private final Clock clock;
 
     @Retry(name = "es-sync", fallbackMethod = "syncFallback")
     public void sync() {
+        ensureIndex();
         LocalDateTime since = loadLastSyncTime();
         log.info("[ES Sync] 시작 (기준 시각: {})", since);
 
@@ -57,6 +63,25 @@ public class ProductSearchSyncExecutor {
 
     public void syncFallback(Exception e) {
         log.error("[ES Sync] 재시도 소진 — 수동 인덱싱 필요. 원인: {}", e.getMessage(), e);
+    }
+
+    private void ensureIndex() {
+        IndexOperations indexOps = elasticsearchOperations.indexOps(ProductDocument.class);
+        if (indexOps.exists()) return;
+
+        try {
+            boolean created = indexOps.createWithMapping();
+            if (!created && !indexOps.exists()) {
+                throw new DomainException(SearchErrorCode.INDEX_CREATION_FAILED);
+            }
+            log.info("[ES Index] products 인덱스 생성 완료 (settings + mapping 적용)");
+        } catch (RuntimeException e) {
+            if (indexOps.exists()) {
+                log.info("[ES Index] products 인덱스가 이미 생성되어 있어 생성 단계를 건너뜁니다.");
+                return;
+            }
+            throw e;
+        }
     }
 
     private LocalDateTime loadLastSyncTime() {
