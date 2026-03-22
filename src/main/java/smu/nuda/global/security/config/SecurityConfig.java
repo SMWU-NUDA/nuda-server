@@ -35,6 +35,7 @@ public class SecurityConfig {
             "/",
             "/signup/**", "/auth/login", "/auth/reissue", "/auth/search/**",
             "/auth/emails/verification-requests", "/auth/emails/verifications",
+            "/products/search/name",
             "/swagger-ui/**", "/v3/api-docs/**",
     };
 
