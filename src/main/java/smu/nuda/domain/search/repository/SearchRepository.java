@@ -3,7 +3,6 @@ package smu.nuda.domain.search.repository;
 import co.elastic.clients.elasticsearch._types.SortOptions;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.Operator;
-import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
@@ -25,11 +24,28 @@ public class SearchRepository {
     public SearchHits<ProductDocument> searchProducts(String keyword, int page, int size) {
         NativeQuery query = NativeQuery.builder()
                 .withQuery(q -> q
-                        .multiMatch(m -> m
-                                .fields("productName^3", "ingredientNames")
-                                .query(keyword)
-                                .type(TextQueryType.MostFields)
-                                .operator(Operator.Or)
+                        .bool(b -> b
+                                .should(s -> s.match(m -> m
+                                        .field("productName")
+                                        .query(keyword)
+                                        .boost(3f)
+                                ))
+                                .should(s -> s.match(m -> m
+                                        .field("productName.prefix")
+                                        .query(keyword)
+                                        .boost(2f)
+                                ))
+                                .should(s -> s.match(m -> m
+                                        .field("brandName.text")
+                                        .query(keyword)
+                                        .boost(2f)
+                                ))
+                                .should(s -> s.match(m -> m
+                                        .field("ingredientNames")
+                                        .query(keyword)
+                                        .operator(Operator.Or)
+                                ))
+                                .minimumShouldMatch("1")
                         )
                 )
                 .withSort(SortOptions.of(s -> s.score(sc -> sc.order(SortOrder.Desc))))
@@ -42,10 +58,9 @@ public class SearchRepository {
     public List<String> suggestProductNames(String keyword, int limit) {
         NativeQuery query = NativeQuery.builder()
                 .withQuery(q -> q
-                        .matchPhrasePrefix(m -> m
-                                .field("productName")
+                        .match(m -> m
+                                .field("productName.prefix")
                                 .query(keyword)
-                                .maxExpansions(10)
                         )
                 )
                 .withSourceFilter(new FetchSourceFilter(new String[]{"productName"}, null))
