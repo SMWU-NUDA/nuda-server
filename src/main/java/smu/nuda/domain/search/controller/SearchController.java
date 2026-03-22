@@ -76,8 +76,8 @@ public class SearchController {
     @GetMapping("/products/search/popular")
     @LoginRequired
     @Operation(
-            summary = "주간 인기 검색어 Top 10",
-            description = "최근 일주일간 가장 많이 검색된 키워드 상위 10개를 실시간 집계합니다."
+            summary = "상품 주간 인기 검색어 Top 10",
+            description = "최근 일주일간 가장 많이 검색된 상품 키워드 상위 10개를 실시간 집계합니다."
     )
     @SecurityRequirement(name = "JWT")
     public ApiResponse<List<String>> popularKeywords() {
