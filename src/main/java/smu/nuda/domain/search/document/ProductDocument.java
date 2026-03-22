@@ -20,13 +20,23 @@ public class ProductDocument {
     @Field(type = FieldType.Long)
     private Long productId;
 
-    @Field(type = FieldType.Text, analyzer = "nori")
+    @MultiField(
+            mainField = @Field(type = FieldType.Text, analyzer = "nori", searchAnalyzer = "nori_search"),
+            otherFields = {
+                    @InnerField(suffix = "prefix", type = FieldType.Text, analyzer = "product_edge_ngram", searchAnalyzer = "standard")
+            }
+    )
     private String productName;
 
     @Field(type = FieldType.Text, analyzer = "ingredient_ngram", searchAnalyzer = "standard")
     private List<String> ingredientNames;
 
-    @Field(type = FieldType.Keyword)
+    @MultiField(
+            mainField = @Field(type = FieldType.Keyword),
+            otherFields = {
+                    @InnerField(suffix = "text", type = FieldType.Text, analyzer = "nori", searchAnalyzer = "nori_search")
+            }
+    )
     private String brandName;
 
     @Field(type = FieldType.Keyword)
