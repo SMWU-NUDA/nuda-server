@@ -35,6 +35,6 @@ public class MyReviewResponse {
     }
 
     public void setImageUrls(List<String> imageUrls) {
-        this.imageUrls = imageUrls;
+        this.imageUrls = (imageUrls == null) ? new ArrayList<>() : new ArrayList<>(imageUrls);
     }
 }
