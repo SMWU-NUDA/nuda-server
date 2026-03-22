@@ -110,6 +110,19 @@ public class ReviewService {
     public CursorPageResponse<MyReviewResponse> getMyReviews(Long memberId, Long cursor, int size) {
         List<MyReviewResponse> result = reviewQueryRepository.findMyReviews(memberId, cursor, size);
 
+        // 이미지 일괄 조회
+        List<Long> reviewIds = result.stream()
+                .map(MyReviewResponse::getReviewId)
+                .toList();
+        Map<Long, List<String>> imageMap = reviewImageRepository.findImages(reviewIds).stream()
+                .collect(Collectors.groupingBy(
+                        ReviewImageProjection::getReviewId,
+                        Collectors.mapping(ReviewImageProjection::getImageUrl, Collectors.toList())
+                ));
+        for (MyReviewResponse item : result) {
+            item.setImageUrls(imageMap.getOrDefault(item.getReviewId(), List.of()));
+        }
+
         return CursorPageResponse.of(
                 result,
                 size,

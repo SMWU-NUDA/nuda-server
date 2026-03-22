@@ -10,11 +10,12 @@ import java.util.List;
 
 public interface ReviewImageRepository extends JpaRepository<ReviewImage, Long> {
     @Query("""
-    SELECT 
+    SELECT
         ri.review.id as reviewId,
         ri.imageUrl as imageUrl
     FROM ReviewImage ri
     WHERE ri.review.id IN :reviewIds
+    ORDER BY ri.sequence ASC NULLS LAST
 """)
     List<ReviewImageProjection> findImages(@Param("reviewIds") List<Long> reviewIds);
 }

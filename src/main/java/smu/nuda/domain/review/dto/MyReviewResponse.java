@@ -5,6 +5,8 @@ import lombok.Getter;
 import smu.nuda.global.util.DateFormatUtil;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -17,6 +19,8 @@ public class MyReviewResponse {
     private Long reviewId;
     private double rating;
     private String content;
+    private List<String> imageUrls = new ArrayList<>();
+
     private String createdAt;
 
     public MyReviewResponse(Long productId, String productThumbnail, String productName, String brandName, Long reviewId, double rating, String content, LocalDateTime createdAt) {
@@ -28,5 +32,9 @@ public class MyReviewResponse {
         this.rating = rating;
         this.content = content;
         this.createdAt = DateFormatUtil.formatDate(createdAt);
+    }
+
+    public void setImageUrls(List<String> imageUrls) {
+        this.imageUrls = imageUrls;
     }
 }
