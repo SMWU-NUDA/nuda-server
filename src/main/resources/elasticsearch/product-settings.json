@@ -1,6 +1,6 @@
 {
   "index": {
-    "max_ngram_diff": 10
+    "max_ngram_diff": 15
   },
   "analysis": {
     "tokenizer": {
@@ -12,6 +12,12 @@
         "type": "ngram",
         "min_gram": 2,
         "max_gram": 8,
+        "token_chars": ["letter", "digit"]
+      },
+      "product_edge_ngram_tokenizer": {
+        "type": "edge_ngram",
+        "min_gram": 2,
+        "max_gram": 15,
         "token_chars": ["letter", "digit"]
       }
     },
@@ -26,6 +32,16 @@
         "type": "custom",
         "tokenizer": "nori_tokenizer",
         "filter": ["nori_posfilter", "lowercase"]
+      },
+      "nori_search": {
+        "type": "custom",
+        "tokenizer": "nori_tokenizer",
+        "filter": ["lowercase"]
+      },
+      "product_edge_ngram": {
+        "type": "custom",
+        "tokenizer": "product_edge_ngram_tokenizer",
+        "filter": ["lowercase"]
       },
       "ingredient_ngram": {
         "type": "custom",
