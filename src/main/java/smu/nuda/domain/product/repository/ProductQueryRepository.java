@@ -4,6 +4,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -159,6 +160,33 @@ public class ProductQueryRepository {
                 .stream()
                 .map(Long::intValue)
                 .toList();
+    }
+
+    public List<ProductItem> searchByName(String keyword) {
+        return queryFactory
+                .select(Projections.constructor(
+                        ProductItem.class,
+                        product.id,
+                        product.thumbnailImg,
+                        brand.id,
+                        brand.name,
+                        product.name,
+                        product.averageRating,
+                        product.reviewCount,
+                        product.likeCount,
+                        product.costPrice
+                ))
+                .from(product)
+                .join(product.brand, brand)
+                .where(product.name.containsIgnoreCase(keyword))
+                .orderBy(
+                        new CaseBuilder()
+                                .when(product.name.likeIgnoreCase(keyword + "%")).then(0)
+                                .otherwise(1).asc(),
+                        product.name.asc()
+                )
+                .limit(30)
+                .fetch();
     }
 
     public Map<Long, List<String>> findIngredientLabelsByProductIds(List<Long> productIds) {
