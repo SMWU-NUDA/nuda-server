@@ -31,6 +31,9 @@ enum class ProductErrorCode(
     INVALID_AVERAGE_RATING(
       "PRODUCT_INVALID_AVERAGE_RATING","평균 평점 정보가 올바르지 않습니다."
     ),
+    KEYWORD_TOO_SHORT(
+        "PRODUCT_KEYWORD_TOO_SHORT", "검색어는 2글자 이상이어야 합니다."
+    ),
 
     ;
 }

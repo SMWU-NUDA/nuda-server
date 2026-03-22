@@ -52,6 +52,21 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
+    public List<ProductItem> searchByName(String keyword) {
+        List<ProductItem> items = productQueryRepository.searchByName(keyword);
+
+        List<Long> productIds = items.stream()
+                .map(ProductItem::getProductId)
+                .toList();
+        Map<Long, List<String>> labelMap = productQueryRepository.findIngredientLabelsByProductIds(productIds);
+        for (ProductItem item : items) {
+            item.setIngredientLabels(labelMap.getOrDefault(item.getProductId(), List.of()));
+        }
+
+        return items;
+    }
+
+    @Transactional(readOnly = true)
     public CursorResponse<ProductItem, Number> getSortedProducts(ProductSortType sortType, Cursor<Number> cursor, int size) {
         CursorResponse<ProductItem, Number> response = productQueryRepository.findProductCursorPage(sortType, cursor, size);
 

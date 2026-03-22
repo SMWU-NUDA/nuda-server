@@ -13,7 +13,10 @@ import smu.nuda.domain.product.dto.ProductDetailResponse;
 import smu.nuda.domain.product.dto.ProductItem;
 import smu.nuda.domain.product.dto.enums.ProductKeywordType;
 import smu.nuda.domain.product.dto.enums.ProductSortType;
+import java.util.List;
+import smu.nuda.domain.product.error.ProductErrorCode;
 import smu.nuda.domain.product.service.ProductService;
+import smu.nuda.global.error.DomainException;
 import smu.nuda.global.guard.annotation.LoginRequired;
 import smu.nuda.global.guard.guard.AuthenticationGuard;
 import smu.nuda.global.response.ApiResponse;
@@ -26,6 +29,19 @@ public class ProductController {
 
     private final ProductService productService;
     private final AuthenticationGuard authenticationGuard;
+
+    @GetMapping("/search/name")
+    @Operation(
+            summary = "상품 이름 검색",
+            description = "상품명 키워드로 상품을 검색합니다. 회원가입 설문 단계에서 사용합니다. 키워드로 시작하는 상품이 우선 표시됩니다."
+    )
+    public ApiResponse<List<ProductItem>> searchProductsByName(@RequestParam String keyword) {
+        String normalizedKeyword = keyword == null ? "" : keyword.trim();
+        if (normalizedKeyword.length() < 2) {
+            throw new DomainException(ProductErrorCode.KEYWORD_TOO_SHORT);
+        }
+        return ApiResponse.success(productService.searchByName(normalizedKeyword));
+    }
 
     @GetMapping("/{productId}")
     @Operation(
