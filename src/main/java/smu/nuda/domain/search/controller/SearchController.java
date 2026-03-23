@@ -50,7 +50,6 @@ public class SearchController {
     }
 
     @GetMapping("/search/suggest")
-    @LoginRequired
     @Operation(
             summary = "검색어 자동완성",
             description = """
@@ -61,7 +60,6 @@ public class SearchController {
             트래픽 제한: 사용자당 초당 5회 초과 요청 시 400 Too Many Requests 반환
             """
     )
-    @SecurityRequirement(name = "JWT")
     public ApiResponse<List<String>> suggest(
             @RequestParam(required = false, defaultValue = "") String keyword,
             @RequestParam(defaultValue = "INGREDIENT") SuggestType type) {
@@ -69,7 +67,7 @@ public class SearchController {
         if (trimmed.length() < 2) {
             throw new DomainException(SearchErrorCode.KEYWORD_TOO_SHORT);
         }
-        Long memberId = authenticationGuard.currentMemberId();
+        Long memberId = authenticationGuard.currentMemberIdOrNull();
         return ApiResponse.success(searchService.suggestKeywords(memberId, trimmed, type));
     }
 

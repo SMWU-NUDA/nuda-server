@@ -59,7 +59,7 @@ public class SearchService {
     }
 
     public List<String> suggestKeywords(Long memberId, String keyword, SuggestType type) {
-        checkRateLimit(memberId);
+        if (memberId != null) checkRateLimit(memberId);
 
         String cacheKey = cacheKeyFactory.searchSuggest(type, keyword.toLowerCase());
         String cached = stringRedisTemplate.opsForValue().get(cacheKey);
