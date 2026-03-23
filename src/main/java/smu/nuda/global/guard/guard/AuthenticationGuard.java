@@ -38,6 +38,14 @@ public class AuthenticationGuard {
         return userDetails.getMemberId();
     }
 
+    public Long currentMemberIdOrNull() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof CustomUserDetails userDetails)) {
+            return null;
+        }
+        return userDetails.getMemberId();
+    }
+
     public void ensureLogin() {
         currentMemberId();
     }
