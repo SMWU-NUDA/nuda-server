@@ -33,12 +33,16 @@ public class AuthService {
     private final JwtProperties jwtProperties;
 
     public void requestVerificationCode(String email) {
-        if (memberRepository.existsByEmail(email)) {
+        if (memberRepository.existsByEmailAndStatusNot(email, Status.WITHDRAWN)) {
             throw new DomainException(MemberErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
         String code = codeGenerator.generate();
         emailAuthRedisRepository.saveCode(email, code);
+
+        emailAuthRedisRepository.clearVerified(email);
+        emailAuthRedisRepository.clearAttempt(email);
+
         emailService.send(
                 email,
                 "[Nuda] 이메일 인증번호",
@@ -153,14 +157,14 @@ public class AuthService {
     }
 
     public void checkNickname(String nickname) {
-        boolean exists = memberRepository.existsByNickname(nickname);
+        boolean exists = memberRepository.existsByNicknameAndStatusNot(nickname, Status.WITHDRAWN);
         if (exists) {
             throw new DomainException(MemberErrorCode.NICKNAME_DUPLICATED, nickname);
         }
     }
 
     public void checkUsername(String username) {
-        boolean exists = memberRepository.existsByUsername(username);
+        boolean exists = memberRepository.existsByUsernameAndStatusNot(username, Status.WITHDRAWN);
         if (exists) {
             throw new DomainException(MemberErrorCode.USERNAME_DUPLICATED, username);
         }

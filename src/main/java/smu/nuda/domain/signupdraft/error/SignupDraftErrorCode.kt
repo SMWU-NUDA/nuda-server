@@ -16,9 +16,6 @@ enum class SignupDraftErrorCode (
     DRAFT_NOT_COMPLETED(
         "SIGNUP_DRAFT_NOT_COMPLETED", "회원가입이 아직 완료되지 않았습니다."
     ),
-    INVALID_KEYWORD_PRODUCT_SELECTION(
-        "SIGNUP_INVALID_KEYWORD_PRODUCT_SELECTION", "유효하지 않은 설문 상품 선택입니다. 상품 정보를 다시 확인해 주세요."
-    ),
     JSON_DESERIALIZATION_FAILED(
         "SIGNUP_JSON_DESERIALIZATION_FAILED", "설문 상품 JSON 데이터를 읽는 데 실패했습니다."
     ),
