@@ -49,6 +49,10 @@ public class EmailAuthRedisRepository {
         redisTemplate.delete(verifiedKey(email));
     }
 
+    public void clearAttempt(String email) {
+        redisTemplate.delete(attemptKey(email));
+    }
+
     public int increaseAttempt(String email) {
         Long count = redisTemplate.opsForValue().increment(attemptKey(email));
         if (count != null && count == 1L) {
