@@ -39,6 +39,10 @@ public class AuthService {
 
         String code = codeGenerator.generate();
         emailAuthRedisRepository.saveCode(email, code);
+
+        // 인증 완료 후 재인증 요청을 했을 때 이전 인증 상태 초기화
+        emailAuthRedisRepository.clearVerified(email);
+
         emailService.send(
                 email,
                 "[Nuda] 이메일 인증번호",
