@@ -11,6 +11,7 @@ import smu.nuda.domain.common.dto.CursorPageResponse;
 import smu.nuda.domain.order.dto.MyOrderResponse;
 import smu.nuda.domain.order.dto.OrderCreateRequest;
 import smu.nuda.domain.order.dto.OrderCreateResponse;
+import smu.nuda.domain.order.dto.OrderItemRequest;
 import smu.nuda.domain.order.service.OrderService;
 import smu.nuda.global.guard.annotation.LoginRequired;
 import smu.nuda.global.guard.guard.AuthenticationGuard;
@@ -35,6 +36,18 @@ public class OrderController {
     public ApiResponse<OrderCreateResponse> createOrder(@Valid @RequestBody OrderCreateRequest orderCreateRequest) {
         Long memberId = authenticationGuard.currentMemberId();
         return ApiResponse.success(orderService.createOrder(memberId, orderCreateRequest));
+    }
+
+    @PostMapping("/direct")
+    @Operation(
+            summary = "바로 구매 주문 생성",
+            description = "상품 상세페이지에서 바로구매 시 사용. 장바구니 담긴 상품과 무관하게 요청 수량으로 1회 요청에 1개 상품을 주문 생성한다."
+    )
+    @SecurityRequirement(name = "JWT")
+    @LoginRequired
+    public ApiResponse<OrderCreateResponse> directOrder(@Valid @RequestBody OrderItemRequest request) {
+        Long memberId = authenticationGuard.currentMemberId();
+        return ApiResponse.success(orderService.directOrder(memberId, request));
     }
 
     @GetMapping

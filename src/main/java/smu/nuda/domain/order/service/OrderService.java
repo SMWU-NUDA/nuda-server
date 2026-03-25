@@ -8,6 +8,7 @@ import smu.nuda.domain.common.dto.CursorPageResponse;
 import smu.nuda.domain.order.dto.*;
 import smu.nuda.domain.order.entity.Order;
 import smu.nuda.domain.order.entity.OrderItem;
+import smu.nuda.domain.order.entity.enums.OrderType;
 import smu.nuda.domain.order.error.OrderErrorCode;
 import smu.nuda.domain.order.mapper.OrderMapper;
 import smu.nuda.domain.order.policy.OrderNumPolicy;
@@ -65,7 +66,7 @@ public class OrderService {
 
         // Order 생성
         Long orderNum = orderNumPolicy.generate();
-        Order order = Order.create(memberId, orderNum, totalAmount);
+        Order order = Order.create(memberId, orderNum, totalAmount, OrderType.CART);
         orderRepository.save(order);
 
         // OrderItem 생성
@@ -93,6 +94,36 @@ public class OrderService {
                 brandGroups
         );
 
+    }
+
+    @Transactional
+    public OrderCreateResponse directOrder(Long memberId, OrderItemRequest item) {
+        // 상품 존재 검증 (장바구니 검증 없음)
+        Product product = productRepository.findById(item.getProductId())
+                .orElseThrow(() -> new DomainException(OrderErrorCode.DIRECT_INVALID_PRODUCT));
+
+        int totalAmount = product.getCostPrice() * item.getQuantity();
+
+        Long orderNum = orderNumPolicy.generate();
+        Order order = Order.create(memberId, orderNum, totalAmount, OrderType.DIRECT);
+        orderRepository.save(order);
+
+        OrderItem orderItem = OrderItem.create(
+                order,
+                product.getId(),
+                product.getCostPrice(),
+                item.getQuantity()
+        );
+        orderItemRepository.save(orderItem);
+
+        List<OrderBrandGroup> brandGroups = orderMapper.toBrandGroups(order);
+        return new OrderCreateResponse(
+                order.getId(),
+                order.getOrderNum(),
+                order.getStatus(),
+                order.getTotalAmount(),
+                brandGroups
+        );
     }
 
     @Transactional(readOnly = true)
