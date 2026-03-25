@@ -17,6 +17,7 @@ import smu.nuda.domain.order.dto.OrderCreateResponse;
 import smu.nuda.domain.order.dto.OrderItemRequest;
 import smu.nuda.domain.order.entity.Order;
 import smu.nuda.domain.order.entity.enums.OrderStatus;
+import smu.nuda.domain.order.entity.enums.OrderType;
 import smu.nuda.domain.order.repository.OrderRepository;
 import smu.nuda.domain.order.service.OrderService;
 import smu.nuda.domain.payment.dto.PaymentCompleteRequest;
@@ -66,7 +67,8 @@ public class PaymentServiceTest {
         Order order = Order.create(
                 member.getId(),
                 299902080001L,
-                totalAmount
+                totalAmount,
+                OrderType.CART
         );
 
         return orderRepository.save(order);

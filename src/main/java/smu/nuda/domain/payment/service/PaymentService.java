@@ -127,8 +127,8 @@ public class PaymentService {
             );
         }
 
-        // 결제 완료한 장바구니 상품 삭제
-        cartService.removeOrderedItems(order);
+        // 결제 완료한 장바구니 상품 삭제 (바로구매 주문 제외)
+        if (!order.isDirectOrder()) cartService.removeOrderedItems(order);
 
         return new PaymentCompleteResponse(
                 order.getOrderNum(),
@@ -177,8 +177,8 @@ public class PaymentService {
             );
         }
 
-        // 결제 완료한 장바구니 상품 삭제
-        cartService.removeOrderedItems(order);
+        // 결제 완료한 장바구니 상품 삭제 (바로구매 주문 제외)
+        if (!order.isDirectOrder()) cartService.removeOrderedItems(order);
 
         return new PaymentCompleteResponse(
                 order.getOrderNum(),
