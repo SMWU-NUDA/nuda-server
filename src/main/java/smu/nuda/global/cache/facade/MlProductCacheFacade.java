@@ -46,4 +46,8 @@ public class MlProductCacheFacade {
                 List.class
         );
     }
+
+    public void evictPersonalRanking(Long memberId) {
+        cacheTemplate.evictByPrefix("ml:product:ranking:personal:" + memberId);
+    }
 }
