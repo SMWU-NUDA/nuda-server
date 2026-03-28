@@ -16,7 +16,7 @@ route:
 receivers:
   - name: 'default'
     discord_configs:
-      - webhook_url: '${DISCORD_WEBHOOK_URL}'
+      - webhook_url: '__DISCORD_WEBHOOK_URL__'
         title: '[{{ .Status | toUpper }}] {{ .GroupLabels.alertname }}'
         message: |
           {{ range .Alerts }}
@@ -28,7 +28,7 @@ receivers:
 
   - name: 'discord-critical'
     discord_configs:
-      - webhook_url: '${DISCORD_WEBHOOK_URL}'
+      - webhook_url: '__DISCORD_WEBHOOK_URL__'
         title: '🚨 [CRITICAL] {{ .GroupLabels.alertname }}'
         message: |
           {{ range .Alerts }}
