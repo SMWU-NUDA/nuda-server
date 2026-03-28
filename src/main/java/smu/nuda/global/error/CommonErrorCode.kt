@@ -11,5 +11,9 @@ enum class CommonErrorCode(
 
     INVALID_REQUEST(
         "COMMON_INVALID_REQUEST", "잘못된 요청입니다"
+    ),
+
+    NOT_FOUND(
+        "COMMON_NOT_FOUND", "요청한 리소스를 찾을 수 없습니다."
     )
 }

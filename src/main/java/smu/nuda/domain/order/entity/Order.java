@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import smu.nuda.domain.common.entity.BaseEntity;
 import smu.nuda.domain.order.entity.enums.OrderStatus;
+import smu.nuda.domain.order.entity.enums.OrderType;
 import smu.nuda.domain.order.error.OrderErrorCode;
 import smu.nuda.global.error.DomainException;
 
@@ -43,6 +44,10 @@ public class Order extends BaseEntity {
     @Column(nullable = false, length = 20)
     private OrderStatus status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "order_type", nullable = false, length = 10)
+    private OrderType orderType;
+
     @OneToMany(
             mappedBy = "order",
             cascade = CascadeType.ALL,
@@ -50,13 +55,18 @@ public class Order extends BaseEntity {
     )
     private List<OrderItem> orderItems = new ArrayList<>();
 
-    public static Order create(Long memberId, Long orderNum, int totalAmount) {
+    public static Order create(Long memberId, Long orderNum, int totalAmount, OrderType orderType) {
         Order order = new Order();
         order.memberId = memberId;
         order.orderNum = orderNum;
         order.totalAmount = totalAmount;
         order.status = OrderStatus.PENDING;
+        order.orderType = orderType;
         return order;
+    }
+
+    public boolean isDirectOrder() {
+        return this.orderType == OrderType.DIRECT;
     }
 
     public boolean isPending() {

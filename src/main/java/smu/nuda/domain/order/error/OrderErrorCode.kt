@@ -7,7 +7,10 @@ enum class OrderErrorCode (
     override val message: String
 ) : ErrorCode {
     INVALID_PRODUCT(
-        "ORDER_INVALID_PRODUCT","주문하신 상품 중 일부를 찾을 수 없습니다. 장바구니를 확인해 주세요."
+        "ORDER_INVALID_PRODUCT", "장바구니에 담긴 일부 상품을 찾을 수 없습니다."
+    ),
+    DIRECT_INVALID_PRODUCT(
+        "ORDER_DIRECT_INVALID_PRODUCT", "바로 결제할 상품을 찾을 수 없습니다."
     ),
     INVALID_ORDER_STATUS(
         "ORDER_INVALID_STATUS", "해당 주문은 결제 가능한 상태가 아닙니다."
