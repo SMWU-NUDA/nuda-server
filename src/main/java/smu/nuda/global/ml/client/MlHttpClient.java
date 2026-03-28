@@ -28,16 +28,16 @@ public class MlHttpClient {
 
                 // 4xx 에러 처리
                 .onStatus(HttpStatusCode::is4xxClientError,
-                        resp -> resp.bodyToMono(MlErrorResponse.class)
+                        resp -> resp.bodyToMono(String.class)
                                 .flatMap(error -> {
-                                    log.warn("ML client error %s: %s", resp.statusCode(), error.getDetail());
+                                    log.warn("ML client error %s: %s", resp.statusCode(), error);
                                     return Mono.error(new MlApiException(MlErrorCode.CLIENT_ERROR));
                                 }))
                 // 5xx 에러 처리
                 .onStatus(HttpStatusCode::is5xxServerError,
-                        resp -> resp.bodyToMono(MlErrorResponse.class)
+                        resp -> resp.bodyToMono(String.class)
                                 .flatMap(error -> {
-                                    log.warn("ML client error %s: %s", resp.statusCode(), error.getDetail());
+                                    log.warn("ML client error %s: %s", resp.statusCode(), error);
                                     return Mono.error(new MlApiException(MlErrorCode.INTERNAL_SERVER_ERROR));
                                 }))
                 .bodyToMono(responseType)

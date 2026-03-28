@@ -23,4 +23,13 @@ public class KeywordEventHandler {
 
         mlOrchestrator.handleKeywordChanged(event.payload());
     }
+
+    @Async("mlExecutor")
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleKeywordCreated(KeywordCreateEvent event) {
+
+        log.info("[EventHandler] KeywordCreateEvent received - memberId={}", event.payload().memberId());
+
+        mlOrchestrator.handleKeywordChanged(event.payload());
+    }
 }

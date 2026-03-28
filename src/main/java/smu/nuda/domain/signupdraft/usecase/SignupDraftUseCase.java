@@ -3,6 +3,7 @@ package smu.nuda.domain.signupdraft.usecase;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,8 +23,10 @@ import smu.nuda.domain.signupdraft.repository.SignupDraftRepository;
 import smu.nuda.domain.keyword.dto.SurveyRequest;
 import smu.nuda.domain.keyword.entity.Keyword;
 import smu.nuda.domain.keyword.entity.KeywordProduct;
+import smu.nuda.domain.keyword.event.KeywordCreateEvent;
 import smu.nuda.domain.keyword.repository.KeywordProductRepository;
 import smu.nuda.domain.keyword.repository.KeywordRepository;
+import smu.nuda.global.ml.dto.KeywordSyncRequest;
 import smu.nuda.global.error.DomainException;
 import smu.nuda.global.util.DateFormatUtil;
 
@@ -45,6 +48,7 @@ public class SignupDraftUseCase {
     private final PasswordEncoder passwordEncoder;
     private final ObjectMapper objectMapper;
     private final Clock clock;
+    private final ApplicationEventPublisher eventPublisher;
 
     public SignupDraftResponse createDraft() {
         String signupToken = UUID.randomUUID().toString();
@@ -127,6 +131,7 @@ public class SignupDraftUseCase {
 
         SignupDraft draft = signupDraftRepository.findBySignupToken(signupToken)
                 .orElseThrow(() -> new DomainException(SignupDraftErrorCode.DRAFT_NOT_FOUND));
+
         String productIdsJson = convertToJson(request.getProductIds());
 
         draft.updateKeyword(
@@ -170,6 +175,17 @@ public class SignupDraftUseCase {
 
         List<KeywordProduct> keywordProductList = KeywordProduct.of(keyword, products);
         keywordProductRepository.saveAll(keywordProductList);
+
+        KeywordSyncRequest payload = new KeywordSyncRequest(
+                member.getId(),
+                keyword.getIrritationLevel(),
+                keyword.getScent(),
+                keyword.getThickness(),
+                keyword.getAdhesion()
+        );
+        eventPublisher.publishEvent(new KeywordCreateEvent(payload));
+
+        System.out.println(payload);
 
         Cart cart = new Cart(member.getId());
         cartRepository.save(cart);
