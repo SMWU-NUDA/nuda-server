@@ -1,0 +1,39 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    environment: prod
+    project: nuda
+
+rule_files:
+  - /etc/prometheus/alert_rules.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['nuda-alertmanager:9093']
+
+scrape_configs:
+  # Blue 슬롯: 비활성일 때는 down 상태로 표시됨
+  - job_name: 'nuda-app-blue'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['nuda-app-blue:8080']
+        labels:
+          slot: blue
+          application: nuda-server
+
+  # Green 슬롯: 비활성일 때는 down 상태로 표시됨
+  - job_name: 'nuda-app-green'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['nuda-app-green:8080']
+        labels:
+          slot: green
+          application: nuda-server
+
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
