@@ -26,8 +26,17 @@ wait_for_grafana() {
   exit 1
 }
 
+get_folder_uid() {
+  local folder_name=$1
+  curl -sf \
+    -u "${GRAFANA_USER}:${GRAFANA_PASSWORD}" \
+    "${GRAFANA_URL}/api/folders" \
+    | jq -r ".[] | select(.title == \"${folder_name}\") | .uid"
+}
+
 import_dashboard() {
   local id=$1
+  local folder_uid=$2
   echo "대시보드 ${id} import 중..."
 
   local json
@@ -36,10 +45,11 @@ import_dashboard() {
   local payload
   payload=$(jq -n \
     --argjson dashboard "$json" \
+    --arg folderUid "$folder_uid" \
     '{
       dashboard: $dashboard,
       overwrite: true,
-      folderId: 0,
+      folderUid: $folderUid,
       inputs: [
         {
           name: "DS_PROMETHEUS",
@@ -62,8 +72,14 @@ import_dashboard() {
 
 wait_for_grafana
 
+FOLDER_UID=$(get_folder_uid "Nuda")
+if [ -z "$FOLDER_UID" ]; then
+  echo "Nuda 폴더를 찾을 수 없습니다. General 폴더에 import합니다."
+  FOLDER_UID=""
+fi
+
 for id in "${DASHBOARD_IDS[@]}"; do
-  import_dashboard "$id"
+  import_dashboard "$id" "$FOLDER_UID"
 done
 
 echo ""
