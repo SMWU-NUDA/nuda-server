@@ -132,7 +132,13 @@ public class SignupDraftUseCase {
         SignupDraft draft = signupDraftRepository.findBySignupToken(signupToken)
                 .orElseThrow(() -> new DomainException(SignupDraftErrorCode.DRAFT_NOT_FOUND));
 
-        String productIdsJson = convertToJson(request.getProductIds());
+
+        // 설문조사 상품 유효성 검증
+        List<Long> productIds = request.getProductIds();
+        List<Product> products = productRepository.findAllById(productIds);
+        KeywordProductPolicy.validate(productIds, products);
+
+        String productIdsJson = convertToJson(productIds);
 
         draft.updateKeyword(
                 request.getIrritationLevel(),
