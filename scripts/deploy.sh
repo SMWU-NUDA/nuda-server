@@ -1,5 +1,6 @@
 #!/bin/bash
 # scripts/deploy.sh
+
 set -euo pipefail
 
 IMAGE_NAME="${IMAGE_NAME:-ghcr.io/smwu-nuda/nuda-server}"
@@ -12,20 +13,19 @@ STABLE_WAIT=120
 log() { echo "[$(date '+%H:%M:%S')] $*"; }
 die() { echo "[ERROR] $*" >&2; exit 1; }
 
-# ──────────────────────────────────────────────
-# STEP -1: SSM Parameter Store에서 환경변수 로드
-# ──────────────────────────────────────────────
+# SSM Parameter Store에서 환경변수 로드
 load_ssm_params() {
   log "SSM Parameter Store 환경변수 로드 중 (/nuda/prod)..."
 
   aws ssm get-parameters-by-path \
     --path /nuda/prod \
     --with-decryption \
-    --query "Parameters[*].[Name,Value]" \
-    --output text | \
-  while IFS=$'\t' read -r name value; do
-    echo "${name##*/}=${value}"
-  done > /tmp/.env.prod
+    --output json \
+    --region ap-northeast-2 | \
+  jq -r '.Parameters[] | "\(.Name | split("/") | last)=\(.Value | @json)"' \
+  > /tmp/.env.prod
+
+  chmod 600 /tmp/.env.prod
 
   local param_count
   param_count=$(wc -l < /tmp/.env.prod)
@@ -36,9 +36,18 @@ load_ssm_params() {
   log "✓ SSM 환경변수 로드 완료 (${param_count}개)"
 }
 
-# ──────────────────────────────────────────────
-# STEP 0: 인프라 컨테이너 헬스 확인
-# ──────────────────────────────────────────────
+# GHCR 로그인 (SSM 토큰 사용)
+login_ghcr() {
+  local ghcr_token
+  ghcr_token=$(grep '^GHCR_TOKEN=' /tmp/.env.prod | cut -d= -f2- | tr -d '"')
+  if [[ -z "$ghcr_token" ]]; then
+    die "GHCR_TOKEN이 SSM에 없습니다. /nuda/prod/GHCR_TOKEN 확인."
+  fi
+  echo "$ghcr_token" | docker login ghcr.io -u smwu-nuda --password-stdin
+  log "✓ GHCR 로그인 완료"
+}
+
+# 인프라 컨테이너 헬싱 체크
 check_infra() {
   log "인프라 컨테이너 상태 확인..."
 
@@ -53,11 +62,16 @@ check_infra() {
     die "Elasticsearch 상태 이상 (status=$es_status). 배포를 중단합니다."
   fi
   log "✓ Elasticsearch 정상 (status=$es_status)"
+
+  if ! docker ps --filter "name=nuda-nginx" --filter "status=running" | grep -q "nuda-nginx"; then
+    log "Nginx 미기동. 기동 시작..."
+    docker compose -f docker-compose.app.yml up -d nginx
+    sleep 3
+  fi
+  log "✓ Nginx 정상"
 }
 
-# ──────────────────────────────────────────────
-# STEP 1: 현재 활성 슬롯 판단
-# ──────────────────────────────────────────────
+# 현재 활성 슬롯 확인
 get_active_slot() {
   local upstream
   upstream=$(cat ./nginx/upstream.conf)
@@ -68,19 +82,17 @@ get_active_slot() {
   fi
 }
 
-# ──────────────────────────────────────────────
-# STEP 2: 비활성 슬롯에 신규 이미지 기동
-# ──────────────────────────────────────────────
+# 비활성 슬롯에 신규 이미지 기동
 start_new_slot() {
   local new_slot="$1"
   local new_port new_container
 
   if [[ "$new_slot" == "green" ]]; then
     new_port=8082
-    new_container="nuda-app-green"
+    new_container="app-green"
   else
     new_port=8081
-    new_container="nuda-app-blue"
+    new_container="app-blue"
   fi
 
   log "이미지 Pull: ${IMAGE_NAME}:${IMAGE_TAG}"
@@ -93,9 +105,7 @@ start_new_slot() {
       up -d "${new_container}"
 }
 
-# ──────────────────────────────────────────────
-# STEP 3: Readiness Probe 통과 대기
-# ──────────────────────────────────────────────
+# Readiness Probe 통과 대기
 wait_for_ready() {
   local slot="$1"
   local url
@@ -110,7 +120,9 @@ wait_for_ready() {
   local elapsed=0
   until wget -qO- "$url" | grep -q '"status":"UP"'; do
     if [[ $elapsed -ge $HEALTH_TIMEOUT ]]; then
-      die "${slot} 헬스체크 타임아웃. 롤백 필요."
+      log "헬스체크 타임아웃. 신규 슬롯(${slot}) 컨테이너 정리..."
+      docker compose -f docker-compose.app.yml --profile "${slot}" stop "app-${slot}" 2>/dev/null || true
+      die "${slot} 헬스체크 타임아웃. 좀비 컨테이너 정리 완료."
     fi
     sleep 5
     elapsed=$((elapsed + 5))
@@ -119,9 +131,7 @@ wait_for_ready() {
   log "✓ ${slot} Readiness 통과"
 }
 
-# ──────────────────────────────────────────────
-# STEP 4: Nginx 트래픽 전환
-# ──────────────────────────────────────────────
+# Nginx 트래픽 전환
 switch_traffic() {
   local new_slot="$1"
   local new_container
@@ -138,9 +148,7 @@ switch_traffic() {
   log "✓ 트래픽 전환 완료"
 }
 
-# ──────────────────────────────────────────────
-# STEP 5: 전환 후 안정성 확인
-# ──────────────────────────────────────────────
+# 트래픽 전환 후 안정성 확인
 verify_stable() {
   local new_slot="$1"
   log "전환 후 ${STABLE_WAIT}초 안정성 확인 (Prometheus rate[2m] 윈도우 채우기)..."
@@ -172,48 +180,39 @@ except Exception:
 
   if python3 -c "import sys; sys.exit(0 if float('${error_rate}') > 10 else 1)" 2>/dev/null; then
     log "⚠ 에러율 ${error_rate}% 감지. 자동 롤백 실행..."
-    bash scripts/rollback.sh
+    bash "$(dirname "$0")/rollback.sh"
+    docker compose -f docker-compose.app.yml --profile "${new_slot}" stop "app-${new_slot}" 2>/dev/null || true
     die "에러율 초과로 롤백 완료. 배포 실패."
   fi
 
   log "✓ 안정성 확인 완료 (에러율: ${error_rate}%)"
 }
 
-# ──────────────────────────────────────────────
-# STEP 6: 구 슬롯 정리 (5분 후 백그라운드)
-# ──────────────────────────────────────────────
+# 구 슬롯 정리
 cleanup_old_slot() {
   local old_slot="$1"
-  local old_container="nuda-app-${old_slot}"
+  local old_service="app-${old_slot}"
 
-  log "구 슬롯(${old_slot}) 5분 후 정리 예약 (롤백 창 확보)..."
-
-  (
-    sleep 300
-    log "구 슬롯(${old_slot}) 컨테이너 정리 시작..."
-    docker compose -f docker-compose.app.yml --profile "${old_slot}" stop "${old_container#nuda-}" 2>/dev/null || true
-    docker image prune -f
-    log "✓ 구 슬롯 정리 완료"
-  ) &
-
-  log "✓ 구 슬롯 정리 예약됨 (5분 후, PID: $!). 그 전까지 즉각 롤백 가능."
+  log "구 슬롯(${old_slot}) 정리 시작 (안정성 확인 완료)..."
+  docker compose -f docker-compose.app.yml --profile "${old_slot}" stop "${old_service}" 2>/dev/null || true
+  docker image prune -f
+  log "✓ 구 슬롯(${old_slot}) 정리 완료"
 }
 
-# ──────────────────────────────────────────────
-# 메인 실행
-# ──────────────────────────────────────────────
+
 LOCK_FILE="/tmp/nuda-deploy.lock"
 
 main() {
-  if ! mkdir "$LOCK_FILE" 2>/dev/null; then
-    die "다른 배포가 진행 중입니다 (lock: ${LOCK_FILE}). 완료 후 재시도하세요."
-  fi
-  trap "rmdir '$LOCK_FILE' 2>/dev/null; exit" EXIT INT TERM
+  exec 200>"$LOCK_FILE"
+  flock -n 200 || die "다른 배포가 진행 중입니다 (lock: ${LOCK_FILE}). 완료 후 재시도하세요."
+
+  cd "$(dirname "$0")/.."
 
   log "=== Blue-Green 배포 시작 ==="
   log "이미지: ${IMAGE_NAME}:${IMAGE_TAG}"
 
   load_ssm_params
+  login_ghcr
   check_infra
 
   local active_slot new_slot
