@@ -83,7 +83,11 @@ jobs:
 
             # 인프라 컨테이너 시작 대기
             echo "Redis 준비 대기 중..."
-            until docker exec nuda-redis redis-cli ping 2>/dev/null | grep -q PONG; do sleep 2; done
+            redis_wait=0
+            until docker exec nuda-redis redis-cli ping 2>/dev/null | grep -q PONG; do
+              if [[ $redis_wait -ge 60 ]]; then echo "[ERROR] Redis 기동 타임아웃 (60초)." >&2; exit 1; fi
+              sleep 2; redis_wait=$((redis_wait + 2))
+            done
             echo "Elasticsearch 준비 대기 중..."
             es_wait=0
             until curl -sf http://localhost:9200/_cluster/health 2>/dev/null | grep -qE '"status":"(green|yellow)"'; do
