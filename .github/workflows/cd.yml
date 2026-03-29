@@ -111,9 +111,9 @@ jobs:
         if: always()
         run: |
           if [ "${{ job.status }}" = "success" ]; then
-            MESSAGE="🤭 배포 성공: nuda-server ${{ needs.build.outputs.image-tag }}"
+            MESSAGE="🤭 배포 성공: nuda-server ${{ needs.build.outputs.image-tag }}\n🔗 ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           else
-            MESSAGE="🙄 배포 실패: nuda-server ${{ needs.build.outputs.image-tag }}"
+            MESSAGE="🙄 배포 실패: nuda-server ${{ needs.build.outputs.image-tag }}\n🔗 ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           fi
           curl -s -X POST "${{ secrets.DISCORD_WEBHOOK_URL }}" \
             -H "Content-Type: application/json" \
