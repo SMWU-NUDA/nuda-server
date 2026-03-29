@@ -74,9 +74,9 @@ jobs:
             cd ~/nuda-server
 
             # upstream.conf 보존 후 코드 최신화
-            [ -f nginx/upstream.conf ] && cp nginx/upstream.conf /tmp/upstream.conf.bak
-            git fetch origin && git reset --hard origin/main
-            [ -f /tmp/upstream.conf.bak ] && mv /tmp/upstream.conf.bak nginx/upstream.conf
+            [ -f nginx/upstream.conf ] && cp nginx/upstream.conf /tmp/upstream.conf.bak.${{ github.run_id }}
+            git fetch origin && git reset --hard ${{ github.sha }}
+            [ -f /tmp/upstream.conf.bak.${{ github.run_id }} ] && mv /tmp/upstream.conf.bak.${{ github.run_id }} nginx/upstream.conf
             [ -f nginx/upstream.conf ] || echo "server app-blue:8080;" > nginx/upstream.conf
 
             docker compose up -d redis elasticsearch
