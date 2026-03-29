@@ -46,4 +46,5 @@ nuda-app.tar
 
 ### Infra ###
 nginx/certbot-webroot/
+nginx/upstream.conf
 /tmp/.env.prod

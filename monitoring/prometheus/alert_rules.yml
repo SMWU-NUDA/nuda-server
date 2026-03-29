@@ -3,7 +3,7 @@ groups:
     rules:
       # Blue, Green 슬롯이 모두 다운된 경우만 알람
       - alert: AppDown
-        expr: up{job=~"nuda-app-.*"} == 0
+        expr: sum(up{job=~"nuda-app-.*"}) == 0
         for: 2m
         labels:
           severity: critical
