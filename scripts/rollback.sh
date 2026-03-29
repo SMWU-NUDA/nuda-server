@@ -9,7 +9,7 @@ die() { echo "[ERROR] $*" >&2; exit 1; }
 cd "$(dirname "$0")/.."
 
 UPSTREAM_FILE="./nginx/upstream.conf"
-ROLLBACK_READY_TIMEOUT=60
+ROLLBACK_READY_TIMEOUT=120
 
 current=$(cat "$UPSTREAM_FILE")
 
