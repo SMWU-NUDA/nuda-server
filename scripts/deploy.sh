@@ -144,6 +144,7 @@ switch_traffic() {
 
   log "Nginx upstream → ${new_slot} (${new_container}:8080)"
   echo "server ${new_container}:8080;" > ./nginx/upstream.conf
+  docker exec nuda-nginx sh -c "echo 'server ${new_container}:8080;' > /etc/nginx/conf.d/upstream.conf"
   docker exec nuda-nginx nginx -s reload
   log "✓ 트래픽 전환 완료"
 }
