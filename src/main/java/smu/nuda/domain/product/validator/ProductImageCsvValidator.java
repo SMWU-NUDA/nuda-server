@@ -9,6 +9,9 @@ import smu.nuda.domain.product.entity.enums.ImageType;
 import smu.nuda.global.batch.error.CsvErrorCode;
 import smu.nuda.global.batch.exception.CsvValidationException;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 @Component
 @RequiredArgsConstructor
 public class ProductImageCsvValidator {
@@ -35,11 +38,16 @@ public class ProductImageCsvValidator {
         }
     }
 
+    private static final String VALID_IMAGE_TYPES = Arrays.stream(ImageType.values())
+            .map(Enum::name)
+            .collect(Collectors.joining(", "));
+
     private void requireValidImageType(String type, int rowNumber) {
         try {
             ImageType.valueOf(type);
         } catch (IllegalArgumentException e) {
-            throw new CsvValidationException(CsvErrorCode.CSV_INVALID_IMAGE_TYPE, rowNumber);
+            throw new CsvValidationException(CsvErrorCode.CSV_INVALID_IMAGE_TYPE, rowNumber,
+                    "허용된 타입: " + VALID_IMAGE_TYPES);
         }
     }
 
