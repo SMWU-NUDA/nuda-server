@@ -43,4 +43,3 @@ inhibit_rules:
       severity: critical
     target_match:
       severity: warning
-    equal: ['slot']

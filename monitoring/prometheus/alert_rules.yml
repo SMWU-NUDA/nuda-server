@@ -1,15 +1,15 @@
 groups:
   - name: nuda-app
     rules:
-      # Blue, Green 슬롯이 모두 다운된 경우만 알람
+      # Blue, Green 슬롯이 모두 다운된 경우만 알람 (서비스 완전 중단)
       - alert: AppDown
         expr: sum(up{job=~"nuda-app-.*"}) == 0
         for: 2m
         labels:
           severity: critical
         annotations:
-          summary: "{{ $labels.slot }} 슬롯 다운"
-          description: "{{ $labels.slot }} 슬롯({{ $labels.instance }})이 2분 이상 응답하지 않습니다."
+          summary: "전체 앱 다운 — 서비스 중단"
+          description: "blue/green 슬롯이 모두 2분 이상 응답하지 않습니다. 즉각 대응 필요."
 
       # HTTP 5xx 에러율 > 5%
       - alert: HighErrorRate
