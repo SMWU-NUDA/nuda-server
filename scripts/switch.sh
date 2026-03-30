@@ -8,7 +8,7 @@ if [[ "$TARGET" != "blue" && "$TARGET" != "green" ]]; then
   exit 1
 fi
 
-CONTAINER="app-${TARGET}"
+CONTAINER="nuda-app-${TARGET}"
 PORT=$([[ "$TARGET" == "blue" ]] && echo "8081" || echo "8082")
 
 if ! docker ps --filter "name=nuda-app-${TARGET}" --filter "status=running" | grep -q "nuda-"; then

@@ -89,10 +89,10 @@ start_new_slot() {
 
   if [[ "$new_slot" == "green" ]]; then
     new_port=8082
-    new_container="app-green"
+    new_container="nuda-app-green"
   else
     new_port=8081
-    new_container="app-blue"
+    new_container="nuda-app-blue"
   fi
 
   log "이미지 Pull: ${IMAGE_NAME}:${IMAGE_TAG}"
@@ -137,9 +137,9 @@ switch_traffic() {
   local new_container
 
   if [[ "$new_slot" == "green" ]]; then
-    new_container="app-green"
+    new_container="nuda-app-green"
   else
-    new_container="app-blue"
+    new_container="nuda-app-blue"
   fi
 
   log "Nginx upstream → ${new_slot} (${new_container}:8080)"
