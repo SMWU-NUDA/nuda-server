@@ -18,5 +18,11 @@ enum class CsvErrorCode(
     CSV_DUPLICATE_VALUE(
         "CSV_DUPLICATE_VALUE", "CSV 파일 내에 중복된 값이 포함되어 있습니다."
     ),
+    CSV_INVALID_IMAGE_TYPE(
+        "CSV_INVALID_IMAGE_TYPE", "유효하지 않은 이미지 타입입니다."
+    ),
+    CSV_INVALID_CONTENT_FORMAT(
+        "CSV_INVALID_CONTENT_FORMAT", "content 형식이 올바르지 않습니다. JSON 배열 형식이어야 합니다."
+    ),
     ;
 }
