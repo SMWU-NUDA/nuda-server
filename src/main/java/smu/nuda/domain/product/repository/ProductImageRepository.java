@@ -10,7 +10,7 @@ import smu.nuda.domain.product.entity.enums.ImageType;
 
 public interface ProductImageRepository extends JpaRepository<ProductImage, Long> {
 
-    @Modifying(clearAutomatically = true)
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("delete from ProductImage pi where pi.product = :product and pi.type = :type")
     void deleteAllByProductAndType(@Param("product") Product product, @Param("type") ImageType type);
 }
