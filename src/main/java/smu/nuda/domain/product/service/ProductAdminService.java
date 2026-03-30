@@ -1,5 +1,7 @@
 package smu.nuda.domain.product.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
@@ -8,17 +10,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import smu.nuda.domain.product.csv.ProductCsvReader;
+import smu.nuda.domain.product.csv.ProductImageCsvReader;
 import smu.nuda.domain.product.dto.ProductCsvRow;
 import smu.nuda.domain.common.dto.CsvUploadResponse;
 import smu.nuda.domain.brand.entity.Brand;
+import smu.nuda.domain.product.dto.ProductImageCsvRow;
 import smu.nuda.domain.product.entity.Category;
 import smu.nuda.domain.product.entity.Product;
 import smu.nuda.domain.brand.repository.BrandRepository;
 import smu.nuda.domain.product.entity.ProductImage;
 import smu.nuda.domain.product.entity.enums.ImageType;
 import smu.nuda.domain.product.repository.CategoryRepository;
+import smu.nuda.domain.product.repository.ProductImageRepository;
 import smu.nuda.domain.product.repository.ProductRepository;
 import smu.nuda.domain.product.validator.ProductCsvValidator;
+import smu.nuda.domain.product.validator.ProductImageCsvValidator;
 import smu.nuda.domain.search.document.ProductDocument;
 import smu.nuda.domain.search.event.ProductIndexingEvent;
 import smu.nuda.global.batch.error.CsvErrorCode;
@@ -36,6 +42,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProductAdminService {
 
+    private final ProductImageCsvReader productImageCsvReader;
+    private final ProductImageCsvValidator productImageCsvValidator;
+    private final ProductImageRepository productImageRepository;
+    private final ObjectMapper objectMapper;
     private final ProductCsvReader productCsvReader;
     private final ProductCsvValidator productCsvValidator;
     private final BrandRepository brandRepository;
@@ -198,5 +208,65 @@ public class ProductAdminService {
         }
     }
 
+    @Transactional
+    public CsvUploadResponse uploadContentImagesByCsv(MultipartFile csvFile, boolean dryRun) {
+        List<ProductImageCsvRow> rows = productImageCsvReader.read(csvFile);
+        productImageCsvValidator.validate(rows);
+
+        persistProductImagesInBatch(rows, dryRun); // ALL OR NOTHING
+
+        int total = rows.size();
+        int success = dryRun ? 0 : total;
+        return new CsvUploadResponse(total, success, 0);
+    }
+
+    private void persistProductImagesInBatch(List<ProductImageCsvRow> rows, boolean dryRun) {
+        List<String> externalIds = rows.stream().map(ProductImageCsvRow::externalProductId).toList();
+        Map<String, Product> productMap = productRepository.findAllByExternalProductIdIn(externalIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        Product::getExternalProductId,
+                        Function.identity(),
+                        (a, b) -> a
+                ));
+
+        for (ProductImageCsvRow row : rows) {
+            if (!productMap.containsKey(row.externalProductId())) {
+                throw new CsvValidationException(CsvErrorCode.CSV_INVALID_REFERENCE, row.rowNumber(), "존재하지 않는 상품입니다.");
+            }
+        }
+
+        if (dryRun) return;
+
+        int imageCount = 0;
+        for (ProductImageCsvRow row : rows) {
+            ImageType imageType = ImageType.valueOf(row.type());
+            Product product = productMap.get(row.externalProductId());
+
+            // deleteAllByProductAndType는 clearAutomatically=true → 삭제 후 PC 초기화 → product가 detached 상태가 됨. merge로 재첨부 후 이미지 저장
+            productImageRepository.deleteAllByProductAndType(product, imageType);
+            product = em.merge(product);
+
+            String[] urls;
+            try {
+                urls = objectMapper.readValue(row.content(), String[].class);
+            } catch (JsonProcessingException e) {
+                throw new CsvValidationException(CsvErrorCode.CSV_INVALID_CONTENT_FORMAT, row.rowNumber());
+            }
+
+            for (int i = 0; i < urls.length; i++) {
+                em.persist(ProductImage.create(product, urls[i], i, imageType));
+                imageCount++;
+                if (imageCount % BATCH_SIZE == 0) {
+                    em.flush();
+                    em.clear();
+                    product = em.merge(product); // 남은 URL 처리를 위해 재첨부
+                }
+            }
+        }
+
+        em.flush();
+        em.clear();
+    }
 
 }
