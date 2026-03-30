@@ -26,6 +26,7 @@ public class CartQueryRepository {
                         brand.id,
                         brand.name,
                         product.id,
+                        product.thumbnailImg,
                         product.name,
                         cartItem.quantity,
                         product.costPrice
