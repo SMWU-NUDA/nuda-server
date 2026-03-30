@@ -29,6 +29,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findAllByIdIn(List<Long> productIds);
 
+    List<Product> findAllByExternalProductIdIn(List<String> externalProductIds);
+
     @Query("""
     select p from Product p
     join fetch p.category
