@@ -2,6 +2,10 @@ package smu.nuda.domain.product.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -20,11 +24,16 @@ import smu.nuda.global.error.DomainException;
 import smu.nuda.global.guard.annotation.LoginRequired;
 import smu.nuda.global.guard.guard.AuthenticationGuard;
 import smu.nuda.global.response.ApiResponse;
+import smu.nuda.global.swagger.annotation.AuthUnauthorizedErrorDocs;
+import smu.nuda.global.swagger.annotation.CommonServerErrorDocs;
+import smu.nuda.global.swagger.annotation.ValidationBadRequestDocs;
+import smu.nuda.global.swagger.schema.ErrorResponse;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/products")
 @Tag(name = "[PRODUCT] 생리대 상품 API")
+@CommonServerErrorDocs
 public class ProductController {
 
     private final ProductService productService;
@@ -35,6 +44,28 @@ public class ProductController {
             summary = "상품 이름 검색",
             description = "상품명 키워드로 상품을 검색합니다. 회원가입 설문 단계에서 사용합니다. 키워드로 시작하는 상품이 우선 표시됩니다."
     )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "400",
+                    description = "도메인 검증 실패",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject(
+                                    name = "keywordTooShort",
+                                    summary = "검색어 길이 부족",
+                                    value = """
+                                            {
+                                              "success": false,
+                                              "code": "PRODUCT_KEYWORD_TOO_SHORT",
+                                              "message": "검색어는 2글자 이상이어야 합니다.",
+                                              "data": null
+                                            }
+                                            """
+                            )
+                    )
+            )
+    })
     public ApiResponse<List<ProductItem>> searchProductsByName(@RequestParam String keyword) {
         String normalizedKeyword = keyword == null ? "" : keyword.trim();
         if (normalizedKeyword.length() < 2) {
@@ -48,8 +79,31 @@ public class ProductController {
             summary = "상품 상세 페이지 조회",
             description = "고유 번호에 해당하는 상품 상세 내용를 조회합니다. 전체 화면 중 '상품 정보'에 해당하는 부분 값만 반환합니다."
     )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "400",
+                    description = "도메인 검증 실패",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject(
+                                    name = "invalidProduct",
+                                    summary = "존재하지 않거나 유효하지 않은 상품",
+                                    value = """
+                                            {
+                                              "success": false,
+                                              "code": "PRODUCT_INVALID",
+                                              "message": "유효하지 않은 상품입니다.",
+                                              "data": null
+                                            }
+                                            """
+                            )
+                    )
+            )
+    })
     @SecurityRequirement(name = "JWT")
     @LoginRequired
+    @AuthUnauthorizedErrorDocs
     public ApiResponse<ProductDetailResponse> getProductDetail(@PathVariable Long productId) {
         Long memberId = authenticationGuard.currentMemberId();
         return ApiResponse.success(productService.getProductDetail(productId, memberId));
@@ -72,6 +126,8 @@ public class ProductController {
     )
     @SecurityRequirement(name = "JWT")
     @LoginRequired
+    @AuthUnauthorizedErrorDocs
+    @ValidationBadRequestDocs
     public ApiResponse<CursorResponse<ProductItem, Number>> getProducts(
             @RequestParam(defaultValue = "DEFAULT") ProductSortType sort,
             @RequestParam(required = false) String cursor,
@@ -117,12 +173,13 @@ public class ProductController {
     )
     @SecurityRequirement(name = "JWT")
     @LoginRequired
+    @AuthUnauthorizedErrorDocs
+    @ValidationBadRequestDocs
     public ApiResponse<CursorPageResponse<ProductItem>> getGlobalRanking(
             @RequestParam ProductKeywordType keyword,
             @Parameter(description = "이전 페이지의 마지막 id (첫 요청 시 null)") @RequestParam(required = false) Long cursor,
             @Parameter(description = "한 페이지당 조회 개수 (기본값 20)") @RequestParam(defaultValue = "20") int size
     ) {
-        Long memberId = authenticationGuard.currentMemberId();
         return ApiResponse.success(productService.getGlobalRankingPage(keyword, cursor, size));
     }
 
@@ -140,6 +197,8 @@ public class ProductController {
     )
     @SecurityRequirement(name = "JWT")
     @LoginRequired
+    @AuthUnauthorizedErrorDocs
+    @ValidationBadRequestDocs
     public ApiResponse<CursorPageResponse<ProductItem>> getPersonalRanking(
             @RequestParam ProductKeywordType keyword,
             @Parameter(description = "이전 페이지의 마지막 id (첫 요청 시 null)") @RequestParam(required = false) Long cursor,
