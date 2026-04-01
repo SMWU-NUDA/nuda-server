@@ -5,8 +5,6 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
-import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.tags.Tag;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -56,20 +54,7 @@ public class SwaggerConfig {
 
         @Bean
         public OpenAPI openAPI() {
-                final String jwtSchemeName = "JWT";
-
                 return new OpenAPI()
-                        .tags(OPEN_API_TAGS)
-                        .addSecurityItem(new SecurityRequirement().addList(jwtSchemeName))
-                        .components(
-                                new io.swagger.v3.oas.models.Components()
-                                        .addSecuritySchemes(
-                                                jwtSchemeName,
-                                                new SecurityScheme()
-                                                        .type(SecurityScheme.Type.HTTP)
-                                                        .scheme("bearer")
-                                                        .bearerFormat("JWT")
-                                        )
-                        );
+                        .tags(OPEN_API_TAGS);
         }
 }

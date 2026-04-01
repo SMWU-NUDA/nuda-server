@@ -81,6 +81,7 @@ public class AdminReviewController {
                                                       "code": "CSV_INVALID_REFERENCE",
                                                       "message": "참조 대상이 존재하지 않습니다.",
                                                       "data": "CSV 6번째 줄: 매핑되는 상품이 존재하지 않습니다."
+                                                    }
                                                     """
                                     )
                             }

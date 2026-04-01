@@ -22,7 +22,6 @@ import smu.nuda.global.guard.guard.AuthenticationGuard;
 import smu.nuda.global.response.ApiResponse;
 import smu.nuda.global.swagger.annotation.AuthUnauthorizedErrorDocs;
 import smu.nuda.global.swagger.annotation.CommonServerErrorDocs;
-import smu.nuda.global.swagger.annotation.ValidationBadRequestDocs;
 import smu.nuda.global.swagger.schema.ErrorResponse;
 
 import java.util.List;
@@ -165,7 +164,6 @@ public class IngredientController {
     @SecurityRequirement(name = "JWT")
     @LoginRequired
     @AuthUnauthorizedErrorDocs
-    @ValidationBadRequestDocs
     public ApiResponse<IngredientResponse> getProductIngredients(
             @PathVariable Long productId,
             @RequestParam(defaultValue = "ALL") IngredientFilterType filter

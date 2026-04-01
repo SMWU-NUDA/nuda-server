@@ -9,8 +9,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import smu.nuda.domain.common.dto.CursorPageResponse;
 import smu.nuda.domain.member.entity.Member;
@@ -30,6 +32,7 @@ import smu.nuda.global.swagger.schema.ErrorResponse;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
+@Validated
 @Tag(name = "[REVIEW] 리뷰 API")
 @CommonServerErrorDocs
 public class ReviewController {
@@ -134,7 +137,6 @@ public class ReviewController {
     @SecurityRequirement(name = "JWT")
     @LoginRequired
     @AuthUnauthorizedErrorDocs
-    @ValidationBadRequestDocs
     public ApiResponse<CursorPageResponse<MyReviewResponse>> myReviews(
             @Parameter(description = "이전 페이지의 마지막 id (첫 요청 시 null)") @RequestParam(required = false) Long cursor,
             @Parameter(description = "한 페이지당 조회 개수 (기본값 20)") @RequestParam(defaultValue = "20") int size
@@ -180,7 +182,6 @@ public class ReviewController {
     @SecurityRequirement(name = "JWT")
     @LoginRequired
     @AuthUnauthorizedErrorDocs
-    @ValidationBadRequestDocs
     public ApiResponse<CursorPageResponse<ReviewItem>> getGlobalRanking(
             @PathVariable Long productId,
             @RequestParam ReviewKeywordType keyword,
@@ -243,7 +244,7 @@ public class ReviewController {
     @ValidationBadRequestDocs
     public ApiResponse<ReviewAiSummaryResponse> getReviewAiSummary(
             @PathVariable Long productId,
-            @RequestParam(defaultValue = "5") int topN
+            @RequestParam(defaultValue = "5") @Min(1) int topN
     ){
         return ApiResponse.success(reviewService.getReviewAiSummary(productId, topN));
     }
@@ -295,7 +296,7 @@ public class ReviewController {
     @ValidationBadRequestDocs
     public ApiResponse<SentimentKeywordsItem> getReviewKeywordsOnly(
             @PathVariable Long productId,
-            @RequestParam(defaultValue = "3") int topN
+            @RequestParam(defaultValue = "3") @Min(1) int topN
     ) {
         return ApiResponse.success(reviewService.getReviewKeywords(productId, topN));
     }
