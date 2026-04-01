@@ -2,6 +2,10 @@ package smu.nuda.domain.like.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -14,11 +18,16 @@ import smu.nuda.domain.member.entity.Member;
 import smu.nuda.global.guard.annotation.LoginRequired;
 import smu.nuda.global.guard.guard.AuthenticationGuard;
 import smu.nuda.global.response.ApiResponse;
+import smu.nuda.global.swagger.annotation.AuthUnauthorizedErrorDocs;
+import smu.nuda.global.swagger.annotation.CommonServerErrorDocs;
+import smu.nuda.global.swagger.annotation.ValidationBadRequestDocs;
+import smu.nuda.global.swagger.schema.ErrorResponse;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/ingredients")
 @Tag(name = "[INGREDIENTS LIKE] 성분 찜하기 API")
+@CommonServerErrorDocs
 public class IngredientLikeController {
 
     private  final LikeService likeService;
@@ -30,8 +39,31 @@ public class IngredientLikeController {
             description = "로그인한 사용자가 특정 성분에 대해 관심 또는 피하기 상태를 등록하거나 취소합니다.\n" +
                     "이미 등록된 상태와 동일한 요청을 보낼 경우 해당 설정이 **취소(삭제)**됩니다."
     )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "400",
+                    description = "도메인 검증 실패",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject(
+                                    name = "invalidIngredient",
+                                    summary = "유효하지 않은 성분",
+                                    value = """
+                                            {
+                                              "success": false,
+                                              "code": "INVALID_INGREDIENT",
+                                              "message": "유효하지 않은 성분 정보입니다.",
+                                              "data": null
+                                            }
+                                            """
+                            )
+                    )
+            )
+    })
     @SecurityRequirement(name = "JWT")
     @LoginRequired
+    @AuthUnauthorizedErrorDocs
     public ApiResponse<PreferToggleResponse> toggle(
             @PathVariable Long ingredientId,
             @Parameter(description = "관심 성분 등록 여부 (true: 관심, false: 피하기)") @RequestParam(defaultValue = "true") boolean preference
@@ -47,6 +79,8 @@ public class IngredientLikeController {
     )
     @SecurityRequirement(name = "JWT")
     @LoginRequired
+    @AuthUnauthorizedErrorDocs
+    @ValidationBadRequestDocs
     public ApiResponse<CursorPageResponse<LikedIngredientResponse>> getLikedIngredients(
             @Parameter(description = "이전 페이지의 마지막 id (첫 요청 시 null)") @RequestParam(required = false) Long cursor,
             @Parameter(description = "한 페이지당 조회 개수 (기본값 20)") @RequestParam(defaultValue = "20") int size,
